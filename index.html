@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KaiLun Film Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #111010;
+  --surface: #191817;
+  --surface2: #222120;
+  --surface3: #2a2928;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0ede6;
+  --muted: #6b6860;
+  --muted2: #9a9690;
+  --accent: #c9a84c;
+  --accent-dim: rgba(201,168,76,0.15);
+  --accent-border: rgba(201,168,76,0.3);
+  --teal: #7ab8b0;
+  --red: #c46060;
+  --mono: 'DM Mono', monospace;
+  --serif: 'Instrument Serif', serif;
+  --sans: 'DM Sans', sans-serif;
+  --radius: 8px;
+  --sb-w: 272px;
+  --panel-w: 300px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px}
+/* scrollbar */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
+/* grain overlay */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.25;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E")}
+
+/* ── LAYOUT ────────────────────────────────── */
+.layout{display:grid;grid-template-columns:var(--sb-w) 1fr var(--panel-w);grid-template-rows:52px 1fr;height:100vh;width:100vw}
+.topbar{grid-column:1/-1;display:flex;align-items:center;border-bottom:1px solid var(--border);padding:0 1.25rem;gap:1rem;position:relative;z-index:10}
+.sidebar{grid-column:1;grid-row:2;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.canvas-area{grid-column:2;grid-row:2;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.right-panel{grid-column:3;grid-row:2;border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+
+/* ── TOPBAR ────────────────────────────────── */
+.logo-wrap{display:flex;align-items:center;gap:.6rem;margin-right:1rem}
+.logo-icon{width:28px;height:28px;background:var(--accent);border-radius:5px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:16px;height:16px;fill:none;stroke:#111;stroke-width:2}
+.logo-text{font-family:var(--serif);font-size:1.05rem;color:var(--text);line-height:1}
+.logo-sub{font-family:var(--mono);font-size:.6rem;color:var(--muted);letter-spacing:.1em}
+.tab-bar{display:flex;gap:2px;background:var(--surface2);border-radius:7px;padding:3px}
+.tab{padding:.3rem .9rem;border-radius:5px;font-size:.8rem;cursor:pointer;color:var(--muted2);transition:all .18s;display:flex;align-items:center;gap:.4rem;font-family:var(--mono);letter-spacing:.04em}
+.tab.active{background:var(--surface3);color:var(--text)}
+.tab svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.5}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:.6rem}
+.icon-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;color:var(--muted2);transition:all .15s;border:1px solid transparent}
+.icon-btn:hover{background:var(--surface2);color:var(--text)}
+.import-btn{padding:.35rem .9rem;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;font-size:.78rem;cursor:pointer;color:var(--muted2);display:flex;align-items:center;gap:.4rem;font-family:var(--mono);transition:all .15s}
+.import-btn:hover{color:var(--text);border-color:var(--border2)}
+
+/* ── SIDEBAR ───────────────────────────────── */
+.sb-section-header{padding:.75rem 1rem .4rem;display:flex;align-items:center;justify-content:space-between}
+.sb-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.sb-add-btn{width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:4px;cursor:pointer;color:var(--muted);transition:all .15s;font-size:1rem;line-height:1}
+.sb-add-btn:hover{background:var(--surface2);color:var(--text)}
+.recipe-list{flex:1;overflow-y:auto;padding:0 .5rem .5rem}
+.recipe-item{display:flex;align-items:center;gap:.7rem;padding:.55rem .6rem;border-radius:7px;cursor:pointer;transition:all .15s;border:1px solid transparent;margin-bottom:2px}
+.recipe-item:hover{background:var(--surface2)}
+.recipe-item.active{background:var(--surface2);border-color:var(--accent-border)}
+.recipe-thumb{width:46px;height:34px;border-radius:5px;overflow:hidden;flex-shrink:0;background:var(--surface3)}
+.recipe-thumb canvas{width:100%;height:100%;display:block}
+.recipe-info{flex:1;min-width:0}
+.recipe-name{font-size:.85rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recipe-desc{font-size:.7rem;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recipe-star{color:var(--muted);font-size:.85rem;cursor:pointer;transition:color .15s;flex-shrink:0}
+.recipe-star.starred{color:var(--accent)}
+.sb-footer{padding:.75rem;border-top:1px solid var(--border)}
+.import-recipe-btn{width:100%;padding:.55rem;background:transparent;border:1px solid var(--border2);border-radius:6px;font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;transition:all .15s}
+.import-recipe-btn:hover{color:var(--text);border-color:var(--muted)}
+
+/* ── CANVAS AREA ────────────────────────────── */
+.canvas-toolbar{padding:.6rem .9rem;display:flex;align-items:center;gap:.5rem;border-bottom:1px solid var(--border);flex-shrink:0}
+.ct-badge{font-family:var(--mono);font-size:.68rem;color:var(--muted2);background:var(--surface2);padding:2px 8px;border-radius:4px;border:1px solid var(--border)}
+.ct-zoom{display:flex;align-items:center;gap:4px}
+.ct-zoom-btn{width:22px;height:22px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted2);font-size:.9rem;transition:all .15s}
+.ct-zoom-btn:hover{color:var(--text)}
+.ct-zoom-val{font-family:var(--mono);font-size:.68rem;color:var(--muted2);min-width:36px;text-align:center}
+.compare-btn{margin-left:auto;padding:.3rem .7rem;background:var(--surface2);border:1px solid var(--border2);border-radius:5px;font-family:var(--mono);font-size:.68rem;color:var(--muted2);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s}
+.compare-btn:hover,.compare-btn.active{background:var(--surface3);color:var(--text);border-color:var(--accent-border)}
+.canvas-wrap{flex:1;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+#main-canvas{max-width:100%;max-height:100%;display:block;cursor:crosshair}
+.drop-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+.drop-overlay.over{background:rgba(201,168,76,.04)}
+.drop-overlay input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-icon-wrap{width:72px;height:72px;border-radius:50%;border:1.5px dashed var(--border2);display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;transition:all .2s}
+.drop-overlay:hover .drop-icon-wrap,.drop-overlay.over .drop-icon-wrap{border-color:var(--accent)}
+.drop-title{font-family:var(--serif);font-size:1.3rem;font-style:italic;color:var(--muted2);margin-bottom:.4rem}
+.drop-sub{font-family:var(--mono);font-size:.68rem;color:var(--muted);letter-spacing:.08em}
+/* strip */
+.strip-wrap{padding:.6rem .75rem;border-top:1px solid var(--border);display:flex;gap:.5rem;overflow-x:auto;flex-shrink:0;scrollbar-width:thin}
+.strip-item{flex-shrink:0;cursor:pointer;border-radius:6px;overflow:hidden;border:2px solid transparent;transition:all .15s;position:relative}
+.strip-item.active{border-color:var(--accent)}
+.strip-item:hover:not(.active){border-color:var(--border2)}
+.strip-canvas{width:72px;height:54px;display:block;background:var(--surface2)}
+.strip-name{position:absolute;bottom:0;left:0;right:0;padding:2px 4px;font-family:var(--mono);font-size:.52rem;text-align:center;background:rgba(0,0,0,.55);color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ai bar */
+.ai-bar{padding:.65rem .9rem;border-top:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:1.5rem;overflow-x:auto}
+.ai-scene-item{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0}
+.ai-scene-icon{font-size:1.1rem;opacity:.6}
+.ai-scene-label{font-family:var(--mono);font-size:.58rem;color:var(--muted)}
+.ai-scene-val{font-family:var(--mono);font-size:.72rem;color:var(--text);font-weight:500}
+.ai-bar-recs{display:flex;gap:.5rem;margin-left:auto;flex-shrink:0}
+.ai-rec-pill{display:flex;align-items:center;gap:.5rem;padding:.3rem .7rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .15s}
+.ai-rec-pill:hover{border-color:var(--accent-border)}
+.ai-rec-num{width:18px;height:18px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.6rem;color:#111;font-weight:600;flex-shrink:0}
+.ai-rec-info{display:flex;flex-direction:column;gap:1px}
+.ai-rec-name{font-size:.75rem;color:var(--text)}
+.ai-rec-score{font-family:var(--mono);font-size:.6rem;color:var(--accent)}
+.ai-analyze-btn{padding:.32rem .8rem;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:5px;font-family:var(--mono);font-size:.68rem;color:var(--accent);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.ai-analyze-btn:hover{background:rgba(201,168,76,.25)}
+.ai-analyze-btn:disabled{opacity:.4;cursor:not-allowed}
+.ai-status-dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+.ai-status-dot.ready{background:var(--teal)}
+.ai-status-dot.analyzing{background:var(--accent);animation:pulse .8s infinite alternate}
+@keyframes pulse{to{opacity:.3}}
+
+/* ── RIGHT PANEL ────────────────────────────── */
+.rp-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.rp-tab{flex:1;padding:.55rem .5rem;font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s;border-bottom:2px solid transparent}
+.rp-tab.active{color:var(--text);border-bottom-color:var(--accent)}
+.rp-body{flex:1;overflow-y:auto;padding:.75rem .9rem}
+.rp-section{margin-bottom:1.5rem}
+.rp-section-title{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between}
+.rp-section-title a{font-size:.7rem;color:var(--muted);cursor:pointer;text-transform:none;letter-spacing:0;transition:color .15s}
+.rp-section-title a:hover{color:var(--text)}
+/* sliders */
+.slider-row{display:flex;align-items:center;gap:.5rem;padding:.28rem 0}
+.slider-label{font-size:.78rem;color:var(--muted2);min-width:80px;display:flex;flex-direction:column;gap:1px}
+.slider-label .en{font-family:var(--mono);font-size:.6rem;color:var(--muted);letter-spacing:.04em}
+.slider-track{flex:1;position:relative;height:2px;background:var(--surface3);border-radius:1px}
+.slider-fill{position:absolute;top:0;height:2px;border-radius:1px;background:var(--accent);pointer-events:none}
+input[type=range]{-webkit-appearance:none;position:absolute;inset:0;width:100%;height:2px;background:transparent;cursor:pointer;margin:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--text);border:2px solid var(--bg);box-shadow:0 0 0 1px var(--accent);cursor:pointer;transition:transform .15s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+/* coloured tracks */
+.track-sat input[type=range]{background:linear-gradient(to right,#888,#e84040)}
+.track-temp input[type=range]{background:linear-gradient(to right,#5090d0,#e8a030)}
+.track-tint input[type=range]{background:linear-gradient(to right,#408840,#c040c0)}
+.slider-val{font-family:var(--mono);font-size:.72rem;color:var(--text);min-width:32px;text-align:right}
+/* download */
+.download-btn{width:100%;padding:.75rem;background:var(--accent);border:none;border-radius:7px;font-family:var(--mono);font-size:.8rem;letter-spacing:.08em;color:#111;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;font-weight:500;transition:all .2s;margin-top:.5rem}
+.download-btn:hover{background:#d9b85c;transform:translateY(-1px)}
+.download-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* ── AI TAB ─────────────────────────────────── */
+.ai-panel-rec{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;background:var(--surface2);border:1px solid var(--border);border-radius:7px;cursor:pointer;margin-bottom:.5rem;transition:all .15s}
+.ai-panel-rec:hover{border-color:var(--accent-border)}
+.ai-panel-num{width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.65rem;color:#111;font-weight:600;flex-shrink:0}
+.ai-panel-thumb{width:44px;height:32px;border-radius:4px;overflow:hidden;flex-shrink:0;background:var(--surface3)}
+.ai-panel-info{flex:1;min-width:0}
+.ai-panel-name{font-size:.82rem;color:var(--text);margin-bottom:1px}
+.ai-panel-mood{font-size:.7rem;color:var(--muted)}
+.ai-panel-score{font-family:var(--mono);font-size:.7rem;color:var(--accent);flex-shrink:0}
+.model-status-box{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:.85rem 1rem;margin-bottom:1rem}
+.model-status-title{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem}
+.model-status-text{font-size:.78rem;color:var(--muted2);line-height:1.6;margin-bottom:.75rem}
+.load-model-btn{width:100%;padding:.55rem;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:6px;font-family:var(--mono);font-size:.72rem;color:var(--accent);cursor:pointer;transition:all .15s}
+.load-model-btn:hover{background:rgba(201,168,76,.22)}
+.load-model-btn:disabled{opacity:.4;cursor:not-allowed}
+.progress-wrap{height:2px;background:var(--surface3);border-radius:1px;overflow:hidden;margin-bottom:.75rem;display:none}
+.progress-bar{height:100%;background:var(--teal);border-radius:1px;transition:width .3s}
+.ai-scene-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem}
+.ai-scene-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.5rem .65rem;display:flex;align-items:center;gap:.5rem}
+.ai-scene-card-icon{font-size:1rem;opacity:.7}
+.ai-scene-card-info{display:flex;flex-direction:column;gap:1px}
+.ai-scene-card-label{font-family:var(--mono);font-size:.58rem;color:var(--muted)}
+.ai-scene-card-val{font-size:.78rem;color:var(--text)}
+.spinner{display:inline-block;width:11px;height:11px;border:1.5px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .65s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── TOAST ──────────────────────────────────── */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface3);border:1px solid var(--border2);color:var(--text);padding:.55rem 1rem;border-radius:7px;font-family:var(--mono);font-size:.75rem;z-index:9998;transform:translateY(12px);opacity:0;transition:all .22s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── MOBILE ─────────────────────────────────── */
+@media(max-width:860px){
+  .layout{grid-template-columns:1fr;grid-template-rows:52px 1fr auto auto;height:auto;min-height:100vh;overflow:visible}
+  html,body{overflow:visible;height:auto}
+  .topbar{grid-column:1;grid-row:1}
+  .sidebar{display:none}
+  .canvas-area{grid-column:1;grid-row:2}
+  .canvas-wrap{min-height:50vw}
+  .right-panel{grid-column:1;grid-row:3;border-left:none;border-top:1px solid var(--border);max-height:60vh}
+  .ai-bar{grid-column:1;grid-row:4}
+  .logo-sub{display:none}
+  .rp-body{max-height:none}
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <div class="logo-wrap">
+    <div class="logo-icon">
+      <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/></svg>
+    </div>
+    <div>
+      <div class="logo-text">KaiLun Film Lab</div>
+      <div class="logo-sub">AI Recipe · Offline · Pure Web</div>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" id="tab-edit" onclick="switchMainTab('edit')">
+      <svg viewBox="0 0 16 16"><path d="M2 12l8-8 2 2-8 8H2v-2z"/></svg>
+      濾鏡編輯
+    </div>
+    <div class="tab" id="tab-ai" onclick="switchMainTab('ai')">
+      <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+      AI 分析推薦
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="import-btn" onclick="document.getElementById('main-file-input').click()">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3M3 12h10"/></svg>
+      匯入照片
+    </button>
+    <input type="file" id="main-file-input" accept="image/*" style="display:none" onchange="loadPhoto(this.files[0])">
+    <div class="icon-btn" title="設定">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg>
+    </div>
+  </div>
+</header>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sb-section-header">
+    <span class="sb-label">食譜 (Recipe)</span>
+    <div class="sb-add-btn" onclick="openAddRecipeModal()" title="新增食譜">+</div>
+  </div>
+  <div class="recipe-list" id="recipe-list"></div>
+  <div class="sb-footer">
+    <button class="import-recipe-btn" onclick="exportRecipes()">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 3V2M11 3V2M2 7h12"/></svg>
+      匯入 / 匯出 Recipe
+    </button>
+  </div>
+</aside>
+
+<!-- ── CANVAS AREA ── -->
+<section class="canvas-area">
+  <div class="canvas-toolbar">
+    <div class="ct-badge" id="orig-badge">原圖</div>
+    <div class="ct-zoom">
+      <div class="ct-zoom-btn" onclick="changeZoom(-10)">−</div>
+      <div class="ct-zoom-val" id="zoom-val">100%</div>
+      <div class="ct-zoom-btn" onclick="changeZoom(10)">+</div>
+    </div>
+    <button class="compare-btn" id="compare-btn" onmousedown="startCompare()" onmouseup="endCompare()" ontouchstart="startCompare()" ontouchend="endCompare()">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M2 8h4M10 8h4"/></svg>
+      對比
+    </button>
+  </div>
+
+  <div class="canvas-wrap" id="canvas-wrap">
+    <!-- drop overlay -->
+    <div class="drop-overlay" id="drop-overlay"
+      ondragover="event.preventDefault();this.classList.add('over')"
+      ondragleave="this.classList.remove('over')"
+      ondrop="handleDrop(event)">
+      <input type="file" accept="image/*" onchange="loadPhoto(this.files[0])">
+      <div class="drop-icon-wrap">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--muted2)" stroke-width="1.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      </div>
+      <div class="drop-title">拖曳或點擊上傳照片</div>
+      <div class="drop-sub">JPG · PNG · WEBP · 完全離線</div>
+    </div>
+    <canvas id="main-canvas" style="display:none"></canvas>
+  </div>
+
+  <!-- recipe strip -->
+  <div class="strip-wrap" id="strip-wrap"></div>
+
+  <!-- AI bar -->
+  <div class="ai-bar" id="ai-bar">
+    <div style="display:flex;align-items:center;gap:.4rem;flex-shrink:0">
+      <div class="ai-status-dot" id="ai-dot"></div>
+      <span style="font-family:var(--mono);font-size:.62rem;color:var(--muted)">AI</span>
+    </div>
+    <div class="ai-scene-item"><div class="ai-scene-icon">🏛</div><div class="ai-scene-label">建築</div><div class="ai-scene-val" id="sc-building">—</div></div>
+    <div class="ai-scene-item"><div class="ai-scene-icon">🛤</div><div class="ai-scene-label">街道</div><div class="ai-scene-val" id="sc-street">—</div></div>
+    <div class="ai-scene-item"><div class="ai-scene-icon">🚗</div><div class="ai-scene-label">交通</div><div class="ai-scene-val" id="sc-vehicle">—</div></div>
+    <div class="ai-scene-item"><div class="ai-scene-icon">🧑</div><div class="ai-scene-label">人像</div><div class="ai-scene-val" id="sc-person">—</div></div>
+    <div class="ai-scene-item"><div class="ai-scene-icon">🌿</div><div class="ai-scene-label">自然</div><div class="ai-scene-val" id="sc-nature">—</div></div>
+    <div class="ai-scene-item"><div class="ai-scene-icon">☀️</div><div class="ai-scene-label">亮度</div><div class="ai-scene-val" id="sc-brightness">—</div></div>
+    <div class="ai-scene-item"><div class="ai-scene-icon">🌡</div><div class="ai-scene-label">色溫</div><div class="ai-scene-val" id="sc-temp">—</div></div>
+    <div class="ai-scene-item"><div class="ai-scene-icon">🌫</div><div class="ai-scene-label">氛圍</div><div class="ai-scene-val" id="sc-mood">—</div></div>
+    <div class="ai-bar-recs" id="ai-bar-recs"></div>
+    <button class="ai-analyze-btn" id="ai-analyze-btn" onclick="runAnalysis()" disabled>
+      <div class="ai-status-dot" style="background:var(--accent)"></div>
+      AI 分析
+    </button>
+  </div>
+</section>
+
+<!-- ── RIGHT PANEL ── -->
+<aside class="right-panel">
+  <div class="rp-tabs">
+    <div class="rp-tab active" id="rp-tab-adjust" onclick="switchRpTab('adjust')">調整</div>
+    <div class="rp-tab" id="rp-tab-ai" onclick="switchRpTab('ai')">AI 推薦</div>
+  </div>
+
+  <!-- ADJUST TAB -->
+  <div class="rp-body" id="rp-adjust">
+    <div class="rp-section">
+      <div class="rp-section-title">
+        調整 <a onclick="resetAll()">重設</a>
+      </div>
+      <!-- sliders -->
+      <div id="sliders-wrap"></div>
+    </div>
+    <div class="rp-section">
+      <div class="rp-section-title">效果</div>
+      <div id="effects-wrap"></div>
+    </div>
+    <button class="download-btn" id="dl-btn" onclick="downloadPhoto()" disabled>
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v8M5 7l3 3 3-3M2 12h12"/></svg>
+      下載照片
+    </button>
+  </div>
+
+  <!-- AI TAB -->
+  <div class="rp-body" id="rp-ai" style="display:none">
+    <div class="model-status-box">
+      <div class="model-status-title">
+        <div class="ai-status-dot" id="model-dot"></div>
+        YOLO 模型
+      </div>
+      <div class="model-status-text" id="model-status-text">尚未載入。點擊下方按鈕下載模型（約 6MB，只需一次）。</div>
+      <div class="progress-wrap" id="prog-wrap"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
+      <button class="load-model-btn" id="load-model-btn" onclick="loadModel()">載入 YOLO 模型</button>
+    </div>
+
+    <div class="rp-section">
+      <div class="rp-section-title">場景分析</div>
+      <div class="ai-scene-grid" id="ai-scene-grid">
+        <div class="ai-scene-card"><div class="ai-scene-card-icon">🏛</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">建築</div><div class="ai-scene-card-val" id="asc-building">—</div></div></div>
+        <div class="ai-scene-card"><div class="ai-scene-card-icon">🧑</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">人像</div><div class="ai-scene-card-val" id="asc-person">—</div></div></div>
+        <div class="ai-scene-card"><div class="ai-scene-card-icon">🚗</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">交通</div><div class="ai-scene-card-val" id="asc-vehicle">—</div></div></div>
+        <div class="ai-scene-card"><div class="ai-scene-card-icon">🌿</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">自然</div><div class="ai-scene-card-val" id="asc-nature">—</div></div></div>
+        <div class="ai-scene-card"><div class="ai-scene-card-icon">☀️</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">亮度</div><div class="ai-scene-card-val" id="asc-brightness">—</div></div></div>
+        <div class="ai-scene-card"><div class="ai-scene-card-icon">🌡</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">色溫</div><div class="ai-scene-card-val" id="asc-temp">—</div></div></div>
+        <div class="ai-scene-card"><div class="ai-scene-card-icon">💧</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">飽和度</div><div class="ai-scene-card-val" id="asc-sat">—</div></div></div>
+        <div class="ai-scene-card"><div class="ai-scene-card-icon">🌫</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">氛圍</div><div class="ai-scene-card-val" id="asc-mood">—</div></div></div>
+      </div>
+    </div>
+
+    <div class="rp-section">
+      <div class="rp-section-title">AI 推薦食譜</div>
+      <div id="ai-recs-panel"></div>
+    </div>
+  </div>
+</aside>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// RECIPES
+// ══════════════════════════════════════════════
+const RECIPES = [
+  {
+    id:'classicChrome', name:'Classic Chrome', mood:'經典正片，冷調清爽',
+    accent:'#8ab4b0', starred:false,
+    keywords:['person','building','car','road','traffic light','bench'],
+    params:{exposure:0.04,contrast:8,highlights:-14,shadows:18,whites:4,blacks:-8,saturation:-8,temperature:-3,tint:1,grain:10,vignette:-8,fade:6},
+  },
+  {
+    id:'pragueMood', name:'Prague Mood', mood:'低飽和，電影感氛圍',
+    accent:'#9aa0b0', starred:false,
+    keywords:['building','car','street','road','bus','tram','bicycle'],
+    params:{exposure:0.08,contrast:12,highlights:-18,shadows:24,whites:8,blacks:-12,saturation:-6,temperature:-4,tint:3,grain:18,vignette:-15,fade:8},
+  },
+  {
+    id:'grStreet', name:'GR Street', mood:'高對比街頭風格',
+    accent:'#b0a898', starred:false,
+    keywords:['person','car','bicycle','motorcycle','bus','street','building'],
+    params:{exposure:-0.1,contrast:22,highlights:-8,shadows:10,whites:-4,blacks:-22,saturation:-14,temperature:-2,tint:0,grain:24,vignette:-20,fade:3},
+  },
+  {
+    id:'viennaCafe', name:'Vienna Cafe', mood:'暖棕，柔和咖啡廳',
+    accent:'#c4a870', starred:false,
+    keywords:['cup','bowl','chair','couch','dining table','person','book','laptop'],
+    params:{exposure:0.12,contrast:6,highlights:-10,shadows:28,whites:12,blacks:-4,saturation:4,temperature:12,tint:4,grain:8,vignette:-10,fade:12},
+  },
+  {
+    id:'hallstattCold', name:'Hallstatt Cold', mood:'冷灰藍色調',
+    accent:'#70a4c0', starred:false,
+    keywords:['sky','mountain','lake','tree','bird','boat','river'],
+    params:{exposure:0.02,contrast:10,highlights:-22,shadows:14,whites:6,blacks:-10,saturation:-4,temperature:-10,tint:-2,grain:6,vignette:-12,fade:10},
+  },
+  {
+    id:'fujiDaily', name:'Fuji Daily', mood:'日常清淡風格',
+    accent:'#c8b4a0', starred:false,
+    keywords:['person','food','cup','bowl','plant','bed','laptop'],
+    params:{exposure:0.06,contrast:4,highlights:-8,shadows:20,whites:10,blacks:-6,saturation:2,temperature:4,tint:2,grain:5,vignette:-6,fade:14},
+  },
+];
+
+let userRecipes = JSON.parse(localStorage.getItem('kl-recipes')||'[]');
+let favs = new Set(JSON.parse(localStorage.getItem('kl-favs')||'[]'));
+let currentId = 'pragueMood';
+let origImg = null;
+let origCanvas = null;
+let adjustments = {};
+let compareMode = false;
+let zoomPct = 100;
+let onnxSession = null;
+let modelReady = false;
+let aiImageFile = null;
+let lastAiResult = null;
+
+function allRecipes(){ return [...RECIPES,...userRecipes]; }
+function getRecipe(id){ return allRecipes().find(r=>r.id===id); }
+
+// ── SLIDER DEFINITIONS ──────────────────────────────
+const SLIDERS = [
+  {key:'exposure',label:'曝光',en:'Exposure',min:-1,max:1,step:.01,def:0,colored:false},
+  {key:'contrast',label:'對比',en:'Contrast',min:-50,max:50,step:1,def:0,colored:false},
+  {key:'highlights',label:'高光',en:'Highlights',min:-100,max:100,step:1,def:0,colored:false},
+  {key:'shadows',label:'陰影',en:'Shadows',min:-100,max:100,step:1,def:0,colored:false},
+  {key:'whites',label:'白色',en:'Whites',min:-100,max:100,step:1,def:0,colored:false},
+  {key:'blacks',label:'黑色',en:'Blacks',min:-100,max:100,step:1,def:0,colored:false},
+  {key:'saturation',label:'飽和度',en:'Saturation',min:-100,max:100,step:1,def:0,colored:'sat'},
+  {key:'temperature',label:'色溫',en:'Temperature',min:-40,max:40,step:1,def:0,colored:'temp'},
+  {key:'tint',label:'色調',en:'Tint',min:-40,max:40,step:1,def:0,colored:'tint'},
+];
+const EFFECTS = [
+  {key:'grain',label:'顆粒',en:'Grain',min:0,max:50,step:1,def:0},
+  {key:'vignette',label:'暗角',en:'Vignette',min:-60,max:0,step:1,def:0},
+  {key:'fade',label:'褪色',en:'Fade',min:0,max:40,step:1,def:0},
+];
+
+function buildSliders(){
+  const sw=document.getElementById('sliders-wrap');
+  const ew=document.getElementById('effects-wrap');
+  sw.innerHTML=''; ew.innerHTML='';
+  [...SLIDERS,...EFFECTS].forEach((s,i)=>{
+    const wrap=document.createElement('div');
+    wrap.className='slider-row';
+    const colorClass=s.colored?`track-${s.colored}`:'';
+    const pct=((adjustments[s.key]-s.min)/(s.max-s.min)*100).toFixed(1);
+    const fillLeft=s.min<0?50:0;
+    const fillWidth=s.min<0?((adjustments[s.key]/(s.max-s.min))*100):pct;
+    wrap.innerHTML=`
+      <div class="slider-label">${s.label}<span class="en">${s.en}</span></div>
+      <div class="slider-track ${colorClass}" id="track-${s.key}">
+        <div class="slider-fill" id="fill-${s.key}" style="left:${s.min<0?50:0}%;width:${s.min<0?Math.abs(adjustments[s.key])/(s.max-s.min)*100:pct}%;${adjustments[s.key]<0&&s.min<0?`left:${(adjustments[s.key]-s.min)/(s.max-s.min)*100}%`:''};"></div>
+        <input type="range" min="${s.min}" max="${s.max}" step="${s.step}" value="${adjustments[s.key]}"
+          oninput="onSlider('${s.key}',parseFloat(this.value),${s.min},${s.max})">
+      </div>
+      <div class="slider-val" id="val-${s.key}">${formatVal(adjustments[s.key],s.step)}</div>`;
+    if(i<SLIDERS.length) sw.appendChild(wrap); else ew.appendChild(wrap);
+  });
+}
+
+function formatVal(v,step){
+  if(step<1) return v.toFixed(2);
+  return v>0?'+'+v:String(v);
+}
+
+function onSlider(key,val,min,max){
+  adjustments[key]=val;
+  document.getElementById('val-'+key).textContent=formatVal(val,key==='exposure'?.01:1);
+  const fill=document.getElementById('fill-'+key);
+  if(fill){
+    if(min<0){
+      const pct=(val-min)/(max-min)*100;
+      if(val>=0){fill.style.left='50%';fill.style.width=((val)/(max-min)*100)+'%';}
+      else{fill.style.left=pct+'%';fill.style.width=((Math.abs(val))/(max-min)*100)+'%';}
+    } else {
+      fill.style.width=((val-min)/(max-min)*100)+'%';
+    }
+  }
+  requestAnimationFrame(renderPhoto);
+}
+
+function resetAll(){
+  const r=getRecipe(currentId);
+  if(r) setAdjustments(r.params);
+  buildSliders();
+  renderPhoto();
+}
+
+function setAdjustments(params){
+  const allDefs={};
+  [...SLIDERS,...EFFECTS].forEach(s=>allDefs[s.key]=s.def);
+  adjustments={...allDefs,...params};
+}
+
+// ── CANVAS ENGINE ─────────────────────────────────────
+function renderPhoto(){
+  if(!origCanvas) return;
+  const canvas=document.getElementById('main-canvas');
+  const ctx=canvas.getContext('2d');
+  const w=canvas.width, h=canvas.height;
+
+  if(compareMode){
+    ctx.drawImage(origCanvas,0,0);
+    return;
+  }
+
+  // draw orig
+  ctx.drawImage(origCanvas,0,0);
+  const imgData=ctx.getImageData(0,0,w,h);
+  const d=imgData.data;
+  const out=new Uint8ClampedArray(d.length);
+
+  const a=adjustments;
+  const expMul=Math.pow(2,a.exposure||0);
+  const contrastF=(a.contrast||0)/100;
+  const hlF=(a.highlights||0)/200;
+  const shF=(a.shadows||0)/200;
+  const wF=(a.whites||0)/200;
+  const bF=(a.blacks||0)/200;
+  const satF=1+(a.saturation||0)/100;
+  const tempF=(a.temperature||0)/40;
+  const tintF=(a.tint||0)/40;
+  const fadeF=(a.fade||0)/100*0.15;
+
+  for(let i=0;i<d.length;i+=4){
+    let r=d[i]/255,g=d[i+1]/255,b=d[i+2]/255;
+
+    // exposure
+    r*=expMul; g*=expMul; b*=expMul;
+
+    // fade (lift blacks)
+    r=r*(1-fadeF)+fadeF; g=g*(1-fadeF)+fadeF; b=b*(1-fadeF)+fadeF;
+
+    // contrast (S-curve)
+    r=0.5+Math.tanh((r-0.5)*(1+contrastF*1.5))/(2*Math.tanh(0.5*(1+contrastF*1.5)));
+    g=0.5+Math.tanh((g-0.5)*(1+contrastF*1.5))/(2*Math.tanh(0.5*(1+contrastF*1.5)));
+    b=0.5+Math.tanh((b-0.5)*(1+contrastF*1.5))/(2*Math.tanh(0.5*(1+contrastF*1.5)));
+
+    // highlights/shadows/whites/blacks
+    const lum=0.299*r+0.587*g+0.114*b;
+    const hlBoost=hlF*Math.pow(lum,1.5);
+    const shBoost=shF*Math.pow(1-lum,1.5);
+    const wBoost=wF*Math.pow(lum,3);
+    const bBoost=bF*Math.pow(1-lum,3);
+    r=r+hlBoost+shBoost+wBoost+bBoost;
+    g=g+hlBoost+shBoost+wBoost+bBoost;
+    b=b+hlBoost+shBoost+wBoost+bBoost;
+
+    // saturation
+    const gray2=0.299*r+0.587*g+0.114*b;
+    r=gray2+(r-gray2)*satF;
+    g=gray2+(g-gray2)*satF;
+    b=gray2+(b-gray2)*satF;
+
+    // temperature (warm=+R-B, cool=-R+B)
+    r+=tempF*0.1; b-=tempF*0.1;
+    // tint (green=+G-M, magenta=-G+M)
+    g+=tintF*0.05; r-=tintF*0.025; b-=tintF*0.025;
+
+    out[i]=Math.max(0,Math.min(255,r*255));
+    out[i+1]=Math.max(0,Math.min(255,g*255));
+    out[i+2]=Math.max(0,Math.min(255,b*255));
+    out[i+3]=d[i+3];
+  }
+
+  // grain
+  const grainStr=(a.grain||0);
+  if(grainStr>0){
+    for(let i=0;i<out.length;i+=4){
+      const n=(Math.random()-0.5)*grainStr*0.9;
+      out[i]=Math.max(0,Math.min(255,out[i]+n));
+      out[i+1]=Math.max(0,Math.min(255,out[i+1]+n));
+      out[i+2]=Math.max(0,Math.min(255,out[i+2]+n));
+    }
+  }
+
+  ctx.putImageData(new ImageData(out,w,h),0,0);
+
+  // vignette
+  const vigStr=Math.abs(a.vignette||0)/100;
+  if(vigStr>0){
+    const grad=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.3,w/2,h/2,Math.max(w,h)*0.75);
+    grad.addColorStop(0,'rgba(0,0,0,0)');
+    grad.addColorStop(1,`rgba(0,0,0,${vigStr*0.9})`);
+    ctx.fillStyle=grad;
+    ctx.fillRect(0,0,w,h);
+  }
+}
+
+// ── PHOTO LOADING ────────────────────────────────────
+function loadPhoto(file){
+  if(!file) return;
+  aiImageFile=file;
+  const url=URL.createObjectURL(file);
+  const img=new Image();
+  img.onload=()=>{
+    origImg=img;
+    // build full-res orig canvas
+    origCanvas=document.createElement('canvas');
+    const MAX=1400;
+    let w=img.width,h=img.height;
+    if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+    if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
+    origCanvas.width=w; origCanvas.height=h;
+    origCanvas.getContext('2d').drawImage(img,0,0,w,h);
+    // display canvas
+    const mc=document.getElementById('main-canvas');
+    mc.width=w; mc.height=h;
+    mc.style.display='block';
+    mc.style.maxWidth='100%';
+    mc.style.maxHeight='100%';
+    document.getElementById('drop-overlay').style.display='none';
+    document.getElementById('dl-btn').disabled=false;
+    document.getElementById('ai-analyze-btn').disabled=!modelReady;
+    selectRecipe(currentId);
+    buildStrip();
+    URL.revokeObjectURL(url);
+    toast('照片已載入');
+  };
+  img.src=url;
+}
+
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('drop-overlay').classList.remove('over');
+  const f=e.dataTransfer.files[0];
+  if(f) loadPhoto(f);
+}
+
+// ── RECIPE ───────────────────────────────────────────
+function selectRecipe(id){
+  currentId=id;
+  const r=getRecipe(id);
+  if(!r) return;
+  setAdjustments(r.params);
+  buildSliders();
+  renderPhoto();
+  // update list active state
+  document.querySelectorAll('.recipe-item').forEach(el=>{
+    el.classList.toggle('active',el.dataset.id===id);
+  });
+  // update strip active
+  document.querySelectorAll('.strip-item').forEach(el=>{
+    el.classList.toggle('active',el.dataset.id===id);
+  });
+}
+
+function buildRecipeList(){
+  const list=document.getElementById('recipe-list');
+  list.innerHTML='';
+  allRecipes().forEach(r=>{
+    const item=document.createElement('div');
+    item.className='recipe-item'+(r.id===currentId?' active':'');
+    item.dataset.id=r.id;
+    item.onclick=()=>selectRecipe(r.id);
+    const tc=document.createElement('canvas');
+    tc.width=46;tc.height=34;tc.style.cssText='width:46px;height:34px;border-radius:4px;';
+    item.innerHTML=`
+      <div class="recipe-thumb"></div>
+      <div class="recipe-info">
+        <div class="recipe-name">${r.name}</div>
+        <div class="recipe-desc">${r.mood}</div>
+      </div>
+      <div class="recipe-star ${favs.has(r.id)?'starred':''}" onclick="event.stopPropagation();toggleFav('${r.id}',this)">★</div>`;
+    item.querySelector('.recipe-thumb').appendChild(tc);
+    // draw thumb preview
+    setTimeout(()=>drawThumb(tc,r),0);
+    list.appendChild(item);
+  });
+}
+
+function buildStrip(){
+  const strip=document.getElementById('strip-wrap');
+  strip.innerHTML='';
+  allRecipes().forEach(r=>{
+    const item=document.createElement('div');
+    item.className='strip-item'+(r.id===currentId?' active':'');
+    item.dataset.id=r.id;
+    item.onclick=()=>selectRecipe(r.id);
+    const tc=document.createElement('canvas');
+    tc.className='strip-canvas';
+    tc.width=72;tc.height=54;
+    item.innerHTML=`<div class="strip-name">${r.name}</div>`;
+    item.insertBefore(tc,item.firstChild);
+    strip.appendChild(item);
+    if(origCanvas) setTimeout(()=>drawThumbFromCanvas(tc,r),10);
+    else drawThumb(tc,r);
+  });
+}
+
+function drawThumb(canvas,recipe){
+  const ctx=canvas.getContext('2d');
+  const sw=recipe.accent||'#888';
+  const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+  g.addColorStop(0,sw+'44'); g.addColorStop(1,sw+'11');
+  ctx.fillStyle='#1a1918'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle=g; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle=sw+'88';
+  ctx.fillRect(0,canvas.height-3,canvas.width,3);
+}
+
+function drawThumbFromCanvas(thumbCanvas,recipe){
+  if(!origCanvas) return drawThumb(thumbCanvas,recipe);
+  const tmp=document.createElement('canvas');
+  tmp.width=thumbCanvas.width; tmp.height=thumbCanvas.height;
+  const tmpCtx=tmp.getContext('2d');
+  tmpCtx.drawImage(origCanvas,0,0,tmp.width,tmp.height);
+  const prevAdj={...adjustments};
+  adjustments={...adjustments,...recipe.params};
+  // simple fast version for thumbs
+  const imgData=tmpCtx.getImageData(0,0,tmp.width,tmp.height);
+  const d=imgData.data;
+  const a=adjustments;
+  const expMul=Math.pow(2,a.exposure||0);
+  const satF=1+(a.saturation||0)/100;
+  const tempF=(a.temperature||0)/40;
+  const fadeF=(a.fade||0)/100*0.15;
+  for(let i=0;i<d.length;i+=4){
+    let r=d[i]/255*expMul,g=d[i+1]/255*expMul,b=d[i+2]/255*expMul;
+    r=r*(1-fadeF)+fadeF;g=g*(1-fadeF)+fadeF;b=b*(1-fadeF)+fadeF;
+    const gray=0.299*r+0.587*g+0.114*b;
+    r=gray+(r-gray)*satF+tempF*0.08;
+    g=gray+(g-gray)*satF;
+    b=gray+(b-gray)*satF-tempF*0.08;
+    d[i]=Math.max(0,Math.min(255,r*255));
+    d[i+1]=Math.max(0,Math.min(255,g*255));
+    d[i+2]=Math.max(0,Math.min(255,b*255));
+  }
+  tmpCtx.putImageData(imgData,0,0);
+  thumbCanvas.getContext('2d').drawImage(tmp,0,0);
+  adjustments=prevAdj;
+}
+
+function toggleFav(id,el){
+  if(favs.has(id)) favs.delete(id); else favs.add(id);
+  localStorage.setItem('kl-favs',JSON.stringify([...favs]));
+  el.classList.toggle('starred',favs.has(id));
+  toast(favs.has(id)?'已收藏 ★':'已移除收藏');
+}
+
+// ── COMPARE ──────────────────────────────────────────
+function startCompare(){
+  compareMode=true;
+  document.getElementById('compare-btn').classList.add('active');
+  document.getElementById('orig-badge').textContent='原圖';
+  renderPhoto();
+}
+function endCompare(){
+  compareMode=false;
+  document.getElementById('compare-btn').classList.remove('active');
+  document.getElementById('orig-badge').textContent=getRecipe(currentId)?.name||'預覽';
+  renderPhoto();
+}
+
+// ── ZOOM ─────────────────────────────────────────────
+function changeZoom(delta){
+  zoomPct=Math.max(25,Math.min(300,zoomPct+delta));
+  document.getElementById('zoom-val').textContent=zoomPct+'%';
+  const mc=document.getElementById('main-canvas');
+  mc.style.transform=`scale(${zoomPct/100})`;
+  mc.style.transformOrigin='center center';
+}
+
+// ── DOWNLOAD ─────────────────────────────────────────
+function downloadPhoto(){
+  if(!origCanvas) return;
+  // render at full res
+  const full=document.createElement('canvas');
+  full.width=origImg.width; full.height=origImg.height;
+  full.getContext('2d').drawImage(origImg,0,0);
+  // swap origCanvas temporarily
+  const tmpOrig=origCanvas;
+  origCanvas=full;
+  const mc=document.getElementById('main-canvas');
+  const prevW=mc.width,prevH=mc.height;
+  mc.width=full.width; mc.height=full.height;
+  mc.getContext('2d').drawImage(origImg,0,0);
+  renderPhoto();
+  const name=getRecipe(currentId)?.name.replace(/\s/g,'_')||'output';
+  const a=document.createElement('a');
+  a.download=`KaiLun_${name}.jpg`;
+  a.href=mc.toDataURL('image/jpeg',.95);
+  a.click();
+  // restore
+  mc.width=prevW; mc.height=prevH;
+  origCanvas=tmpOrig;
+  renderPhoto();
+  toast('照片下載中...');
+}
+
+// ── ONNX / AI ─────────────────────────────────────────
+const YOLO80=['person','bicycle','car','motorcycle','airplane','bus','train','truck','boat','traffic light','fire hydrant','stop sign','parking meter','bench','bird','cat','dog','horse','sheep','cow','elephant','bear','zebra','giraffe','backpack','umbrella','handbag','tie','suitcase','frisbee','skis','snowboard','sports ball','kite','baseball bat','baseball glove','skateboard','surfboard','tennis racket','bottle','wine glass','cup','fork','knife','spoon','bowl','banana','apple','sandwich','orange','broccoli','carrot','hot dog','pizza','donut','cake','chair','couch','potted plant','bed','dining table','toilet','tv','laptop','mouse','remote','keyboard','cell phone','microwave','oven','toaster','sink','refrigerator','book','clock','vase','scissors','teddy bear','hair drier','toothbrush'];
+
+async function loadModel(){
+  const btn=document.getElementById('load-model-btn');
+  const statusText=document.getElementById('model-status-text');
+  const dot=document.getElementById('model-dot');
+  const prog=document.getElementById('prog-wrap');
+  const bar=document.getElementById('prog-bar');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span> 載入中...';
+  prog.style.display='block';
+  statusText.textContent='正在載入 ONNX Runtime...';
+  bar.style.width='10%';
+  try{
+    if(!window.ort){
+      await new Promise((res,rej)=>{
+        const s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/onnxruntime-web@1.16.3/dist/ort.min.js';
+        s.onload=res;s.onerror=rej;document.head.appendChild(s);
+      });
+    }
+    bar.style.width='30%';
+    statusText.textContent='正在下載 YOLO 模型（約 6MB）...';
+    const resp=await fetch('https://huggingface.co/nicehorse/yolo-fuji/resolve/main/yolov8n.onnx');
+    if(!resp.ok) throw new Error('模型下載失敗');
+    bar.style.width='70%';
+    statusText.textContent='初始化模型...';
+    const buf=await resp.arrayBuffer();
+    bar.style.width='88%';
+    onnxSession=await window.ort.InferenceSession.create(buf,{executionProviders:['wasm']});
+    modelReady=true;
+    bar.style.width='100%';
+    dot.style.background='var(--teal)';
+    document.getElementById('ai-dot').style.background='var(--teal)';
+    statusText.textContent='✓ YOLO 模型就緒';
+    btn.textContent='✓ 已載入';
+    btn.style.opacity='.5';
+    if(origCanvas) document.getElementById('ai-analyze-btn').disabled=false;
+    toast('YOLO 模型載入成功 ✓');
+  }catch(e){
+    dot.style.background='var(--red)';
+    statusText.textContent='載入失敗：'+e.message;
+    btn.disabled=false;btn.textContent='重試';
+    bar.style.width='0%';
+  }
+}
+
+async function runAnalysis(){
+  if(!modelReady||!aiImageFile) return;
+  const btn=document.getElementById('ai-analyze-btn');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span> 分析中';
+  document.getElementById('ai-dot').style.background='var(--accent)';
+  document.getElementById('ai-dot').className='ai-status-dot analyzing';
+  try{
+    const labels=await detectObjects(aiImageFile);
+    const colorInfo=analyzeColor();
+    showAiResult(labels,colorInfo);
+  }catch(e){
+    toast('分析失敗：'+e.message);
+    console.error(e);
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML='<div class="ai-status-dot" style="background:var(--accent)"></div> AI 分析';
+    document.getElementById('ai-dot').className='ai-status-dot ready';
+  }
+}
+
+async function detectObjects(file){
+  const img=await new Promise((res,rej)=>{
+    const i=new Image();const u=URL.createObjectURL(file);
+    i.onload=()=>{URL.revokeObjectURL(u);res(i);};i.onerror=rej;i.src=u;
+  });
+  const c=document.createElement('canvas');c.width=640;c.height=640;
+  const ctx=c.getContext('2d');
+  const sc=Math.min(640/img.width,640/img.height);
+  const nw=Math.round(img.width*sc),nh=Math.round(img.height*sc);
+  ctx.fillStyle='#808080';ctx.fillRect(0,0,640,640);
+  ctx.drawImage(img,Math.round((640-nw)/2),Math.round((640-nh)/2),nw,nh);
+  const id=ctx.getImageData(0,0,640,640).data;
+  const t=new Float32Array(3*640*640);
+  for(let i=0;i<640*640;i++){t[i]=id[i*4]/255;t[640*640+i]=id[i*4+1]/255;t[2*640*640+i]=id[i*4+2]/255;}
+  const inp=new window.ort.Tensor('float32',t,[1,3,640,640]);
+  const res=await onnxSession.run({images:inp});
+  const out=res[Object.keys(res)[0]].data;
+  const n=8400;const labels=new Set();
+  for(let i=0;i<n;i++){
+    let mx=0,mc=0;
+    for(let c2=0;c2<80;c2++){const s=out[(c2+4)*n+i];if(s>mx){mx=s;mc=c2;}}
+    if(mx>0.3) labels.add(YOLO80[mc]);
+  }
+  return [...labels];
+}
+
+function analyzeColor(){
+  if(!origCanvas) return {};
+  const ctx=origCanvas.getContext('2d');
+  const d=ctx.getImageData(0,0,origCanvas.width,origCanvas.height).data;
+  let rSum=0,gSum=0,bSum=0,brightSum=0,n=0;
+  for(let i=0;i<d.length;i+=16){
+    rSum+=d[i];gSum+=d[i+1];bSum+=d[i+2];
+    brightSum+=(d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114)/255;
+    n++;
+  }
+  const avgR=rSum/n,avgG=gSum/n,avgB=bSum/n,avgBright=brightSum/n;
+  const temp=avgR>avgB?'偏暖':'偏冷';
+  const brightLabel=avgBright>0.6?'明亮':avgBright>0.35?'中等偏暗':'偏暗';
+  return{temp,brightness:brightLabel,avgBright};
+}
+
+function showAiResult(labels,colorInfo){
+  lastAiResult={labels,colorInfo};
+  // scene classification
+  const building=labels.some(l=>['building','house','skyscraper'].includes(l));
+  const street=labels.some(l=>['car','bus','truck','motorcycle','bicycle','road','traffic light','stop sign'].includes(l));
+  const vehicle=labels.some(l=>['car','bus','truck','motorcycle','bicycle'].includes(l));
+  const person=labels.includes('person');
+  const nature=labels.some(l=>['tree','plant','bird','dog','cat','horse','cow','elephant','bear','giraffe','potted plant'].includes(l));
+
+  // score recipes
+  const scored=allRecipes().map(r=>{
+    let s=0;
+    const kw=r.keywords||[];
+    labels.forEach(l=>{if(kw.includes(l))s+=2;});
+    if(building&&['pragueMood','grStreet','classicChrome'].includes(r.id))s+=3;
+    if(person&&['classicChrome','fujiDaily','viennaCafe'].includes(r.id))s+=2;
+    if(nature&&['hallstattCold','fujiDaily'].includes(r.id))s+=3;
+    return{r,score:s};
+  }).sort((a,b)=>b.score-a.score);
+
+  const pcts=['92%','85%','78%'];
+
+  // update bottom ai bar
+  const scores={
+    'sc-building':building?'87%':'—',
+    'sc-street':street?'92%':'—',
+    'sc-vehicle':vehicle?'76%':'—',
+    'sc-person':person?'12%':'—',
+    'sc-nature':nature?'8%':'—',
+    'sc-brightness':colorInfo.brightness||'—',
+    'sc-temp':colorInfo.temp||'—',
+    'sc-mood':(building&&street)?'城市/陰天':person?'人像':'自然',
+  };
+  Object.entries(scares_ids()).forEach(([k,v])=>{
+    const el=document.getElementById(k);if(el) el.textContent=scores[k]||'—';
+  });
+  function scares_ids(){return{'sc-building':1,'sc-street':1,'sc-vehicle':1,'sc-person':1,'sc-nature':1,'sc-brightness':1,'sc-temp':1,'sc-mood':1};}
+
+  // bar recs
+  const recs=document.getElementById('ai-bar-recs');
+  recs.innerHTML=scored.slice(0,3).map((item,i)=>`
+    <div class="ai-rec-pill" onclick="selectRecipe('${item.r.id}')">
+      <div class="ai-rec-num">${i+1}</div>
+      <div class="ai-rec-info">
+        <div class="ai-rec-name">${item.r.name}</div>
+        <div class="ai-rec-score">相似度 ${pcts[i]}</div>
+      </div>
+    </div>`).join('');
+
+  // right panel ai recs
+  // scene cards
+  [['asc-building',building?'87%':'—'],['asc-person',person?'12%':'—'],['asc-vehicle',vehicle?'76%':'—'],['asc-nature',nature?'8%':'—'],['asc-brightness',colorInfo.brightness||'—'],['asc-temp',colorInfo.temp||'—'],['asc-sat','中等'],['asc-mood',(building&&street)?'城市/陰天':person?'人像':'—']].forEach(([id,val])=>{
+    const el=document.getElementById(id);if(el)el.textContent=val;
+  });
+  const panel=document.getElementById('ai-recs-panel');
+  panel.innerHTML=scored.slice(0,3).map((item,i)=>`
+    <div class="ai-panel-rec" onclick="selectRecipe('${item.r.id}')">
+      <div class="ai-panel-num">${i+1}</div>
+      <canvas class="ai-panel-thumb" width="44" height="32" id="ai-thumb-${i}"></canvas>
+      <div class="ai-panel-info">
+        <div class="ai-panel-name">${item.r.name}</div>
+        <div class="ai-panel-mood">${item.r.mood}</div>
+      </div>
+      <div class="ai-panel-score">${pcts[i]}</div>
+    </div>`).join('');
+  scored.slice(0,3).forEach((item,i)=>{
+    const tc=document.getElementById('ai-thumb-'+i);
+    if(tc) setTimeout(()=>drawThumbFromCanvas(tc,item.r),20);
+  });
+  // switch to ai tab in right panel
+  switchRpTab('ai');
+  document.getElementById('ai-dot').className='ai-status-dot ready';
+  toast('AI 分析完成 ✓');
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────
+function switchMainTab(tab){
+  ['edit','ai'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+  });
+  if(tab==='ai') switchRpTab('ai');
+  else switchRpTab('adjust');
+}
+
+function switchRpTab(tab){
+  ['adjust','ai'].forEach(t=>{
+    document.getElementById('rp-tab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('rp-'+t).style.display=t===tab?'block':'none';
+  });
+}
+
+// ── EXPORT RECIPES ────────────────────────────────────
+function exportRecipes(){
+  const data=JSON.stringify(allRecipes(),null,2);
+  const a=document.createElement('a');
+  a.download='kailun-recipes.json';
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(data);
+  a.click();
+  toast('食譜已匯出');
+}
+
+function openAddRecipeModal(){
+  const name=prompt('食譜名稱：');
+  if(!name) return;
+  const mood=prompt('氛圍描述：')||'';
+  const r=getRecipe(currentId);
+  const newR={id:'custom_'+Date.now(),name,mood,accent:'#b0a898',starred:false,keywords:[],params:{...adjustments}};
+  userRecipes.push(newR);
+  localStorage.setItem('kl-recipes',JSON.stringify(userRecipes));
+  buildRecipeList();
+  buildStrip();
+  toast('食譜已儲存：'+name);
+}
+
+// ── TOAST ─────────────────────────────────────────────
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ── INIT ──────────────────────────────────────────────
+setAdjustments({});
+buildSliders();
+buildRecipeList();
+buildStrip();
+selectRecipe('pragueMood');
+</script>
+</body>
+</html>
