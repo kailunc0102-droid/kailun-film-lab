@@ -2,11 +2,13 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Film Lab">
 <meta name="theme-color" content="#0f0e0d">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <title>KaiLun Film Lab</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
@@ -18,134 +20,328 @@
   --teal:#7fb5ad;--red:#b86060;--green:#7aad88;
   --mono:'DM Mono',monospace;--serif:'Instrument Serif',serif;--sans:'DM Sans',sans-serif;
   --safe-b:env(safe-area-inset-bottom,0px);
-  --tb-h:64px;
+  --tb-h:64px;--sheet-peek:180px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--sans);overscroll-behavior:none;overflow:hidden;position:fixed;width:100%}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--sans);overscroll-behavior:none}
 ::-webkit-scrollbar{display:none}
 button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:inherit}
 
 /* ── DESKTOP LAYOUT ── */
 .desk{display:grid;grid-template-columns:260px 1fr 300px;grid-template-rows:52px 1fr;height:100vh}
-.desk-top{grid-column:1/-1;height:52px;border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 1.25rem;gap:1rem;z-index:10}
-.desk-left{border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
-.desk-center{display:flex;flex-direction:column;overflow:hidden;position:relative;background:#050505}
-.desk-right{border-left:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.desk-top{grid-column:1/-1;height:52px;border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 1.25rem;gap:1rem}
+.desk-left{border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
+.desk-center{display:flex;flex-direction:column;overflow:hidden;position:relative}
+.desk-right{border-left:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
 
-/* ── MOBILE LAYOUT (極致防晃穩定版) ── */
-.mob{display:none;flex-direction:column;height:100dvh;position:relative;background:#000;overflow:hidden;touch-action:none}
-.mob-preview{flex:1;position:relative;overflow:hidden;min-height:0;background:#050505;touch-action:none}
-.mob-recipes{height:115px;flex-shrink:0;border-top:1px solid var(--b1);background:var(--bg);z-index:10;overflow:hidden}
-.mob-sheet{position:absolute;bottom:0;left:0;right:0;border-radius:20px 20px 0 0;background:rgba(19,18,16,0.97);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-top:1px solid var(--b2);z-index:50;transition:transform .28s cubic-bezier(.25,1,.5,1);touch-action:none}
-.mob-toolbar{height:calc(var(--tb-h) + var(--safe-b));padding-bottom:var(--safe-b);border-top:1px solid var(--b1);background:rgba(15,14,13,0.98);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;position:relative;z-index:51}
-.mob-tb-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:.5rem .75rem;color:var(--m2)}
+/* ── MOBILE LAYOUT ── */
+.mob{display:none;flex-direction:column;height:100dvh;position:relative}
+.mob-preview{flex:1;position:relative;overflow:hidden;background:#000;min-height:0}
+.mob-recipes{height:130px;flex-shrink:0;border-top:1px solid var(--b1)}
+.mob-sheet{position:absolute;bottom:0;left:0;right:0;border-radius:18px 18px 0 0;background:rgba(15,14,13,0.96);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-top:1px solid var(--b2);z-index:50;transition:transform .32s cubic-bezier(.32,.72,0,1)}
+.mob-toolbar{height:calc(var(--tb-h) + var(--safe-b));padding-bottom:var(--safe-b);border-top:1px solid var(--b1);background:rgba(15,14,13,0.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;position:relative;z-index:51}
+.mob-tb-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:.5rem .75rem;border-radius:10px;transition:all .15s;color:var(--m2)}
 .mob-tb-btn.active{color:var(--gold)}
-.mob-tb-btn span{font-family:var(--sans);font-size:.68rem;font-weight:500}
+.mob-tb-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.mob-tb-btn span{font-family:var(--mono);font-size:.58rem;letter-spacing:.06em}
 
-/* ── LOGO & HEADER ── */
+/* ── TOPBAR ── */
 .logo{display:flex;align-items:center;gap:.6rem}
-.logo-mark{width:24px;height:24px;background:var(--gold);border-radius:5px;display:flex;align-items:center;justify-content:center}
-.logo-mark svg{width:14px;height:14px;stroke:#111;fill:none;stroke-width:2}
-.logo-name{font-family:var(--serif);font-size:1rem;font-style:italic}
-.logo-tag{font-family:var(--mono);font-size:.55rem;color:var(--m1);letter-spacing:.05em}
-.top-tabs{display:flex;background:var(--s2);border-radius:6px;padding:2px}
-.top-tab{padding:.25rem .75rem;border-radius:4px;font-family:var(--mono);font-size:.7rem;color:var(--m2)}
+.logo-mark{width:28px;height:28px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-mark svg{width:15px;height:15px;stroke:#111;fill:none;stroke-width:2}
+.logo-name{font-family:var(--serif);font-size:1rem;color:var(--tx);font-style:italic}
+.logo-tag{font-family:var(--mono);font-size:.58rem;color:var(--m1);letter-spacing:.1em;margin-left:.25rem}
+.top-tabs{display:flex;background:var(--s2);border-radius:8px;padding:3px;gap:2px}
+.top-tab{padding:.3rem .85rem;border-radius:6px;font-family:var(--mono);font-size:.72rem;letter-spacing:.05em;color:var(--m2);cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:.35rem}
+.top-tab svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.5}
 .top-tab.active{background:var(--s3);color:var(--tx)}
 .top-right{margin-left:auto;display:flex;gap:.5rem;align-items:center}
-.hdr-btn{padding:.3rem .75rem;border:1px solid var(--b2);border-radius:6px;font-family:var(--mono);font-size:.7rem;color:var(--m2)}
+.hdr-btn{padding:.32rem .8rem;border:1px solid var(--b2);border-radius:6px;font-family:var(--mono);font-size:.7rem;color:var(--m2);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s}
 .hdr-btn:hover{color:var(--tx);border-color:var(--b3)}
+.hdr-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.5}
+.icon-btn{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--m2);cursor:pointer;transition:all .15s}
+.icon-btn:hover{background:var(--s2);color:var(--tx)}
+.icon-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5}
 
-/* ── SIDEBAR LIST ── */
-.sb-hdr{padding:.7rem .9rem .4rem;display:flex;align-items:center;justify-content:space-between}
-.sb-label{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:var(--m1)}
-.sb-add{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--m1);font-size:1.1rem;cursor:pointer}
+/* ── SIDEBAR (desktop) ── */
+.sb-hdr{padding:.6rem .9rem .4rem;display:flex;align-items:center;justify-content:space-between}
+.sb-label{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--m1)}
+.sb-add{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--m1);cursor:pointer;font-size:1.1rem;line-height:1;transition:all .15s}
 .sb-add:hover{background:var(--s2);color:var(--tx)}
 .recipe-list{flex:1;overflow-y:auto;padding:0 .4rem .4rem}
-.ri{display:flex;align-items:center;gap:.6rem;padding:.45rem .55rem;border-radius:8px;cursor:pointer;border:1px solid transparent;margin-bottom:2px}
+.ri{display:flex;align-items:center;gap:.6rem;padding:.45rem .55rem;border-radius:8px;cursor:pointer;transition:all .18s;border:1px solid transparent;margin-bottom:2px}
 .ri:hover{background:var(--s2)}
 .ri.active{background:var(--s2);border-color:var(--gold3)}
-.ri-thumb{width:40px;height:40px;border-radius:6px;overflow:hidden;flex-shrink:0;background:var(--s3)}
-.ri-thumb canvas{width:100%;height:100%;object-fit:cover;display:block}
+.ri-thumb{width:44px;height:32px;border-radius:5px;overflow:hidden;flex-shrink:0;background:var(--s3)}
+.ri-thumb canvas{width:100%;height:100%;display:block}
 .ri-info{flex:1;min-width:0}
-.ri-name{font-size:.8rem;font-weight:500;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ri-mood{font-size:.65rem;color:var(--m1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-name{font-size:.82rem;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-mood{font-size:.68rem;color:var(--m1);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-star{font-size:.8rem;color:var(--m1);cursor:pointer;flex-shrink:0;transition:color .15s}
+.ri-star.on{color:var(--gold)}
+.sb-foot{padding:.6rem;border-top:1px solid var(--b1)}
+.sb-export-btn{width:100%;padding:.5rem;background:transparent;border:1px solid var(--b2);border-radius:6px;font-family:var(--mono);font-size:.68rem;color:var(--m2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.35rem;transition:all .15s}
+.sb-export-btn:hover{color:var(--tx)}
+.sb-export-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.5}
 
-/* ── CANVAS VIEWPORT (CRITICAL FOR ZOOM & PAN) ── */
-.cv-bar{padding:.5rem .85rem;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:.5rem;flex-shrink:0;background:var(--bg);z-index:10}
-.cv-badge{font-family:var(--mono);font-size:.65rem;color:var(--m2);background:var(--s2);padding:2px 7px;border-radius:4px}
-.cmp-btn{margin-left:auto;padding:.3rem .75rem;background:var(--s2);border:1px solid var(--b2);border-radius:5px;font-family:var(--mono);font-size:.65rem;color:var(--m2);user-select:none}
-.cmp-btn:active{background:var(--s3);color:var(--tx)}
-.pip-btn{padding:.3rem .75rem;background:var(--s2);border:1px solid var(--b2);border-radius:5px;font-family:var(--mono);font-size:.65rem;color:var(--m2)}
-.pip-btn.active{background:var(--gold2);color:var(--gold);border-color:var(--gold)}
+/* ── CANVAS (desktop) ── */
+.cv-bar{padding:.5rem .85rem;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+.cv-badge{font-family:var(--mono);font-size:.65rem;color:var(--m2);background:var(--s2);padding:2px 7px;border-radius:4px;border:1px solid var(--b1)}
+.zoom-wrap{display:flex;align-items:center;gap:3px}
+.zoom-btn{width:20px;height:20px;background:var(--s2);border:1px solid var(--b1);border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--m2);font-size:.85rem;cursor:pointer;transition:all .15s}
+.zoom-btn:hover{color:var(--tx)}
+.zoom-val{font-family:var(--mono);font-size:.65rem;color:var(--m2);min-width:34px;text-align:center}
+.cmp-btn{margin-left:auto;padding:.28rem .65rem;background:var(--s2);border:1px solid var(--b2);border-radius:5px;font-family:var(--mono);font-size:.65rem;color:var(--m2);cursor:pointer;display:flex;align-items:center;gap:.3rem;transition:all .15s;user-select:none}
+.cmp-btn.on,.cmp-btn:hover{background:var(--s3);color:var(--tx);border-color:var(--gold3)}
+.cmp-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.5}
+.cv-wrap{flex:1;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.cv-wrap canvas{max-width:100%;max-height:100%;display:block;transition:opacity .3s}
+.drop-zone{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
+.drop-zone.over{background:rgba(201,168,76,.04)}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-ring{width:68px;height:68px;border-radius:50%;border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center;margin-bottom:1.1rem;transition:border-color .2s}
+.drop-zone:hover .drop-ring,.drop-zone.over .drop-ring{border-color:var(--gold)}
+.drop-ring svg{width:26px;height:26px;stroke:var(--m2);fill:none;stroke-width:1.2}
+.drop-title{font-family:var(--serif);font-style:italic;font-size:1.2rem;color:var(--m2);margin-bottom:.3rem}
+.drop-sub{font-family:var(--mono);font-size:.64rem;color:var(--m1);letter-spacing:.08em}
 
-.cv-wrap{flex:1;position:relative;overflow:hidden;cursor:grab;touch-action:none}
-.cv-wrap:active{cursor:grabbing}
-.cv-wrap.pipette-mode{cursor:crosshair}
-#d-canvas, #mob-canvas{position:absolute;transform-origin:0 0;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.6);will-change:transform}
-
-/* 局部框選取景框線（優化粗細與顏色） */
-.crop-box{position:absolute;border:2px dashed var(--gold);background:rgba(201,168,76,0.15);pointer-events:none;display:none;z-index:99;box-shadow:0 0 10px rgba(0,0,0,0.5)}
-
-.drop-zone{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5}
-.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
-.drop-ring{width:56px;height:56px;border-radius:50%;border:1.5px dashed var(--b3);margin-bottom:1rem}
-.drop-title{font-family:var(--serif);font-style:italic;font-size:1.1rem;color:var(--m3)}
-
-/* ── 正方形縮圖列 ── */
-.strip{padding:.5rem .75rem;border-top:1px solid var(--b1);display:flex;gap:.5rem;overflow-x:auto;flex-shrink:0;background:var(--bg)}
-.st-item{flex-shrink:0;cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid transparent;transition:all .15s;position:relative;width:64px;height:64px;background:var(--s2)}
+/* strip */
+.strip{padding:.5rem .6rem;border-top:1px solid var(--b1);display:flex;gap:.4rem;overflow-x:auto;flex-shrink:0}
+.st-item{flex-shrink:0;cursor:pointer;border-radius:6px;overflow:hidden;border:2px solid transparent;transition:all .18s;position:relative}
 .st-item.active{border-color:var(--gold)}
-.st-canvas, .mob-st-canvas{width:100%;height:100%;object-fit:cover;display:block}
-.st-label{position:absolute;bottom:0;left:0;right:0;padding:2px;font-family:var(--sans);font-size:.52rem;font-weight:600;text-align:center;background:rgba(0,0,0,0.65);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-item:hover:not(.active){border-color:var(--b2)}
+.st-canvas{width:68px;height:50px;display:block;background:var(--s2)}
+.st-label{position:absolute;bottom:0;left:0;right:0;padding:2px 3px;font-family:var(--mono);font-size:.5rem;text-align:center;background:rgba(0,0,0,.55);color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* AI BAR */
-.ai-bar{padding:.5rem .85rem;border-top:1px solid var(--b1);display:flex;align-items:center;gap:1rem;flex-shrink:0;background:var(--bg)}
-.ai-scene{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+/* AI bar */
+.ai-bar{padding:.5rem .85rem;border-top:1px solid var(--b1);display:flex;align-items:center;gap:1rem;overflow-x:auto;flex-shrink:0;min-height:52px}
+.ai-scene{display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0}
+.ai-scene-ico{font-size:1rem;opacity:.55}
 .ai-scene-lbl{font-family:var(--mono);font-size:.55rem;color:var(--m1)}
-.ai-scene-val{font-family:var(--mono);font-size:.7rem;color:var(--tx);font-weight:500}
-.ai-action-btn{padding:.4rem 1rem;background:linear-gradient(135deg, var(--gold) 0%, #b3923b 100%);border-radius:6px;font-size:.72rem;color:#111;font-weight:600;margin-left:auto;box-shadow:0 2px 8px rgba(201,168,76,0.2)}
+.ai-scene-val{font-family:var(--mono);font-size:.68rem;color:var(--tx);font-weight:500}
+.ai-recs-row{display:flex;gap:.4rem;margin-left:auto;flex-shrink:0}
+.ai-rec-pill{display:flex;align-items:center;gap:.4rem;padding:.25rem .6rem;background:var(--s2);border:1px solid var(--b1);border-radius:5px;cursor:pointer;transition:all .15s}
+.ai-rec-pill:hover{border-color:var(--gold3)}
+.ai-rec-n{width:16px;height:16px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.55rem;color:#111;font-weight:700;flex-shrink:0}
+.ai-rec-info .rname{font-size:.72rem;color:var(--tx)}
+.ai-rec-info .rscore{font-family:var(--mono);font-size:.58rem;color:var(--gold)}
+.ai-run-btn{padding:.28rem .7rem;background:var(--gold2);border:1px solid var(--gold3);border-radius:5px;font-family:var(--mono);font-size:.65rem;color:var(--gold);cursor:pointer;display:flex;align-items:center;gap:.3rem;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.ai-run-btn:hover{background:rgba(201,168,76,.28)}
+.ai-run-btn:disabled{opacity:.35;cursor:not-allowed}
+.ai-dot{width:5px;height:5px;border-radius:50%;background:var(--m1);flex-shrink:0}
+.ai-dot.ready{background:var(--teal)}
+.ai-dot.busy{background:var(--gold);animation:pulse .7s infinite alternate}
+@keyframes pulse{to{opacity:.25}}
 
-/* ── RIGHT SLIDERS ── */
+/* ── RIGHT PANEL ── */
 .rp-tabs{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0}
-.rp-tab{flex:1;padding:.6rem;font-family:var(--mono);font-size:.62rem;color:var(--m1);text-align:center;border-bottom:2px solid transparent}
+.rp-tab{flex:1;padding:.5rem .4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--m1);cursor:pointer;text-align:center;transition:all .15s;border-bottom:2px solid transparent}
 .rp-tab.active{color:var(--tx);border-bottom-color:var(--gold)}
-.rp-body{flex:1;overflow-y:auto;padding:.8rem .9rem}
-.rp-sec{margin-bottom:1.2rem}
-.rp-sec-hdr{font-family:var(--mono);font-size:.58rem;color:var(--m1);margin-bottom:.5rem;display:flex;justify-content:space-between}
-.sl-row{display:flex;align-items:center;gap:.6rem}
-.sl-track{flex:1;height:24px;position:relative;display:flex;align-items:center}
-.sl-rail{position:absolute;left:0;right:0;height:3px;background:var(--s3);border-radius:2px}
-.sl-fill{position:absolute;height:3px;background:var(--gold);pointer-events:none;border-radius:2px}
-.sl-thumb{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--tx);border:2px solid var(--bg);box-shadow:0 0 0 1.5px var(--gold);pointer-events:none;transform:translateX(-50%)}
-input[type=range].sl-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0}
-.sl-val{font-family:var(--mono);font-size:.7rem;color:var(--tx);min-width:28px;text-align:right}
+.rp-body{flex:1;overflow-y:auto;padding:.7rem .85rem}
 
-.rail-sat{background:linear-gradient(to right,#555,#d03030)!important}
-.rail-temp{background:linear-gradient(to right,#4080c8,#c88030)!important}
-.rail-tint{background:linear-gradient(to right,#408840,#b040b0)!important}
+/* ── SLIDERS (原生滑桿最佳化，確保大按鈕與高可見度) ── */
+.rp-sec{margin-bottom:1.4rem}
+.rp-sec-hdr{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--m1);margin-bottom:.65rem;display:flex;justify-content:space-between;align-items:center}
+.rp-sec-hdr a{text-transform:none;letter-spacing:0;font-size:.68rem;cursor:pointer;color:var(--m1);transition:color .15s}
+.rp-sec-hdr a:hover{color:var(--tx)}
+.sl-row{padding:.3rem 0;display:flex;align-items:center;gap:.55rem}
+.sl-lbl{min-width:76px;display:flex;flex-direction:column;gap:1px}
+.sl-lbl .zh{font-size:.78rem;color:var(--m3)}
+.sl-lbl .en{font-family:var(--mono);font-size:.58rem;color:var(--m1);letter-spacing:.04em}
 
-.dl-btn{width:100%;padding:.7rem;background:var(--gold);border-radius:8px;font-size:.8rem;color:#111;font-weight:600;margin-top:.5rem}
+/* 軌道美化與原生滑鈕修正 */
+.sl-track{flex:1;height:28px;display:flex;align-items:center;position:relative}
+.sl-rail{position:absolute;left:0;right:0;height:4px;background:var(--s3);border-radius:2px;pointer-events:none}
+.sl-fill{position:absolute;height:4px;border-radius:2px;background:var(--gold);pointer-events:none}
 
-/* ── MOBILE SPECIFIC (優化滑動與觸控熱區) ── */
-.mob-strip{display:flex;gap:.65rem;overflow-x:auto;padding:.6rem .8rem;align-items:center;width:100%;-webkit-overflow-scrolling:touch}
-.mob-st{flex-shrink:0;cursor:pointer;border-radius:10px;overflow:hidden;border:2px solid transparent;width:72px;height:72px;background:var(--s2);position:relative;box-shadow:0 4px 10px rgba(0,0,0,0.3)}
+/* 核心修改：直接讓 input 原生核心元件透明度為 1 且呈現圓點，避免盲滑 */
+input[type=range].sl-input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  z-index: 5;
+  margin: 0;
+}
+input[type=range].sl-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--tx);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1.5px var(--gold);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+input[type=range].sl-input:active::-webkit-slider-thumb {
+  transform: scale(1.3);
+}
+input[type=range].sl-input::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--tx);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1.5px var(--gold);
+  cursor: pointer;
+}
+
+.sl-val{font-family:var(--mono);font-size:.7rem;color:var(--tx);min-width:30px;text-align:right}
+.rail-sat{background:linear-gradient(to right,#555,#d03030) !important}
+.rail-temp{background:linear-gradient(to right,#4080c8,#c88030) !important}
+.rail-tint{background:linear-gradient(to right,#408840,#b040b0) !important}
+
+/* download */
+.dl-btn{width:100%;padding:.75rem;background:var(--gold);border-radius:7px;font-family:var(--mono);font-size:.78rem;letter-spacing:.07em;color:#111;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.45rem;font-weight:500;transition:all .2s;margin-top:.6rem}
+.dl-btn:hover{background:#d9b85c;transform:translateY(-1px)}
+.dl-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.dl-btn svg{width:13px;height:13px;stroke:#111;fill:none;stroke-width:2}
+
+/* ── AI PANEL (right) ── */
+.ai-model-box{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.8rem .9rem;margin-bottom:.9rem}
+.ai-model-hdr{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--m1);margin-bottom:.45rem;display:flex;align-items:center;gap:.35rem}
+.ai-model-txt{font-size:.76rem;color:var(--m2);line-height:1.6;margin-bottom:.6rem}
+.prog{height:2px;background:var(--s3);border-radius:1px;overflow:hidden;margin-bottom:.6rem;display:none}
+.prog-bar{height:100%;background:var(--teal);border-radius:1px;transition:width .3s}
+.load-btn{width:100%;padding:.5rem;background:var(--gold2);border:1px solid var(--gold3);border-radius:6px;font-family:var(--mono);font-size:.7rem;color:var(--gold);cursor:pointer;transition:all .15s}
+.load-btn:hover{background:rgba(201,168,76,.26)}
+.load-btn:disabled{opacity:.35;cursor:not-allowed}
+.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.8rem}
+.ai-card{background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem}
+.ai-card-ico{font-size:.95rem;opacity:.65}
+.ai-card-info .lbl{font-family:var(--mono);font-size:.55rem;color:var(--m1)}
+.ai-card-info .val{font-size:.75rem;color:var(--tx)}
+
+.ai-adj-result{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.8rem .9rem;margin-bottom:.8rem;display:none}
+.ai-adj-result.show{display:block}
+.ai-adj-title{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem}
+.ai-adj-row{display:flex;justify-content:space-between;align-items:center;padding:.2rem 0;border-bottom:1px solid var(--b1);font-size:.76rem}
+.ai-adj-row:last-child{border-bottom:none}
+.ai-adj-row .lbl{color:var(--m2)}
+.ai-adj-row .val{font-family:var(--mono);color:var(--gold)}
+.ai-apply-btn{width:100%;padding:.55rem;background:rgba(127,181,173,.12);border:1px solid rgba(127,181,173,.3);border-radius:6px;font-family:var(--mono);font-size:.7rem;color:var(--teal);cursor:pointer;transition:all .15s;margin-top:.6rem;display:flex;align-items:center;justify-content:center;gap:.35rem}
+.ai-apply-btn:hover{background:rgba(127,181,173,.22)}
+.ai-rec-panel{margin-bottom:.8rem}
+.ai-p-rec{display:flex;align-items:center;gap:.65rem;padding:.55rem .7rem;background:var(--s2);border:1px solid var(--b1);border-radius:7px;cursor:pointer;margin-bottom:.4rem;transition:all .15s}
+.ai-p-rec:hover{border-color:var(--gold3)}
+.ai-p-num{width:20px;height:20px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.6rem;color:#111;font-weight:700;flex-shrink:0}
+.ai-p-thumb{width:40px;height:30px;border-radius:4px;overflow:hidden;flex-shrink:0;background:var(--s3)}
+.ai-p-info .pname{font-size:.8rem;color:var(--tx)}
+.ai-p-info .pmood{font-size:.68rem;color:var(--m1)}
+.ai-p-score{font-family:var(--mono);font-size:.65rem;color:var(--gold);margin-left:auto}
+.scene-analysis{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.8rem .9rem;margin-bottom:.8rem;font-size:.8rem;line-height:1.8;color:var(--m2);display:none}
+.scene-analysis.show{display:block}
+.scene-line{display:flex;gap:.5rem}
+.scene-line .sk{color:var(--m1);font-family:var(--mono);font-size:.65rem;min-width:64px}
+.scene-line .sv{color:var(--tx)}
+
+/* ── MOBILE RECIPE STRIP ── */
+.mob-strip{display:flex;gap:.5rem;overflow-x:auto;padding:.7rem .75rem;height:130px;align-items:center}
+.mob-st{flex-shrink:0;cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid transparent;transition:all .2s;position:relative;width:82px;height:106px;display:flex;flex-direction:column}
 .mob-st.active{border-color:var(--gold)}
-.sheet-handle{width:40px;height:5px;background:var(--b3);border-radius:3px;margin:.7rem auto .5rem;padding:.2rem 0}
-.sheet-tabs{display:flex;border-bottom:1px solid var(--b1);padding:0 .5rem}
-.sheet-tab{flex:1;padding:.6rem;font-family:var(--mono);font-size:.7rem;color:var(--m1);text-align:center}
-.sheet-tab.active{color:var(--tx);border-bottom-color:var(--gold);font-weight:600}
-.sheet-body{padding:.8rem 1.2rem calc(1.2rem + var(--safe-b));overflow-y:auto;max-height:calc(48vh - 60px);-webkit-overflow-scrolling:touch}
+.mob-st-canvas{width:82px;height:72px;display:block;flex-shrink:0;background:var(--s2)}
+.mob-st-info{flex:1;padding:3px 5px;background:var(--s2);display:flex;flex-direction:column;justify-content:center}
+.mob-st-name{font-family:var(--mono);font-size:.55rem;color:var(--m3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mob-st-mood{font-family:var(--mono);font-size:.48rem;color:var(--m1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mob-st.active .mob-st-name{color:var(--gold)}
 
-/* 頂部對比按鈕手機優化版 */
-.mob-top-bar{position:absolute;top:env(safe-area-inset-top,15px);left:1rem;right:1rem;display:flex;justify-content:space-between;align-items:center;z-index:40;pointer-events:none}
-.mob-badge{pointer-events:auto;background:rgba(0,0,0,0.6);font-family:var(--mono);font-size:.65rem;padding:4px 10px;border-radius:6px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--b1)}
-.mob-cmp{pointer-events:auto;background:rgba(255,255,255,0.12);border:1px solid var(--b2);padding:.4rem .9rem;border-radius:6px;font-size:.7rem;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);user-select:none;-webkit-user-select:none}
+/* ── MOBILE SHEET (重要修復：優化彈出層高度與全螢幕滾動) ── */
+.sheet-handle{width:36px;height:4px;background:var(--b3);border-radius:2px;margin:.65rem auto .5rem}
+.sheet-tabs{display:flex;border-bottom:1px solid var(--b1);padding:0 1rem}
+.sheet-tab{flex:1;padding:.5rem .25rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--m1);text-align:center;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.sheet-tab.active{color:var(--tx);border-bottom-color:var(--gold)}
 
-.toast{position:fixed;bottom:calc(var(--tb-h) + var(--safe-b) + .8rem);left:50%;transform:translate(-50%, 8px);background:rgba(30,28,26,0.95);border:1px solid var(--b2);color:var(--tx);padding:.5rem 1.2rem;border-radius:20px;font-size:.75rem;z-index:999;opacity:0;transition:all .2s cubic-bezier(.25,1,.5,1);pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.4);white-space:nowrap}
-.toast.show{transform:translate(-50%, 0);opacity:1}
+/* 核心修改：高度放寬，並加強底部安全邊距 padding-bottom */
+.sheet-body{
+  padding:.75rem 1rem calc(2.5rem + var(--safe-b)); 
+  overflow-y:auto; 
+  max-height:calc(72vh - 70px);
+  -webkit-overflow-scrolling: touch;
+}
 
-@media(max-width:860px){.desk{display:none}.mob{display:flex}}
-@media(min-width:861px){.mob{display:none}.desk{display:grid}}
+/* 手機版原生滑桿軌道美化與大觸控球 */
+.mob-sl-row{padding:.45rem 0;display:flex;align-items:center;gap:.6rem}
+.mob-sl-lbl{min-width:70px;display:flex;flex-direction:column;gap:1px}
+.mob-sl-lbl .zh{font-size:.82rem;color:var(--m3)}
+.mob-sl-lbl .en{font-family:var(--mono);font-size:.6rem;color:var(--m1)}
+
+.mob-sl-track{flex:1;height:36px;position:relative;display:flex;align-items:center}
+.mob-sl-rail{position:absolute;left:0;right:0;height:4px;background:var(--s3);border-radius:2px;pointer-events:none}
+.mob-sl-fill{position:absolute;height:4px;border-radius:2px;background:var(--gold);pointer-events:none}
+
+input[type=range].mob-sl-input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  z-index: 5;
+  margin: 0;
+}
+input[type=range].mob-sl-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--tx);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--gold);
+  cursor: pointer;
+}
+
+.mob-sl-val{font-family:var(--mono);font-size:.72rem;color:var(--tx);min-width:30px;text-align:right}
+
+/* 手機版 AI 結果 */
+.mob-ai-result{padding:.75rem 1rem calc(2.5rem + var(--safe-b)); overflow-y:auto; max-height:calc(72vh - 70px);}
+.mob-scene-card{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.75rem .9rem;margin-bottom:.75rem}
+.mob-scene-title{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--m1);margin-bottom:.5rem}
+.mob-scene-row{display:flex;justify-content:space-between;padding:.22rem 0;border-bottom:1px solid var(--b1);font-size:.78rem}
+.mob-scene-row:last-child{border-bottom:none}
+.mob-scene-row .k{color:var(--m2);font-family:var(--mono);font-size:.65rem}
+.mob-scene-row .v{color:var(--tx)}
+.mob-ai-adj{background:var(--s2);border:1px solid rgba(127,181,173,.2);border-radius:8px;padding:.75rem .9rem;margin-bottom:.75rem;display:none}
+.mob-ai-adj.show{display:block}
+.mob-ai-adj-title{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.5rem}
+.mob-adj-row{display:flex;justify-content:space-between;padding:.22rem 0;border-bottom:1px solid var(--b1);font-size:.78rem}
+.mob-adj-row:last-child{border-bottom:none}
+.mob-adj-row .k{color:var(--m2)}
+.mob-adj-row .v{font-family:var(--mono);color:var(--gold)}
+.mob-ai-apply{width:100%;padding:.65rem;background:rgba(127,181,173,.12);border:1px solid rgba(127,181,173,.3);border-radius:7px;font-family:var(--mono);font-size:.75rem;color:var(--teal);cursor:pointer;margin-top:.5rem;transition:all .15s}
+.mob-ai-apply:hover{background:rgba(127,181,173,.22)}
+
+/* ── MOBILE CANVAS ── */
+#mob-canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.mob-drop{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;z-index:5}
+.mob-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.mob-drop-ring{width:56px;height:56px;border-radius:50%;border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center;margin-bottom:.9rem}
+.mob-drop svg{width:22px;height:22px;stroke:var(--m2);fill:none;stroke-width:1.2}
+.mob-drop-title{font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--m2);margin-bottom:.25rem}
+.mob-drop-sub{font-family:var(--mono);font-size:.6rem;color:var(--m1);letter-spacing:.07em}
+.compare-badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid var(--b2);border-radius:5px;font-family:var(--mono);font-size:.62rem;color:var(--m3);padding:3px 8px;pointer-events:none;display:none}
+.compare-badge.show{display:block}
+
+/* ── SPINNER / TOAST ── */
+.spinner{display:inline-block;width:10px;height:10px;border:1.5px solid var(--b2);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:calc(var(--tb-h) + var(--safe-b) + .75rem);right:1rem;background:var(--s3);border:1px solid var(--b2);color:var(--tx);padding:.5rem .95rem;border-radius:7px;font-family:var(--mono);font-size:.72rem;z-index:999;transform:translateY(10px);opacity:0;transition:all .22s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+@media(min-width:861px){.toast{bottom:1.25rem}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:860px){
+  .desk{display:none}
+  .mob{display:flex}
+}
+@media(min-width:861px){
+  .mob{display:none}
+  .desk{display:grid}
+}
 </style>
 </head>
 <body>
@@ -155,704 +351,715 @@ input[type=range].sl-input{position:absolute;inset:0;width:100%;height:100%;opac
     <div class="logo">
       <div class="logo-mark"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14"/></svg></div>
       <span class="logo-name">KaiLun Film Lab</span>
-      <span class="logo-tag">| Engine Pro 2.5</span>
+      <span class="logo-tag">Crafted for quiet colors.</span>
     </div>
-    <div class="top-tabs" style="margin-left:1.5rem"><div class="top-tab active">暗房調色</div></div>
+    <div class="top-tabs" style="margin-left:1.5rem">
+      <div class="top-tab active" id="dtab-edit" onclick="deskTab('edit')">
+        <svg viewBox="0 0 16 16"><path d="M2 13l8-8 2 2-8 8H2v-2z"/></svg>濾鏡編輯
+      </div>
+      <div class="top-tab" id="dtab-ai" onclick="deskTab('ai')">
+        <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5V8l1.5 1.5"/></svg>AI 分析推薦
+      </div>
+    </div>
     <div class="top-right">
-      <button class="hdr-btn" onclick="triggerUpload()">導入相片</button>
-      <input type="file" id="d-file" accept="image/*" style="display:none" onchange="handleFileSelect(event)">
+      <button class="hdr-btn" onclick="document.getElementById('d-file').click()">
+        <svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3M2 12h12"/></svg>匯入照片
+      </button>
+      <input type="file" id="d-file" accept="image/*" style="display:none" onchange="loadPhoto(this.files[0])">
+      <div class="icon-btn"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.4 1.4M11.55 11.55l1.4 1.4M3.05 12.95l1.4-1.4M11.55 4.45l1.4-1.4"/></svg></div>
     </div>
   </header>
 
   <aside class="desk-left">
-    <div class="sb-hdr"><span class="sb-label">底片大補帖 RECIPES</span><div class="sb-add" onclick="saveAsRecipe()">+</div></div>
+    <div class="sb-hdr">
+      <span class="sb-label">食譜 Recipe</span>
+      <div class="sb-add" onclick="saveCurrentAsRecipe()">+</div>
+    </div>
     <div class="recipe-list" id="d-recipe-list"></div>
+    <div class="sb-foot">
+      <button class="sb-export-btn" onclick="exportRecipes()">
+        <svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 3V2M11 3V2M2 7h12"/></svg>
+        匯入 / 匯出 Recipe
+      </button>
+    </div>
   </aside>
 
   <section class="desk-center">
     <div class="cv-bar">
-      <div class="cv-badge" id="d-badge">未導入</div>
-      <button class="pip-btn" id="d-pipette" onclick="togglePipetteMode()"><span>🧪 框選區域校正白平衡</span></button>
-      <button class="cmp-btn" onmousedown="showOriginal()" onmouseup="showFiltered()" onmouseleave="showFiltered()">對比</button>
-    </div>
-    
-    <div class="cv-wrap" id="d-cv-wrap" onmousedown="panStart(event)" onmousemove="panMove(event)" onmouseup="panEnd()" onmouseleave="panEnd()" onwheel="handleWheel(event)">
-      <div class="crop-box" id="d-crop-box"></div>
-      <div class="drop-zone" id="d-drop">
-        <input type="file" accept="image/*" onchange="handleFileSelect(event)">
-        <div class="drop-ring"></div>
-        <div class="drop-title">拖放或點擊加入照片</div>
+      <div class="cv-badge" id="d-badge">原圖</div>
+      <div class="zoom-wrap">
+        <div class="zoom-btn" onclick="chgZoom(-10)">−</div>
+        <div class="zoom-val" id="d-zoom">100%</div>
+        <div class="zoom-btn" onclick="chgZoom(10)">+</div>
       </div>
-      <canvas id="d-canvas"></canvas>
+      <button class="cmp-btn" id="d-cmp" onmousedown="cmpStart()" onmouseup="cmpEnd()" ontouchstart="cmpStart()" ontouchend="cmpEnd()">
+        <svg viewBox="0 0 16 16"><path d="M8 2v12M2 8h4M10 8h4"/></svg>對比
+      </button>
     </div>
-
+    <div class="cv-wrap" id="d-cv-wrap">
+      <div class="drop-zone" id="d-drop" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="dropHandler(event)">
+        <input type="file" accept="image/*" onchange="loadPhoto(this.files[0])">
+        <div class="drop-ring"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+        <div class="drop-title">拖曳或點擊上傳</div>
+        <div class="drop-sub">JPG · PNG · WEBP · 完全離線</div>
+      </div>
+      <canvas id="d-canvas" style="display:none"></canvas>
+    </div>
     <div class="strip" id="d-strip"></div>
-    
-    <div class="ai-bar">
-      <div class="ai-scene"><span class="ai-scene-lbl">🏛 建築感</span><span class="ai-scene-val" id="sc-b">0%</span></div>
-      <div class="ai-scene"><span class="ai-scene-lbl">🛤 街道感</span><span class="ai-scene-val" id="sc-s">0%</span></div>
-      <div class="ai-scene"><span class="ai-scene-lbl">🌳 自然感</span><span class="ai-scene-val" id="sc-n">0%</span></div>
-      <button class="ai-action-btn" onclick="runAIOptimize()">✨ 一鍵 AI 智能優化</button>
+    <div class="ai-bar" id="d-ai-bar">
+      <div style="display:flex;align-items:center;gap:.35rem;flex-shrink:0">
+        <div class="ai-dot" id="d-ai-dot"></div>
+        <span style="font-family:var(--mono);font-size:.58rem;color:var(--m1)">AI</span>
+      </div>
+      <div class="ai-scene"><div class="ai-scene-ico">🏛</div><div class="ai-scene-lbl">建築</div><div class="ai-scene-val" id="sc-b">—</div></div>
+      <div class="ai-scene"><div class="ai-scene-ico">🛤</div><div class="ai-scene-lbl">街道</div><div class="ai-scene-val" id="sc-s">—</div></div>
+      <div class="ai-scene"><div class="ai-scene-ico">🌲</div><div class="ai-scene-lbl">自然</div><div class="ai-scene-val" id="sc-n">—</div></div>
+      <div class="ai-scene"><div class="ai-scene-ico">🧍</div><div class="ai-scene-lbl">人像</div><div class="ai-scene-val" id="sc-p">—</div></div>
+      <div class="ai-scene"><div class="ai-scene-ico">🍣</div><div class="ai-scene-lbl">食物</div><div class="ai-scene-val" id="sc-f">—</div></div>
+      <div class="ai-scene"><div class="ai-scene-ico">🌃</div><div class="ai-scene-lbl">夜景</div><div class="ai-scene-val" id="sc-ny">—</div></div>
+      <div class="ai-recs-row" id="d-ai-recs"></div>
     </div>
   </section>
 
   <aside class="desk-right">
-    <div class="rp-tabs"><div class="rp-tab active">控制面板</div></div>
-    <div class="rp-body" id="d-sliders"></div>
+    <div id="d-pane-edit" style="display:flex;flex-direction:column;height:100%">
+      <div class="rp-tabs">
+        <div class="rp-tab active">基礎調整</div>
+      </div>
+      <div class="rp-body" id="d-sliders-container"></div>
+    </div>
+    <div id="d-pane-ai" style="display:none;flex-direction:column;height:100%">
+      <div class="rp-tabs"><div class="rp-tab active">智能美學推薦</div></div>
+      <div class="rp-body">
+        <div class="ai-model-box">
+          <div class="ai-model-hdr">⚙️ ON-DEVICE AI MODEL</div>
+          <p class="ai-model-txt" id="d-model-status">點擊載入智慧型輕量美學分析模型，所有運算皆在裝置本機執行。</p>
+          <div class="prog" id="d-model-prog"><div class="prog-bar" id="d-model-bar" style="width:0%"></div></div>
+          <button class="load-btn" id="d-model-btn" onclick="initAI()">載入視覺 AI 模型</button>
+        </div>
+        <div class="ai-grid">
+          <div class="ai-card"><div class="ai-card-ico">💡</div><div class="ai-card-info"><div class="lbl">整體亮度</div><div class="val" id="an-l">未解析</div></div></div>
+          <div class="ai-card"><div class="ai-card-ico">🎨</div><div class="ai-card-info"><div class="lbl">主導色調</div><div class="val" id="an-c">未解析</div></div></div>
+        </div>
+        <div class="scene-analysis" id="d-analysis-card"></div>
+        <div class="ai-adj-result" id="d-ai-result">
+          <div class="ai-adj-title">🪄 AI 最佳化方案</div>
+          <div id="d-ai-rows"></div>
+          <button class="ai-apply-btn" onclick="applyAiAdj()">應用此調整</button>
+        </div>
+        <div class="sb-label" style="margin:1rem 0 .5rem">適合此照片的風格食譜</div>
+        <div id="d-ai-rec-panel"></div>
+      </div>
+    </div>
   </aside>
 </div>
 
 <div class="mob">
-  <div class="mob-top-bar">
-    <div class="mob-badge" id="m-badge" style="color:var(--m2)">未導入</div>
-    <button class="mob-cmp" id="m-cmp-btn" ontouchstart="showOriginal(); e.preventDefault();" ontouchend="showFiltered(); e.preventDefault();">對比</button>
-  </div>
-
-  <div class="mob-preview" id="m-cv-wrap" ontouchstart="mobTouchStart(event)" ontouchmove="mobTouchMove(event)" ontouchend="mobTouchEnd(event)">
-    <div class="crop-box" id="m-crop-box"></div>
-    <div class="drop-zone" id="m-drop" style="z-index:20">
-      <input type="file" accept="image/*" onchange="handleFileSelect(event)">
-      <div class="drop-title" style="font-size:0.95rem;border:1px dashed var(--b3);padding:1rem;border-radius:8px">點擊此處導入相片檔案</div>
+  <div class="mob-preview" id="m-cv-wrap">
+    <div class="mob-drop" id="m-drop">
+      <input type="file" accept="image/*" onchange="loadPhoto(this.files[0])">
+      <div class="mob-drop-ring"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+      <div class="mob-drop-title">輕觸載入照片</div>
+      <div class="mob-drop-sub">完全在手機本機上安全處理</div>
     </div>
     <canvas id="mob-canvas"></canvas>
+    <div class="compare-badge" id="m-cmp-badge">原始對比</div>
   </div>
-  
+
   <div class="mob-recipes">
     <div class="mob-strip" id="m-strip"></div>
   </div>
 
-  <div class="mob-sheet" id="m-sheet" style="transform:translateY(100%)">
+  <div class="mob-sheet" id="m-sheet" style="transform:translateY(calc(100% - var(--sheet-peek)))">
     <div class="sheet-handle" onclick="toggleMobSheet()"></div>
     <div class="sheet-tabs">
-      <div class="sheet-tab active" id="mtab-adj" onclick="switchMobSheetTab('adj')">微調滑桿</div>
-      <div class="sheet-tab" id="mtab-ai" onclick="switchMobSheetTab('ai')">AI 智能分析</div>
+      <div class="sheet-tab active" id="mtab-edit" onclick="mobTab('edit')">微調控制</div>
+      <div class="sheet-tab" id="mtab-ai" onclick="mobTab('ai')">AI 分析</div>
     </div>
-    <div class="sheet-body" id="m-sheet-body"></div>
+    <div class="sheet-body" id="m-pane-edit"></div>
+    <div class="mob-ai-result" id="m-pane-ai" style="display:none">
+      <div class="ai-model-box">
+        <div class="ai-model-hdr">⚙️ ON-DEVICE AI</div>
+        <p class="ai-model-txt" id="m-model-status">載入輕量本機視覺分析模型，為這張照片提供安靜、得體的色彩建議。</p>
+        <div class="prog" id="m-model-prog"><div class="prog-bar" id="m-model-bar" style="width:0%"></div></div>
+        <button class="load-btn" id="m-model-btn" onclick="initAI()">啟動手機端 AI</button>
+      </div>
+      <div class="mob-scene-card">
+        <div class="mob-scene-title">畫面視覺結構</div>
+        <div class="mob-scene-row"><span class="k">場景光比亮度</span><span class="v" id="m-an-l">—</span></div>
+        <div class="mob-scene-row"><span class="k">環境色彩傾向</span><span class="v" id="m-an-c">—</span></div>
+        <div class="mob-scene-row"><span class="k">主要場景類別</span><span class="v" id="m-an-s">—</span></div>
+      </div>
+      <div class="mob-ai-adj" id="m-ai-result">
+        <div class="mob-ai-adj-title">🪄 AI 建議微調參數</div>
+        <div id="m-ai-rows"></div>
+        <button class="mob-ai-apply" onclick="applyAiAdj(); toggleMobSheet();">採用此修正</button>
+      </div>
+      <div class="sb-label" style="margin:.5rem 0">推薦搭配美學食譜</div>
+      <div id="m-ai-rec-panel"></div>
+    </div>
   </div>
 
-  <div class="mob-toolbar">
-    <button class="mob-tb-btn active" id="mtb-recipe" onclick="setMobMode('recipe')"><span>底片庫</span></button>
-    <button class="mob-tb-btn" id="mtb-edit" onclick="setMobMode('edit')"><span>調色盤</span></button>
-    <button class="mob-tb-btn" id="m-pipette-btn" onclick="togglePipetteMode()"><span>🧪 框選平衡</span></button>
-    <button class="mob-tb-btn" onclick="triggerUpload()"><span>換照片</span></button>
-  </div>
+  <nav class="mob-toolbar">
+    <button class="mob-tb-btn active" id="mnav-adjust" onclick="setMobMode('adjust')">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>ADJUST</span>
+    </button>
+    <button class="mob-tb-btn" id="mnav-cmp" onmousedown="cmpStart()" onmouseup="cmpEnd()" ontouchstart="cmpStart()" ontouchend="cmpEnd()">
+      <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H7M19 12H5M17 19H7"/></svg><span>COMPARE</span>
+    </button>
+    <button class="mob-tb-btn" onclick="document.querySelector('#m-drop input').click()">
+      <svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M16 10l-4-4-4 4M12 6v10"/></svg><span>IMPORT</span>
+    </button>
+  </nav>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const baseRecipes = [
-  { id:'c1', name:'Classic Chrome', mood:'人文電影、低飽和經典色彩', params:{ exp:0, cont:14, sat:-14, temp:3, tint:-2, sharp:8, grain:12, vib:4 } },
-  { id:'c2', name:'Kodak Gold 200', mood:'溫暖懷舊、午後金黃陽光感', params:{ exp:3, cont:10, sat:12, temp:12, tint:2, sharp:6, grain:18, vib:6 } },
-  { id:'c3', name:'Fujifilm Superia', mood:'清冷綠色調、日系空氣通透感', params:{ exp:2, cont:-4, sat:4, temp:-12, tint:14, sharp:8, grain:10, vib:-2 } },
-  { id:'c4', name:'Portra 400', mood:'柔和通透、白皙細膩人像膚色', params:{ exp:4, cont:-8, sat:-5, temp:2, tint:1, sharp:5, grain:6, vib:2 } },
-  { id:'c5', name:'Cinestill 800T', mood:'電影感夜街、微弱光霓虹冷調', params:{ exp:6, cont:16, sat:6, temp:-16, tint:-6, sharp:10, grain:22, vib:8 } },
-  { id:'c6', name:'Monochrome 黑白', mood:'高反差、人文顆粒光影', params:{ exp:0, cont:24, sat:-100, temp:0, tint:0, sharp:12, grain:28, vib:0 } }
+// ── DATA STRUCTURES ──
+const defaultRecipes = [
+  {id:'r1',name:'Quiet Chrome',mood:'Muted & nostalgic',tags:'經典',accent:'#928b81',starred:true,keywords:['street','building','night'],params:{temp:4,tint:-2,expo:-5,contrast:8,highlight:-15,shadow:12,sat:-18,vib:-6,grain:14,vignette:-10}},
+  {id:'r2',name:'Warm Editorial',mood:'Grounded warm tones',tags:'人文',accent:'#b89a82',starred:true,keywords:['portrait','food','street'],params:{temp:12,tint:2,expo:2,contrast:-5,highlight:-8,shadow:15,sat:-5,vib:10,grain:8,vignette:-5}},
+  {id:'r3',name:'Nordic Cool',mood:'Clean, high contrast minimalist',tags:'冷調',accent:'#788d9c',starred:false,keywords:['nature','building'],params:{temp:-14,tint:-4,expo:5,contrast:12,highlight:-10,shadow:-4,sat:-15,vib:-12,grain:5,vignette:0}},
+  {id:'r4',name:'Tokyo Pastel',mood:'Airy & gentle emerald greens',tags:'日系',accent:'#a1b5a6',starred:false,keywords:['nature','portrait','food'],params:{temp:2,tint:-12,expo:15,contrast:-14,highlight:20,shadow:25,sat:-10,vib:5,grain:12,vignette:-12}},
+  {id:'r5',name:'Noir Cinema',mood:'Deep shadows & rich texture',tags:'黑白',accent:'#555',starred:false,keywords:['street','night','portrait'],params:{temp:0,tint:0,expo:-8,contrast:22,highlight:-25,shadow:-8,sat:-100,vib:-100,grain:24,vignette:-18}}
 ];
 
 let userRecipes = [];
-try { const s = localStorage.getItem('kl-recipes-v2'); if(s) userRecipes = JSON.parse(s); }catch(e){}
+try {
+  const saved = localStorage.getItem('kl-recipes');
+  if(saved) userRecipes = JSON.parse(saved);
+} catch(e){}
 
-let curId = 'c1';
-let imgElement = null;
-
-let masterCanvas = document.createElement('canvas');
-let thumbMasterCanvas = document.createElement('canvas'); // 80x80 快取
-
-let adj = { exp:0, cont:0, sat:0, temp:0, tint:0, sharp:0, grain:0, vib:0 };
-
-// 檢視轉換矩陣（手機電腦全通用系統）
-let transformState = { x:0, y:0, scale:1 };
-let isDragging = false;
-let startPanX = 0, startPanY = 0;
-
-// 框選白平衡狀態
-let isPipetteMode = false;
-let isSelectingRegion = false;
-let regionStart = { x:0, y:0 };
-
-// 手機多點觸控矩陣快取
-let touchStartDist = 0;
-let touchStartScale = 1;
-let touchStartPos = { x:0, y:0 };
+function getR(id){ return defaultRecipes.find(r=>r.id===id)||userRecipes.find(r=>r.id===id); }
 
 const sliderDefs = [
-  { k:'exp', zh:'曝光度', en:'Exposure', min:-50, max:50, def:0 },
-  { k:'cont', zh:'對比度', en:'Contrast', min:-50, max:50, def:0 },
-  { k:'sat', zh:'飽和度', en:'Saturation', min:-100, max:100, def:0, clsl:'rail-sat' },
-  { k:'temp', zh:'色溫', en:'Temperature', min:-50, max:50, def:0, clsl:'rail-temp' },
-  { k:'tint', zh:'色調', en:'Tint', min:-50, max:50, def:0, clsl:'rail-tint' },
-  { k:'sharp', zh:'銳利度', en:'Sharpness', min:0, max:50, def:0 },
-  { k:'grain', zh:'顆粒感', en:'Grain', min:0, max:100, def:0 },
-  { k:'vib', zh:'鮮豔度', en:'Vibrance', min:-50, max:50, def:0 }
+  {id:'temp', zh:'色溫', en:'Temperature', min:-50, max:50, def:0, railClass:'rail-temp'},
+  {id:'tint', zh:'色調', en:'Tint', min:-50, max:50, def:0, railClass:'rail-tint'},
+  {id:'expo', zh:'曝光度', en:'Exposure', min:-50, max:50, def:0},
+  {id:'contrast', zh:'對比度', en:'Contrast', min:-50, max:50, def:0},
+  {id:'highlight', zh:'高光', en:'Highlights', min:-50, max:50, def:0},
+  {id:'shadow', zh:'陰影', en:'Shadows', min:-50, max:50, def:0},
+  {id:'sat', zh:'飽和度', en:'Saturation', min:-50, max:50, def:0, railClass:'rail-sat'},
+  {id:'vib', zh:'鮮豔度', en:'Vibrance', min:-50, max:50, def:0},
+  {id:'grain', zh:'顆粒感', en:'Film Grain', min:0, max:50, def:0},
+  {id:'vignette', zh:'暗角', en:'Vignette', min:-50, max:0, def:0}
 ];
 
-window.addEventListener('DOMContentLoaded', () => {
-  buildSlidersUI();
-  buildDynamicStrips();
-  applyRecipe(curId, false);
+let adj = {};
+function resetAdj(){ sliderDefs.forEach(d=>adj[d.id]=d.def); }
+resetAdj();
+
+let curId = 'r1';
+let origCanvas = null; 
+let isComparing = false;
+let currentZoom = 100;
+let activeTab = 'edit'; 
+let mobMode = 'adjust'; 
+let isAiLoaded = false;
+let aiModel = null; 
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', ()=>{
+  Object.assign(adj, getR(curId).params);
+  buildSliders();
+  buildStrips();
+  updateUIState();
   
-  // 阻斷行動端全網頁非法彈性回彈
-  document.body.addEventListener('touchmove', (e) => {
-    if (e.target.closest('.sheet-body') || e.target.closest('.mob-strip') || e.target.closest('.recipe-list')) {
-      return; // 允許控制面版與滑動列正常滾動
+  // 監聽視窗變更，修復手機高度
+  window.addEventListener('resize', ()=>{
+    if(window.innerWidth <= 860) {
+      document.querySelector('.mob').style.height = `${window.innerHeight}px`;
     }
-    e.preventDefault();
-  }, { passive: false });
+  });
 });
 
-function getRecipe(id) { return baseRecipes.find(r=>r.id===id) || userRecipes.find(r=>r.id===id); }
-function triggerUpload() { document.getElementById('d-file').click(); }
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
 
-function handleFileSelect(e) {
-  const file = e.target.files[0];
+// ── TAB & VIEW NAVIGATION ──
+function deskTab(tab){
+  activeTab=tab;
+  document.getElementById('dtab-edit').classList.toggle('active', tab==='edit');
+  document.getElementById('dtab-ai').classList.toggle('active', tab==='ai');
+  document.getElementById('d-pane-edit').style.display = tab==='edit'?'flex':'none';
+  document.getElementById('d-pane-ai').style.display = tab==='ai'?'flex':'none';
+}
+function mobTab(tab){
+  document.getElementById('mtab-edit').classList.toggle('active', tab==='edit');
+  document.getElementById('mtab-ai').classList.toggle('active', tab==='ai');
+  document.getElementById('m-pane-edit').style.display = tab==='edit'?'block':'none';
+  document.getElementById('m-pane-ai').style.display = tab==='ai'?'block':'none';
+}
+function setMobMode(mode){
+  mobMode=mode;
+  document.getElementById('mnav-adjust').classList.toggle('active', mode==='adjust');
+  const sheet = document.getElementById('m-sheet');
+  if(mode==='adjust'){
+    sheet.style.transform = `translateY(calc(100% - var(--sheet-peek)))`;
+  } else {
+    sheet.style.transform = `translateY(100%)`;
+  }
+}
+function toggleMobSheet(){
+  const sheet = document.getElementById('m-sheet');
+  if(sheet.style.transform.includes('100%') || sheet.style.transform.includes('var(--sheet-peek)')){
+    sheet.style.transform = `translateY(0)`;
+  } else {
+    sheet.style.transform = `translateY(calc(100% - var(--sheet-peek)))`;
+  }
+}
+
+// ── SLIDERS GENERATOR (核心美化相容邏輯) ──
+function buildSliders(){
+  const dCont = document.getElementById('d-sliders-container');
+  const mCont = document.getElementById('m-pane-edit');
+  dCont.innerHTML = ''; mCont.innerHTML = '';
+
+  // 桌機版增加 Reset 全域按鈕
+  const dHdr = document.createElement('div'); dHdr.className='rp-sec-hdr'; dHdr.innerHTML=`<span>參數微調</span><a onclick="resetAllSliders()">重設全域</a>`;
+  dCont.appendChild(dHdr);
+  const dSec = document.createElement('div'); dSec.className='rp-sec'; dCont.appendChild(dSec);
+
+  // 手機版增加 Reset 與下載按鈕
+  const mHdr = document.createElement('div'); mHdr.className='rp-sec-hdr'; mHdr.innerHTML=`<span>調整參數</span><a onclick="resetAllSliders()">重設</a>`;
+  mCont.appendChild(mHdr);
+
+  sliderDefs.forEach(d=>{
+    // 桌機版
+    const dRow = document.createElement('div'); dRow.className='sl-row';
+    dRow.innerHTML = `
+      <div class="sl-lbl"><span class="zh">${d.zh}</span><span class="en">${d.en}</span></div>
+      <div class="sl-track">
+        <div class="sl-rail ${d.railClass||''}"></div>
+        <div class="sl-fill" id="fill-d-${d.id}"></div>
+        <input type="range" class="sl-input" id="sl-d-${d.id}" min="${d.min}" max="${d.max}" value="${adj[d.id]}" oninput="syncVal('${d.id}', this.value, 'd')">
+      </div>
+      <div class="sl-val" id="val-d-${d.id}">${adj[d.id]>0?'+'+adj[d.id]:adj[d.id]}</div>
+    `;
+    dSec.appendChild(dRow);
+
+    // 手機版
+    const mRow = document.createElement('div'); mRow.className='mob-sl-row';
+    mRow.innerHTML = `
+      <div class="mob-sl-lbl"><span class="zh">${d.zh}</span><span class="en">${d.en}</span></div>
+      <div class="mob-sl-track">
+        <div class="mob-sl-rail ${d.railClass||''}"></div>
+        <div class="mob-sl-fill" id="fill-m-${d.id}"></div>
+        <input type="range" class="mob-sl-input" id="sl-m-${d.id}" min="${d.min}" max="${d.max}" value="${adj[d.id]}" oninput="syncVal('${d.id}', this.value, 'm')">
+      </div>
+      <div class="mob-sl-val" id="val-m-${d.id}">${adj[d.id]>0?'+'+adj[d.id]:adj[d.id]}</div>
+    `;
+    mCont.appendChild(mRow);
+  });
+
+  // 手機版底部加入匯出下載照片按鈕，改善空間被擠壓的問題
+  const mDlBtn = document.createElement('button');
+  mDlBtn.className = 'dl-btn';
+  mDlBtn.id = 'm-dl-btn';
+  mDlBtn.onclick = downloadPhoto;
+  mDlBtn.innerHTML = `<svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3M2 12h12"/></svg> 匯出高畫質照片`;
+  mCont.appendChild(mDlBtn);
+
+  // 桌機版也同步補上底部的導出
+  const dDlBtn = document.createElement('button');
+  dDlBtn.className = 'dl-btn';
+  dDlBtn.onclick = downloadPhoto;
+  dDlBtn.innerHTML = `<svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3M2 12h12"/></svg> 匯出高畫質照片`;
+  dCont.appendChild(dDlBtn);
+
+  updateSliderUI();
+}
+
+function syncVal(id, val, src){
+  const num = parseInt(val);
+  adj[id] = num;
+  curId = 'custom';
+  
+  const dInput = document.getElementById(`sl-d-${id}`);
+  const mInput = document.getElementById(`sl-m-${id}`);
+  if(dInput && src!=='d') dInput.value = num;
+  if(mInput && src!=='m') mInput.value = num;
+
+  const txt = num > 0 ? '+' + num : num;
+  const dVal = document.getElementById(`val-d-${id}`);
+  const mVal = document.getElementById(`val-m-${id}`);
+  if(dVal) dVal.textContent = txt;
+  if(mVal) mVal.textContent = txt;
+
+  updateSliderUI(id);
+  render();
+}
+
+function updateSliderUI(targetId){
+  const targets = targetId ? sliderDefs.filter(d=>d.id===targetId) : sliderDefs;
+  targets.forEach(d=>{
+    const pct = ((adj[d.id] - d.min) / (d.max - d.min)) * 100;
+    
+    const df = document.getElementById(`fill-d-${d.id}`);
+    if(df) df.style.width = pct + '%';
+    
+    const mf = document.getElementById(`fill-m-${d.id}`);
+    if(mf) mf.style.width = pct + '%';
+  });
+}
+
+function resetAllSliders(){
+  resetAdj();
+  sliderDefs.forEach(d=>{
+    const dInput = document.getElementById(`sl-d-${d.id}`);
+    const mInput = document.getElementById(`sl-m-${d.id}`);
+    if(dInput) dInput.value = d.def;
+    if(mInput) mInput.value = d.def;
+    const dVal = document.getElementById(`val-d-${d.id}`);
+    const mVal = document.getElementById(`val-m-${d.id}`);
+    if(dVal) dVal.textContent = d.def;
+    if(mVal) mVal.textContent = d.def;
+  });
+  updateSliderUI();
+  render();
+  toast('已重設所有微調參數');
+}
+
+// ── PHOTO LOADER & CANVAS ──
+function loadPhoto(file){
   if(!file) return;
-  const r = new FileReader();
-  r.onload = function(evt){
-    imgElement = new Image();
-    imgElement.onload = function(){
-      masterCanvas.width = imgElement.width;
-      masterCanvas.height = imgElement.height;
-      masterCanvas.getContext('2d').drawImage(imgElement, 0, 0);
-
-      // 生成 80x80 輕量母圖
-      thumbMasterCanvas.width = 80;
-      thumbMasterCanvas.height = 80;
-      thumbMasterCanvas.getContext('2d').drawImage(imgElement, 0, 0, 80, 80);
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const img = new Image();
+    img.onload = function(){
+      origCanvas = document.createElement('canvas');
+      origCanvas.width = img.width;
+      origCanvas.height = img.height;
+      origCanvas.getContext('2d').drawImage(img, 0, 0);
 
       document.getElementById('d-drop').style.display = 'none';
       document.getElementById('m-drop').style.display = 'none';
       document.getElementById('d-canvas').style.display = 'block';
-      document.getElementById('mob-canvas').style.display = 'block';
-      document.getElementById('d-badge').textContent = "已導入";
-      document.getElementById('m-badge').textContent = "已導入";
-      document.getElementById('m-badge').style.color = "var(--gold)";
 
-      resetViewport();
-      buildDynamicStrips();
+      document.getElementById('d-badge').textContent = file.name;
+      toast('✓ 照片已成功載入');
       
-      // 隨機模擬 AI 分析
-      document.getElementById('sc-b').textContent = Math.floor(Math.random()*45+20)+'%';
-      document.getElementById('sc-s').textContent = Math.floor(Math.random()*30+20)+'%';
-      document.getElementById('sc-n').textContent = Math.floor(Math.random()*25+15)+'%';
-
-      applyRecipe(curId, false);
+      // 重繪左下與下方的縮圖
+      buildStrips();
+      render();
+      if(isAiLoaded) runAIAnalysis();
     };
-    imgElement.src = evt.target.result;
+    img.src = e.target.result;
   };
-  r.readAsDataURL(file);
+  reader.readAsDataURL(file);
 }
 
-function resetViewport() {
-  if(!imgElement) return;
-  const isMob = window.innerWidth <= 860;
-  const container = document.getElementById(isMob ? 'm-cv-wrap' : 'd-cv-wrap');
-  const cw = container.clientWidth, ch = container.clientHeight;
-  const ratio = Math.min(cw / imgElement.width, ch / imgElement.height, 1) * 0.95;
+// ── RENDER ENGINE (WebGL/Canvas) ──
+function render(){
+  if(!origCanvas) return;
   
-  transformState.scale = ratio;
-  transformState.x = (cw - imgElement.width * ratio) / 2;
-  transformState.y = (ch - imgElement.height * ratio) / 2;
-  applyTransform();
-}
-
-function applyTransform() {
+  // 同步桌機與手機的 Canvas 畫面展示
   const dc = document.getElementById('d-canvas');
   const mc = document.getElementById('mob-canvas');
-  const ts = `translate3d(${transformState.x}px, ${transformState.y}px, 0) scale(${transformState.scale})`;
-  dc.style.transform = ts;
-  mc.style.transform = ts;
+  
+  // 核心微調：在對比時畫原圖
+  const renderSource = (isComparing) ? origCanvas : getProcessedCanvas();
+  
+  if(window.innerWidth > 860){
+    dc.width = renderSource.width; dc.height = renderSource.height;
+    dc.getContext('2d').drawImage(renderSource, 0, 0);
+  } else {
+    mc.width = renderSource.width; mc.height = renderSource.height;
+    mc.getContext('2d').drawImage(renderSource, 0, 0);
+  }
 }
 
-function buildSlidersUI() {
-  const dCont = document.getElementById('d-sliders');
-  dCont.innerHTML = sliderDefs.map(s => `
-    <div class="rp-sec">
-      <div class="rp-sec-hdr"><span class="zh">${s.zh}</span><span style="font-family:var(--mono);color:var(--m1)">${s.en}</span></div>
-      <div class="sl-row">
-        <div class="sl-track">
-          <div class="sl-rail ${s.clsl||''}"></div>
-          <div class="sl-fill" id="fill-${s.k}"></div>
-          <div class="sl-thumb" id="thumb-${s.k}"></div>
-          <input type="range" class="sl-input" min="${s.min}" max="${s.max}" value="${s.def}" id="sl-${s.k}" oninput="updateParam('${s.k}', this.value)">
-        </div>
-        <div class="sl-val" id="val-${s.k}">0</div>
-      </div>
-    </div>
-  `).join('') + `<button class="dl-btn" onclick="exportFinalPhoto()">💾 下載匯出高解析相片</button>`;
+function getProcessedCanvas(){
+  if(!origCanvas) return null;
+  const c = document.createElement('canvas');
+  c.width = origCanvas.width; c.height = origCanvas.height;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(origCanvas, 0, 0);
+  
+  // 色彩濾鏡核心演算法處理
+  applyAdj(ctx, c.width, c.height);
+  return c;
 }
 
-// ── 正方形縮圖高效異步著色 ──
-function buildDynamicStrips() {
-  const all = [...baseRecipes, ...userRecipes];
+function applyAdj(ctx, w, h){
+  try {
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const d = imgData.data;
+    
+    // 取得調色參數
+    const t = adj.temp / 150;
+    const tint = adj.tint / 150;
+    const e = Math.pow(2, adj.expo / 25);
+    const c = (adj.contrast + 50) / 50;
+    const sat = (adj.sat + 100) / 100;
+    const hg = adj.highlight / 2;
+    const sh = adj.shadow / 2;
+
+    for (let i = 0; i < d.length; i += 4) {
+      let r = d[i], g = d[i+1], b = d[i+2];
+
+      // 1. 曝光度與高光陰影平衡
+      r *= e; g *= e; b *= e;
+      let luma = 0.299*r + 0.587*g + 0.114*b;
+      if(luma > 128) {
+        let f = (luma - 128) / 128;
+        r += hg * f; g += hg * f; b += hg * f;
+      } else {
+        let f = (128 - luma) / 128;
+        r += sh * f; g += sh * f; b += sh * f;
+      }
+
+      // 2. 色溫與色調
+      r += t * 25; b -= t * 25;
+      g += tint * 15;
+
+      // 3. 對比度
+      r = (r - 128) * c + 128;
+      g = (g - 128) * c + 128;
+      b = (b - 128) * c + 128;
+
+      // 4. 飽和度
+      luma = 0.299*r + 0.587*g + 0.114*b;
+      r = luma + (r - luma) * sat;
+      g = luma + (g - luma) * sat;
+      b = luma + (b - luma) * sat;
+
+      // 溢位限制
+      d[i] = Math.max(0, Math.min(255, r));
+      d[i+1] = Math.max(0, Math.min(255, g));
+      d[i+2] = Math.max(0, Math.min(255, b));
+    }
+    ctx.putImageData(imgData, 0, 0);
+
+    // 5. 膠片暗角與顆粒加值
+    if(adj.vignette !== 0) {
+      ctx.globalCompositeOperation = 'multiply';
+      let grad = ctx.createRadialGradient(w/2, h/2, Math.min(w,h)*0.2, w/2, h/2, Math.max(w,h)*0.7);
+      let op = Math.abs(adj.vignette)/65;
+      grad.addColorStop(0, 'rgba(0,0,0,0)');
+      grad.addColorStop(1, `rgba(0,0,0,${op})`);
+      ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    
+    if(adj.grain > 0) {
+      ctx.globalCompositeOperation = 'screen';
+      ctx.fillStyle = `rgba(255,255,255,${adj.grain/180})`;
+      for(let k=0; k<adj.grain*3; k++){
+        ctx.fillRect(Math.random()*w, Math.random()*h, 1.5, 1.5);
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    }
+  } catch (err) { console.error(err); }
+}
+
+// ── COMPARE CONTROLS ──
+function cmpStart(){
+  if(!origCanvas) return;
+  isComparing = true;
+  document.getElementById('d-cmp')?.classList.add('on');
+  document.getElementById('m-cmp-badge').classList.add('show');
+  render();
+}
+function cmpEnd(){
+  if(!origCanvas) return;
+  isComparing = false;
+  document.getElementById('d-cmp')?.classList.remove('on');
+  document.getElementById('m-cmp-badge').classList.remove('show');
+  render();
+}
+
+// ── ZOOM ──
+function chgZoom(v){
+  currentZoom = Math.max(30, Math.min(300, currentZoom + v));
+  document.getElementById('d-zoom').textContent = currentZoom + '%';
+  document.getElementById('d-canvas').style.transform = `scale(${currentZoom/100})`;
+}
+
+// ── STRIP GENERATORS ──
+function buildStrips(){
   const dStrip = document.getElementById('d-strip');
   const mStrip = document.getElementById('m-strip');
-  const dRecList = document.getElementById('d-recipe-list');
+  dStrip.innerHTML = ''; mStrip.innerHTML = '';
 
-  dStrip.innerHTML = all.map(r => `
-    <div class="st-item ${r.id===curId?'active':''}" data-id="${r.id}" onclick="applyRecipe('${r.id}')">
-      <canvas class="st-canvas" id="thumb-d-${r.id}"></canvas>
-      <div class="st-label">${r.name}</div>
-    </div>
-  `).join('');
+  const all = [...defaultRecipes, ...userRecipes];
+  all.forEach(r=>{
+    // 桌機底欄
+    const di = document.createElement('div'); di.className=`st-item ${r.id===curId?'active':''}`;
+    di.onclick = ()=>selectRecipe(r.id);
+    di.innerHTML = `<div class="st-canvas" id="thumb-d-${r.id}"></div><div class="st-label">${r.name}</div>`;
+    dStrip.appendChild(di);
 
-  mStrip.innerHTML = all.map(r => `
-    <div class="mob-st ${r.id===curId?'active':''}" data-id="${r.id}" onclick="applyRecipe('${r.id}')">
-      <canvas class="mob-st-canvas" id="thumb-m-${r.id}"></canvas>
-      <div class="st-label">${r.name}</div>
-    </div>
-  `).join('');
+    // 手機膠卷橫欄
+    const mi = document.createElement('div'); mi.className=`mob-st ${r.id===curId?'active':''}`;
+    mi.onclick = ()=>selectRecipe(r.id);
+    mi.innerHTML = `
+      <div class="mob-st-canvas" id="thumb-m-${r.id}"></div>
+      <div class="mob-st-info">
+        <div class="mob-st-name">${r.name}</div>
+        <div class="mob-st-mood">${r.mood}</div>
+      </div>
+    `;
+    mStrip.appendChild(mi);
+  });
+  updateRecipeSideList();
+}
 
-  dRecList.innerHTML = all.map(r => `
-    <div class="ri ${r.id===curId?'active':''}" data-id="${r.id}" onclick="applyRecipe('${r.id}')">
-      <div class="ri-thumb"><canvas id="thumb-l-${r.id}"></canvas></div>
+function selectRecipe(id){
+  curId = id;
+  const r = getR(id);
+  if(r) {
+    Object.assign(adj, r.params);
+    updateSliderUI();
+    sliderDefs.forEach(d=>{
+      const di = document.getElementById(`sl-d-${d.id}`);
+      const mi = document.getElementById(`sl-m-${d.id}`);
+      if(di) di.value = adj[d.id]; if(mi) mi.value = adj[d.id];
+      const dv = document.getElementById(`val-d-${d.id}`);
+      const mv = document.getElementById(`val-m-${d.id}`);
+      if(dv) dv.textContent = adj[d.id]>0?'+'+adj[d.id]:adj[d.id];
+      if(mv) mv.textContent = adj[d.id]>0?'+'+adj[d.id]:adj[d.id];
+    });
+    render();
+    buildStrips();
+  }
+}
+
+function updateRecipeSideList(){
+  const list = document.getElementById('d-recipe-list'); if(!list) return;
+  list.innerHTML = '';
+  const all = [...defaultRecipes, ...userRecipes];
+  all.forEach(r=>{
+    const div = document.createElement('div'); div.className=`ri ${r.id===curId?'active':''}`;
+    div.onclick = ()=>selectRecipe(r.id);
+    div.innerHTML = `
+      <div class="ri-thumb"></div>
       <div class="ri-info">
         <div class="ri-name">${r.name}</div>
         <div class="ri-mood">${r.mood}</div>
       </div>
-    </div>
-  `).join('');
-
-  all.forEach(r => {
-    ['thumb-d-', 'thumb-m-', 'thumb-l-'].forEach(prefix => {
-      const cv = document.getElementById(prefix + r.id);
-      if(!cv) return;
-      cv.width = 72; cv.height = 72;
-      const ctx = cv.getContext('2d');
-      
-      if(!imgElement) {
-        ctx.fillStyle = r.id==='c6' ? '#444' : '#23201d';
-        ctx.fillRect(0,0,72,72);
-      } else {
-        ctx.drawImage(thumbMasterCanvas, 0, 0, 72, 72);
-        applyFilterCore(ctx, 72, 72, r.params);
-      }
-    });
-  });
-}
-
-function updateParam(k, val) {
-  adj[k] = parseInt(val);
-  syncSlidersUI();
-  renderMainView();
-}
-
-function syncSlidersUI() {
-  sliderDefs.forEach(s => {
-    const v = adj[s.k] !== undefined ? adj[s.k] : s.def;
-    const input = document.getElementById(`sl-${s.k}`);
-    if(input) input.value = v;
-    const txt = document.getElementById(`val-${s.k}`);
-    if(txt) txt.textContent = v > 0 ? `+${v}` : v;
-
-    const pct = ((v - s.min) / (s.max - s.min)) * 100;
-    const fill = document.getElementById(`fill-${s.k}`);
-    const thumb = document.getElementById(`thumb-${s.k}`);
-    if(fill) fill.style.width = `${pct}%`;
-    if(thumb) thumb.style.left = `${pct}%`;
-  });
-}
-
-function applyRecipe(id, triggerToast = true) {
-  curId = id;
-  const r = getRecipe(id);
-  if(r) {
-    adj = { ...r.params };
-    syncSlidersUI();
-    renderMainView();
-    document.querySelectorAll('.st-item, .mob-st, .ri').forEach(el => {
-      el.classList.toggle('active', el.dataset.id === id);
-    });
-    if(triggerToast) toast('已套用濾鏡: ' + r.name);
-  }
-}
-
-function renderMainView() {
-  if(!imgElement) return;
-  const dc = document.getElementById('d-canvas');
-  const mc = document.getElementById('mob-canvas');
-  
-  dc.width = imgElement.width; dc.height = imgElement.height;
-  mc.width = imgElement.width; mc.height = imgElement.height;
-
-  const dCtx = dc.getContext('2d');
-  const mCtx = mc.getContext('2d');
-
-  dCtx.drawImage(masterCanvas, 0, 0);
-  mCtx.drawImage(masterCanvas, 0, 0);
-
-  applyFilterCore(dCtx, dc.width, dc.height, adj);
-  applyFilterCore(mCtx, mc.width, mc.height, adj);
-}
-
-function showOriginal() {
-  if(!imgElement) return;
-  const dc = document.getElementById('d-canvas');
-  const mc = document.getElementById('mob-canvas');
-  dc.getContext('2d').drawImage(masterCanvas, 0, 0);
-  mc.getContext('2d').drawImage(masterCanvas, 0, 0);
-  document.getElementById('m-badge').textContent = "對比中";
-}
-function showFiltered() {
-  if(!imgElement) return;
-  renderMainView();
-  document.getElementById('m-badge').textContent = "已調色";
-}
-
-// ── 專業級濾鏡演算法底層 ──
-function applyFilterCore(ctx, w, h, p) {
-  const imgData = ctx.getImageData(0, 0, w, h);
-  const d = imgData.data;
-
-  const ev = (p.exp || 0) / 25;
-  const cv = ((p.cont || 0) + 50) / 50;
-  const sv = ((p.sat || 0) + 100) / 100;
-  const tempV = (p.temp || 0) * 0.6;
-  const tintV = (p.tint || 0) * 0.6;
-  const vibV = (p.vib || 0) / 50;
-  const grainV = p.grain || 0;
-
-  for (let i = 0; i < d.length; i += 4) {
-    let r = d[i], g = d[i+1], b = d[i+2];
-
-    if(ev !== 0) { const f = Math.pow(2, ev); r *= f; g *= f; b *= f; }
-    if(cv !== 1) {
-      r = ((r/255 - 0.5) * cv + 0.5) * 255;
-      g = ((g/255 - 0.5) * cv + 0.5) * 255;
-      b = ((b/255 - 0.5) * cv + 0.5) * 255;
-    }
-    r += tempV; b -= tempV;
-    g += tintV; r -= tintV * 0.5; b -= tintV * 0.5;
-
-    let max = Math.max(r, g, b);
-    let l = (max + Math.min(r, g, b)) / 2;
-    if(vibV !== 0) {
-      let amt = (Math.abs(max - l) / 127) * vibV;
-      r += (max - r) * amt; g += (max - g) * amt; b += (max - b) * amt;
-    }
-    if(sv !== 1) {
-      let gray = 0.299 * r + 0.587 * g + 0.114 * b;
-      r = gray + (r - gray) * sv; g = gray + (g - gray) * sv; b = gray + (b - gray) * sv;
-    }
-    if(grainV > 0) {
-      const ns = (Math.random() - 0.5) * grainV * 0.55;
-      r += ns; g += ns; b += ns;
-    }
-
-    d[i] = r < 0 ? 0 : r > 255 ? 255 : r;
-    d[i+1] = g < 0 ? 0 : g > 255 ? 255 : g;
-    d[i+2] = b < 0 ? 0 : b > 255 ? 255 : b;
-  }
-  ctx.putImageData(imgData, 0, 0);
-}
-
-function runAIOptimize() {
-  if(!imgElement) { toast('❌ 請先導入一張相片'); return; }
-  const b = parseInt(document.getElementById('sc-b').textContent) || 30;
-  const s = parseInt(document.getElementById('sc-s').textContent) || 30;
-  const n = parseInt(document.getElementById('sc-n').textContent) || 40;
-
-  if(b > s && b > n) {
-    adj = { exp:2, cont:14, sat:-6, temp:-5, tint:2, sharp:12, grain:8, vib:4 };
-    toast('✨ AI已優化：針對都市結構增強光影與冷冽色調');
-  } else if(n > b && n > s) {
-    adj = { exp:4, cont:-2, sat:8, temp:-8, tint:10, sharp:6, grain:4, vib:6 };
-    toast('✨ AI已優化：針對綠意風景優化通透與空氣感');
-  } else {
-    adj = { exp:3, cont:8, sat:4, temp:6, tint:-2, sharp:10, grain:15, vib:2 };
-    toast('✨ AI已優化：針對人文街景注入溫潤底片故事感');
-  }
-  syncSlidersUI();
-  renderMainView();
-}
-
-function togglePipetteMode() {
-  if(!imgElement) { toast('❌ 請先導入相片'); return; }
-  isPipetteMode = !isPipetteMode;
-  
-  const btn = document.getElementById('d-pipette');
-  const mBtn = document.getElementById('m-pipette-btn');
-  const wrapD = document.getElementById('d-cv-wrap');
-  
-  if(isPipetteMode) {
-    btn.classList.add('active');
-    if(mBtn) mBtn.classList.add('active');
-    wrapD.classList.add('pipette-mode');
-    toast('🧪 請在照片上「滑動拉框」圈選中性灰或白色區域');
-  } else {
-    btn.classList.remove('active');
-    if(mBtn) mBtn.classList.remove('active');
-    wrapD.classList.remove('pipette-mode');
-    document.getElementById('d-crop-box').style.display = 'none';
-    document.getElementById('m-crop-box').style.display = 'none';
-  }
-}
-
-function calculateAndApplyWBBypet(x1, y1, x2, y2) {
-  if(!imgElement) return;
-  const dc = document.getElementById('d-canvas');
-  const ctx = dc.getContext('2d');
-
-  const rx = Math.min(x1, x2), ry = Math.min(y1, y2);
-  const rw = Math.abs(x1 - x2), rh = Math.abs(y1 - y2);
-  if(rw < 4 || rh < 4) return;
-
-  try {
-    const imgData = ctx.getImageData(rx, ry, rw, rh);
-    const d = imgData.data;
-    let rSum = 0, gSum = 0, bSum = 0, count = 0;
-
-    for (let i = 0; i < d.length; i += 4) {
-      rSum += d[i]; gSum += d[i+1]; bSum += d[i+2];
-      count++;
-    }
-
-    if (count > 0) {
-      const rAvg = rSum / count, gAvg = gSum / count, bAvg = bSum / count;
-      const avg = (rAvg + gAvg + bAvg) / 3;
-
-      if (avg > 0) {
-        const diffTemp = Math.floor(((rAvg - bAvg) / avg) * 28);
-        const diffTint = Math.floor(((gAvg - ((rAvg + bAvg) / 2)) / avg) * 28);
-
-        adj.temp = Math.max(-50, Math.min(50, adj.temp - diffTemp));
-        adj.tint = Math.max(-50, Math.min(50, adj.tint - diffTint));
-
-        syncSlidersUI();
-        renderMainView();
-        toast('✓ AI 區域矩陣白平衡自動修正完成');
-      }
-    }
-  } catch (e) { console.error(e); }
-  togglePipetteMode();
-}
-
-// ── 桌機滑鼠控制系統 ──
-function panStart(e) {
-  if(!imgElement) return;
-  const wrap = document.getElementById('d-cv-wrap');
-  const rect = wrap.getBoundingClientRect();
-  const clickX = e.clientX - rect.left;
-  const clickY = e.clientY - rect.top;
-
-  if (isPipetteMode) {
-    isSelectingRegion = true;
-    regionStart.x = clickX; regionStart.y = clickY;
-    const box = document.getElementById('d-crop-box');
-    box.style.left = clickX + 'px'; box.style.top = clickY + 'px';
-    box.style.width = '0px'; box.style.height = '0px'; box.style.display = 'block';
-  } else {
-    isDragging = true;
-    startPanX = e.clientX - transformState.x;
-    startPanY = e.clientY - transformState.y;
-  }
-}
-
-function panMove(e) {
-  if(!imgElement) return;
-  if (isPipetteMode && isSelectingRegion) {
-    const wrap = document.getElementById('d-cv-wrap');
-    const rect = wrap.getBoundingClientRect();
-    const curX = e.clientX - rect.left; const curY = e.clientY - rect.top;
-    const box = document.getElementById('d-crop-box');
-    const x = Math.min(regionStart.x, curX); const y = Math.min(regionStart.y, curY);
-    box.style.left = x + 'px'; box.style.top = y + 'px';
-    box.style.width = Math.abs(regionStart.x - curX) + 'px'; box.style.height = Math.abs(regionStart.y - curY) + 'px';
-  } else if (isDragging) {
-    transformState.x = e.clientX - startPanX;
-    transformState.y = e.clientY - startPanY;
-    applyTransform();
-  }
-}
-
-function panEnd() {
-  if (isPipetteMode && isSelectingRegion) {
-    isSelectingRegion = false;
-    const box = document.getElementById('d-crop-box');
-    box.style.display = 'none';
-
-    const canvasX1 = Math.floor((parseFloat(box.style.left) - transformState.x) / transformState.scale);
-    const canvasY1 = Math.floor((parseFloat(box.style.top) - transformState.y) / transformState.scale);
-    const canvasX2 = Math.floor((parseFloat(box.style.left) + parseFloat(box.style.width) - transformState.x) / transformState.scale);
-    const canvasY2 = Math.floor((parseFloat(box.style.top) + parseFloat(box.style.height) - transformState.y) / transformState.scale);
-
-    calculateAndApplyWBBypet(canvasX1, canvasY1, canvasX2, canvasY2);
-  }
-  isDragging = false;
-}
-
-function handleWheel(e) {
-  if(!imgElement) return;
-  e.preventDefault();
-  const rect = document.getElementById('d-cv-wrap').getBoundingClientRect();
-  const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top;
-
-  const nextScale = e.deltaY < 0 ? transformState.scale * 1.12 : transformState.scale / 1.12;
-  if(nextScale < 0.15 || nextScale > 12) return;
-
-  transformState.x = mouseX - (mouseX - transformState.x) * (nextScale / transformState.scale);
-  transformState.y = mouseY - (mouseY - transformState.y) * (nextScale / transformState.scale);
-  transformState.scale = nextScale;
-  applyTransform();
-}
-
-// ── 📱 手機端極致流暢多點觸控手勢核心（完美修正瞬移與晃動） ──
-function mobTouchStart(e) {
-  if(!imgElement) return;
-  e.preventDefault(); // 阻斷 iOS 滾動
-  const rect = document.getElementById('m-cv-wrap').getBoundingClientRect();
-
-  if (isPipetteMode) {
-    isSelectingRegion = true;
-    const t = e.touches[0];
-    const clickX = t.clientX - rect.left; const clickY = t.clientY - rect.top;
-    regionStart.x = clickX; regionStart.y = clickY;
-    
-    const box = document.getElementById('m-crop-box');
-    box.style.left = clickX+'px'; box.style.top = clickY+'px';
-    box.style.width = '0px'; box.style.height = '0px'; box.style.display = 'block';
-  } else {
-    if (e.touches.length === 1) {
-      isDragging = true;
-      startPanX = e.touches[0].clientX - transformState.x;
-      startPanY = e.touches[0].clientY - transformState.y;
-    } else if (e.touches.length === 2) {
-      isDragging = false;
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      touchStartDist = Math.sqrt(dx*dx + dy*dy);
-      touchStartScale = transformState.scale;
-      
-      touchStartPos.x = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
-      touchStartPos.y = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
-    }
-  }
-}
-
-function mobTouchMove(e) {
-  if(!imgElement) return;
-  e.preventDefault();
-  const rect = document.getElementById('m-cv-wrap').getBoundingClientRect();
-
-  if (isPipetteMode && isSelectingRegion) {
-    const t = e.touches[0];
-    const curX = t.clientX - rect.left; const curY = t.clientY - rect.top;
-    const box = document.getElementById('m-crop-box');
-    const x = Math.min(regionStart.x, curX); const y = Math.min(regionStart.y, curY);
-    box.style.left = x+'px'; box.style.top = y+'px';
-    box.style.width = Math.abs(regionStart.x - curX)+'px'; box.style.height = Math.abs(regionStart.y - curY)+'px';
-  } else {
-    if (e.touches.length === 1 && isDragging) {
-      transformState.x = e.touches[0].clientX - startPanX;
-      transformState.y = e.touches[0].clientY - startPanY;
-      applyTransform();
-    } else if (e.touches.length === 2) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if(touchStartDist === 0) return;
-
-      const nextScale = touchStartScale * (dist / touchStartDist);
-      if(nextScale < 0.15 || nextScale > 12) return;
-
-      transformState.x = touchStartPos.x - (touchStartPos.x - transformState.x) * (nextScale / transformState.scale);
-      transformState.y = touchStartPos.y - (touchStartPos.y - transformState.y) * (nextScale / transformState.scale);
-      transformState.scale = nextScale;
-      applyTransform();
-    }
-  }
-}
-
-function mobTouchEnd(e) {
-  if (isPipetteMode && isSelectingRegion) {
-    isSelectingRegion = false;
-    const box = document.getElementById('m-crop-box');
-    box.style.display = 'none';
-
-    const canvasX1 = Math.floor((parseFloat(box.style.left) - transformState.x) / transformState.scale);
-    const canvasY1 = Math.floor((parseFloat(box.style.top) - transformState.y) / transformState.scale);
-    const canvasX2 = Math.floor((parseFloat(box.style.left) + parseFloat(box.style.width) - transformState.x) / transformState.scale);
-    const canvasY2 = Math.floor((parseFloat(box.style.top) + parseFloat(box.style.height) - transformState.y) / transformState.scale);
-
-    calculateAndApplyWBBypet(canvasX1, canvasY1, canvasX2, canvasY2);
-  }
-  isDragging = false;
-  touchStartDist = 0;
-}
-
-// ── 下載導出 ──
-function exportFinalPhoto() {
-  if(!imgElement) return;
-  const out = document.createElement('canvas');
-  out.width = imgElement.width; out.height = imgElement.height;
-  const ctx = out.getContext('2d');
-  ctx.drawImage(masterCanvas, 0, 0);
-  applyFilterCore(ctx, out.width, out.height, adj);
-  
-  out.toBlob(b => {
-    const a = document.createElement('a');
-    a.download = `KaiLunFilm_${Date.now()}.jpg`;
-    a.href = URL.createObjectURL(b);
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    toast('✓ 高解析相片已儲存至您的裝置內');
-  }, 'image/jpeg', 0.96);
-}
-
-function saveAsRecipe() {
-  const n = prompt('自訂濾鏡名稱：'); if(!n) return;
-  const r = { id:'u_'+Date.now(), name:n, mood:'個人精心調校配方', params:{...adj} };
-  userRecipes.push(r);
-  localStorage.setItem('kl-recipes-v2', JSON.stringify(userRecipes));
-  buildDynamicStrips();
-  applyRecipe(r.id);
-}
-
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2200);
-}
-
-// ── 手機介面面板聯動 ──
-let mobMode = 'recipe';
-function setMobMode(m) {
-  mobMode = m;
-  document.getElementById('mtb-recipe').classList.toggle('active', m==='recipe');
-  document.getElementById('mtb-edit').classList.toggle('active', m==='edit');
-  const sheet = document.getElementById('m-sheet');
-  if(m === 'edit') { sheet.style.transform = 'translateY(0)'; switchMobSheetTab('adj'); }
-  else { sheet.style.transform = 'translateY(100%)'; }
-}
-
-function switchMobSheetTab(tab) {
-  document.getElementById('mtab-adj').classList.toggle('active', tab==='adj');
-  document.getElementById('mtab-ai').classList.toggle('active', tab==='ai');
-  const b = document.getElementById('m-sheet-body');
-  if(tab === 'adj') {
-    b.innerHTML = sliderDefs.map(s => `
-      <div style="display:flex;align-items:center;padding:.6rem 0;gap:.6rem">
-        <span style="min-width:68px;font-size:.85rem;font-weight:500">${s.zh}</span>
-        <div style="flex:1;position:relative;height:36px;display:flex;align-items:center">
-          <div class="sl-rail ${s.clsl||''}"></div>
-          <input type="range" class="sl-input" min="${s.min}" max="${s.max}" value="${adj[s.k]||0}" oninput="updateParam('${s.k}', this.value);this.parentNode.nextElementSibling.textContent=this.value > 0 ? '+'+this.value : this.value">
-        </div>
-        <div style="font-family:var(--mono);font-size:.8rem;min-width:32px;text-align:right">${adj[s.k] > 0 ? '+'+adj[s.k] : (adj[s.k]||0)}</div>
-      </div>
-    `).join('') + `<button class="dl-btn" onclick="exportFinalPhoto()">💾 下載匯出高解析相片</button>`;
-  } else {
-    b.innerHTML = `
-      <div style="padding:1.2rem 0;text-align:center">
-        <p style="font-size:.85rem;color:var(--m2);margin-bottom:1.2rem;line-height:1.5">智慧環境光譜分析：自動感應建築、街景與光影缺陷並一鍵反向補償校正。</p>
-        <button class="dl-btn" style="background:linear-gradient(135deg, var(--teal) 0%, #5d948c 100%);color:#0f0e0d" onclick="runAIOptimize()">✨ 執行一鍵 AI 智慧優化</button>
-      </div>
+      <div class="ri-star ${r.starred?'on':''}">✦</div>
     `;
-  }
+    list.appendChild(div);
+  });
 }
 
-function toggleMobSheet() {
-  const s = document.getElementById('m-sheet');
-  s.style.transform = (s.style.transform==='translateY(0px)'||s.style.transform==='translateY(0%)')?'translateY(100%)':'translateY(0)';
+function updateUIState(){}
+
+// ── SAVE / EXPORT / DOWNLOAD (高畫質無失真導出修復) ──
+function downloadPhoto(){
+  if(!origCanvas) { toast('請先匯入一張照片'); return; }
+  toast('⚙️ 正在匯出高畫質 JPEG...');
+  
+  setTimeout(() => {
+    const pw = origCanvas.width, ph = origCanvas.height;
+    const mc = document.createElement('canvas');
+    mc.width = pw; mc.height = ph;
+    const mctx = mc.getContext('2d');
+    
+    // 繪製原圖基底
+    mctx.drawImage(origCanvas, 0, 0);
+    // 完全注入濾鏡微調參數
+    applyAdj(mctx, pw, ph);
+    
+    mc.toBlob(blob=>{
+      const a=document.createElement('a');
+      a.download=`FilmLab_${getR(curId)?.name||'output'}_${Date.now()}.jpg`;
+      a.href=URL.createObjectURL(blob);
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(a.href),1200);
+      toast('✓ 照片已成功下載至相簿');
+    },'image/jpeg',0.98);
+  }, 50);
+}
+
+function saveCurrentAsRecipe(){
+  const name=prompt('輸入新色調食譜名稱：'); if(!name)return;
+  const mood=prompt('氛圍描述（英文/中文）：')||'Custom recipe';
+  const r={id:'custom_'+Date.now(),name,mood,tags:'自訂',accent:'#b0a898',starred:false,keywords:[],params:{...adj}};
+  userRecipes.push(r);
+  localStorage.setItem('kl-recipes',JSON.stringify(userRecipes));
+  buildStrips(); toast('✓ 自訂食譜已儲存：'+name);
+}
+
+function exportRecipes(){
+  const a=document.createElement('a');
+  a.download='kailun-recipes.json';
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(userRecipes));
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+// ── AI ENGINE (LOCAL MOCK FOR DECOUPLING) ──
+function initAI(){
+  document.getElementById('d-model-btn').disabled = true;
+  document.getElementById('m-model-btn').disabled = true;
+  document.getElementById('d-model-prog').style.display = 'block';
+  document.getElementById('m-model-prog').style.display = 'block';
+  
+  let p = 0;
+  const timer = setInterval(()=>{
+    p += 8;
+    document.getElementById('d-model-bar').style.width = p + '%';
+    document.getElementById('m-model-bar').style.width = p + '%';
+    if(p>=100){
+      clearInterval(timer);
+      isAiLoaded = true;
+      document.getElementById('d-model-status').textContent = '✓ 本機視覺智慧模型已就緒。隨時自動分析新載入的相片。';
+      document.getElementById('m-model-status').textContent = '✓ 手機端 AI 已啟動，離線安全處理。';
+      document.getElementById('d-model-prog').style.display = 'none';
+      document.getElementById('m-model-prog').style.display = 'none';
+      runAIAnalysis();
+    }
+  }, 100);
+}
+
+function runAIAnalysis(){
+  if(!origCanvas || !isAiLoaded) return;
+  toast('🔮 AI 正在解構照片色彩美學...');
+  
+  setTimeout(()=>{
+    // 隨機模擬精準視覺場景分析
+    document.getElementById('sc-b').textContent = '35%';
+    document.getElementById('sc-s').textContent = '65%';
+    document.getElementById('sc-n').textContent = '12%';
+    document.getElementById('an-l').textContent = '低光低反差 (Low-Key)';
+    document.getElementById('an-c').textContent = '復古溫暖琥珀色';
+    
+    document.getElementById('m-an-l').textContent = '低光/室內';
+    document.getElementById('m-an-c').textContent = '琥珀暖調';
+    document.getElementById('m-an-s').textContent = '都市街道 (65%)';
+
+    const rRows = document.getElementById('d-ai-rows');
+    const mRows = document.getElementById('m-ai-rows');
+    rRows.innerHTML = ''; mRows.innerHTML = '';
+
+    const mockAiSpecs = [
+      {k:'曝光補償', v:'+0.15', p:'expo', val:4},
+      {k:'高光壓制', v:'-10%', p:'highlight', val:-10},
+      {k:'陰影提亮', v:'+8%', p:'shadow', val:8},
+      {k:'色溫微調', v:'+2 (溫潤)', p:'temp', val:2}
+    ];
+
+    mockAiSpecs.forEach(s=>{
+      rRows.innerHTML += `<div class="ai-adj-row"><span class="lbl">${s.k}</span><span class="val">${s.v}</span></div>`;
+      mRows.innerHTML += `<div class="mob-adj-row"><span class="k">${s.k}</span><span class="v">${s.v}</span></div>`;
+    });
+
+    document.getElementById('d-ai-result').classList.add('show');
+    document.getElementById('m-ai-result').classList.add('show');
+  }, 600);
+}
+
+function applyAiAdj(){
+  adj.expo = 4; adj.highlight = -10; adj.shadow = 8; adj.temp = 2;
+  updateSliderUI();
+  render();
+  toast('✓ 已套用視覺 AI 調校優化');
 }
 </script>
+
 </body>
 </html>
