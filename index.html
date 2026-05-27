@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Film Lab">
@@ -21,7 +21,7 @@
   --tb-h:64px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--sans);overscroll-behavior:none;overflow:hidden}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--sans);overscroll-behavior:none;overflow:hidden;position:fixed;width:100%}
 ::-webkit-scrollbar{display:none}
 button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:inherit}
 
@@ -32,15 +32,15 @@ button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:
 .desk-center{display:flex;flex-direction:column;overflow:hidden;position:relative;background:#050505}
 .desk-right{border-left:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
 
-/* ── MOBILE LAYOUT ── */
-.mob{display:none;flex-direction:column;height:100dvh;position:relative;background:#000}
-.mob-preview{flex:1;position:relative;overflow:hidden;min-height:0}
-.mob-recipes{height:120px;flex-shrink:0;border-top:1px solid var(--b1);background:var(--bg);z-index:10}
-.mob-sheet{position:absolute;bottom:0;left:0;right:0;border-radius:18px 18px 0 0;background:rgba(15,14,13,0.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--b2);z-index:50;transition:transform .3s cubic-bezier(.32,.72,0,1);touch-action:none}
-.mob-toolbar{height:calc(var(--tb-h) + var(--safe-b));padding-bottom:var(--safe-b);border-top:1px solid var(--b1);background:rgba(15,14,13,0.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;position:relative;z-index:51}
+/* ── MOBILE LAYOUT (極致防晃穩定版) ── */
+.mob{display:none;flex-direction:column;height:100dvh;position:relative;background:#000;overflow:hidden;touch-action:none}
+.mob-preview{flex:1;position:relative;overflow:hidden;min-height:0;background:#050505;touch-action:none}
+.mob-recipes{height:115px;flex-shrink:0;border-top:1px solid var(--b1);background:var(--bg);z-index:10;overflow:hidden}
+.mob-sheet{position:absolute;bottom:0;left:0;right:0;border-radius:20px 20px 0 0;background:rgba(19,18,16,0.97);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-top:1px solid var(--b2);z-index:50;transition:transform .28s cubic-bezier(.25,1,.5,1);touch-action:none}
+.mob-toolbar{height:calc(var(--tb-h) + var(--safe-b));padding-bottom:var(--safe-b);border-top:1px solid var(--b1);background:rgba(15,14,13,0.98);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;position:relative;z-index:51}
 .mob-tb-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:.5rem .75rem;color:var(--m2)}
 .mob-tb-btn.active{color:var(--gold)}
-.mob-tb-btn span{font-family:var(--sans);font-size:.65rem;font-weight:500}
+.mob-tb-btn span{font-family:var(--sans);font-size:.68rem;font-weight:500}
 
 /* ── LOGO & HEADER ── */
 .logo{display:flex;align-items:center;gap:.6rem}
@@ -70,7 +70,7 @@ button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:
 .ri-name{font-size:.8rem;font-weight:500;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ri-mood{font-size:.65rem;color:var(--m1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* ── CANVAS VIEWPORT (CRITICAL FOR ZOOM) ── */
+/* ── CANVAS VIEWPORT (CRITICAL FOR ZOOM & PAN) ── */
 .cv-bar{padding:.5rem .85rem;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:.5rem;flex-shrink:0;background:var(--bg);z-index:10}
 .cv-badge{font-family:var(--mono);font-size:.65rem;color:var(--m2);background:var(--s2);padding:2px 7px;border-radius:4px}
 .cmp-btn{margin-left:auto;padding:.3rem .75rem;background:var(--s2);border:1px solid var(--b2);border-radius:5px;font-family:var(--mono);font-size:.65rem;color:var(--m2);user-select:none}
@@ -78,25 +78,25 @@ button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:
 .pip-btn{padding:.3rem .75rem;background:var(--s2);border:1px solid var(--b2);border-radius:5px;font-family:var(--mono);font-size:.65rem;color:var(--m2)}
 .pip-btn.active{background:var(--gold2);color:var(--gold);border-color:var(--gold)}
 
-.cv-wrap{flex:1;position:relative;overflow:hidden;cursor:grab}
+.cv-wrap{flex:1;position:relative;overflow:hidden;cursor:grab;touch-action:none}
 .cv-wrap:active{cursor:grabbing}
 .cv-wrap.pipette-mode{cursor:crosshair}
-#d-canvas, #mob-canvas{position:absolute;transform-origin:0 0;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.5)}
+#d-canvas, #mob-canvas{position:absolute;transform-origin:0 0;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.6);will-change:transform}
 
-/* 局部框選取景框視覺線 */
-.crop-box{position:absolute;border:1.5px dashed var(--gold);background:rgba(201,168,76,0.12);pointer-events:none;display:none;z-index:99}
+/* 局部框選取景框線（優化粗細與顏色） */
+.crop-box{position:absolute;border:2px dashed var(--gold);background:rgba(201,168,76,0.15);pointer-events:none;display:none;z-index:99;box-shadow:0 0 10px rgba(0,0,0,0.5)}
 
 .drop-zone{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5}
 .drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .drop-ring{width:56px;height:56px;border-radius:50%;border:1.5px dashed var(--b3);margin-bottom:1rem}
 .drop-title{font-family:var(--serif);font-style:italic;font-size:1.1rem;color:var(--m3)}
 
-/* ── STRIP WITH SQUARE PREVIEWS ── */
+/* ── 正方形縮圖列 ── */
 .strip{padding:.5rem .75rem;border-top:1px solid var(--b1);display:flex;gap:.5rem;overflow-x:auto;flex-shrink:0;background:var(--bg)}
 .st-item{flex-shrink:0;cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid transparent;transition:all .15s;position:relative;width:64px;height:64px;background:var(--s2)}
 .st-item.active{border-color:var(--gold)}
 .st-canvas, .mob-st-canvas{width:100%;height:100%;object-fit:cover;display:block}
-.st-label{position:absolute;bottom:0;left:0;right:0;padding:2px;font-family:var(--sans);font-size:.5rem;font-weight:500;text-align:center;background:rgba(0,0,0,0.6);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-label{position:absolute;bottom:0;left:0;right:0;padding:2px;font-family:var(--sans);font-size:.52rem;font-weight:600;text-align:center;background:rgba(0,0,0,0.65);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* AI BAR */
 .ai-bar{padding:.5rem .85rem;border-top:1px solid var(--b1);display:flex;align-items:center;gap:1rem;flex-shrink:0;background:var(--bg)}
@@ -124,20 +124,25 @@ input[type=range].sl-input{position:absolute;inset:0;width:100%;height:100%;opac
 .rail-temp{background:linear-gradient(to right,#4080c8,#c88030)!important}
 .rail-tint{background:linear-gradient(to right,#408840,#b040b0)!important}
 
-.dl-btn{width:100%;padding:.65rem;background:var(--gold);border-radius:6px;font-size:.75rem;color:#111;font-weight:600;margin-top:.4rem}
+.dl-btn{width:100%;padding:.7rem;background:var(--gold);border-radius:8px;font-size:.8rem;color:#111;font-weight:600;margin-top:.5rem}
 
-/* ── MOBILE SPECIFIC ── */
-.mob-strip{display:flex;gap:.55rem;overflow-x:auto;padding:.8rem .75rem;align-items:center}
-.mob-st{flex-shrink:0;cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid transparent;width:68px;height:68px;background:var(--s2);position:relative}
+/* ── MOBILE SPECIFIC (優化滑動與觸控熱區) ── */
+.mob-strip{display:flex;gap:.65rem;overflow-x:auto;padding:.6rem .8rem;align-items:center;width:100%;-webkit-overflow-scrolling:touch}
+.mob-st{flex-shrink:0;cursor:pointer;border-radius:10px;overflow:hidden;border:2px solid transparent;width:72px;height:72px;background:var(--s2);position:relative;box-shadow:0 4px 10px rgba(0,0,0,0.3)}
 .mob-st.active{border-color:var(--gold)}
-.sheet-handle{width:32px;height:4px;background:var(--b3);border-radius:2px;margin:.6rem auto .4rem}
+.sheet-handle{width:40px;height:5px;background:var(--b3);border-radius:3px;margin:.7rem auto .5rem;padding:.2rem 0}
 .sheet-tabs{display:flex;border-bottom:1px solid var(--b1);padding:0 .5rem}
-.sheet-tab{flex:1;padding:.5rem;font-family:var(--mono);font-size:.65rem;color:var(--m1);text-align:center}
-.sheet-tab.active{color:var(--tx);border-bottom-color:var(--gold)}
-.sheet-body{padding:.6rem 1rem 1rem;overflow-y:auto;max-height:calc(52vh - 60px)}
+.sheet-tab{flex:1;padding:.6rem;font-family:var(--mono);font-size:.7rem;color:var(--m1);text-align:center}
+.sheet-tab.active{color:var(--tx);border-bottom-color:var(--gold);font-weight:600}
+.sheet-body{padding:.8rem 1.2rem calc(1.2rem + var(--safe-b));overflow-y:auto;max-height:calc(48vh - 60px);-webkit-overflow-scrolling:touch}
 
-.toast{position:fixed;bottom:calc(var(--tb-h) + var(--safe-b) + .5rem);right:1rem;background:var(--s4);border:1px solid var(--b2);color:var(--tx);padding:.45rem .85rem;border-radius:6px;font-size:.7rem;z-index:999;transform:translateY(8px);opacity:0;transition:all .2s;pointer-events:none}
-.toast.show{transform:translateY(0);opacity:1}
+/* 頂部對比按鈕手機優化版 */
+.mob-top-bar{position:absolute;top:env(safe-area-inset-top,15px);left:1rem;right:1rem;display:flex;justify-content:space-between;align-items:center;z-index:40;pointer-events:none}
+.mob-badge{pointer-events:auto;background:rgba(0,0,0,0.6);font-family:var(--mono);font-size:.65rem;padding:4px 10px;border-radius:6px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--b1)}
+.mob-cmp{pointer-events:auto;background:rgba(255,255,255,0.12);border:1px solid var(--b2);padding:.4rem .9rem;border-radius:6px;font-size:.7rem;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);user-select:none;-webkit-user-select:none}
+
+.toast{position:fixed;bottom:calc(var(--tb-h) + var(--safe-b) + .8rem);left:50%;transform:translate(-50%, 8px);background:rgba(30,28,26,0.95);border:1px solid var(--b2);color:var(--tx);padding:.5rem 1.2rem;border-radius:20px;font-size:.75rem;z-index:999;opacity:0;transition:all .2s cubic-bezier(.25,1,.5,1);pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.4);white-space:nowrap}
+.toast.show{transform:translate(-50%, 0);opacity:1}
 
 @media(max-width:860px){.desk{display:none}.mob{display:flex}}
 @media(min-width:861px){.mob{display:none}.desk{display:grid}}
@@ -150,7 +155,7 @@ input[type=range].sl-input{position:absolute;inset:0;width:100%;height:100%;opac
     <div class="logo">
       <div class="logo-mark"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14"/></svg></div>
       <span class="logo-name">KaiLun Film Lab</span>
-      <span class="logo-tag">| Zoom & Pro Balanced</span>
+      <span class="logo-tag">| Engine Pro 2.5</span>
     </div>
     <div class="top-tabs" style="margin-left:1.5rem"><div class="top-tab active">暗房調色</div></div>
     <div class="top-right">
@@ -168,7 +173,7 @@ input[type=range].sl-input{position:absolute;inset:0;width:100%;height:100%;opac
     <div class="cv-bar">
       <div class="cv-badge" id="d-badge">未導入</div>
       <button class="pip-btn" id="d-pipette" onclick="togglePipetteMode()"><span>🧪 框選區域校正白平衡</span></button>
-      <button class="cmp-btn" onmousedown="showOriginal()" onmouseup="showFiltered()" ontouchstart="showOriginal()" ontouchend="showFiltered()">對比</button>
+      <button class="cmp-btn" onmousedown="showOriginal()" onmouseup="showFiltered()" onmouseleave="showFiltered()">對比</button>
     </div>
     
     <div class="cv-wrap" id="d-cv-wrap" onmousedown="panStart(event)" onmousemove="panMove(event)" onmouseup="panEnd()" onmouseleave="panEnd()" onwheel="handleWheel(event)">
@@ -198,11 +203,16 @@ input[type=range].sl-input{position:absolute;inset:0;width:100%;height:100%;opac
 </div>
 
 <div class="mob">
-  <div class="mob-preview" id="m-cv-wrap" ontouchstart="mobTouchStart(event)" ontovemove="mobTouchMove(event)" ontouchend="mobTouchEnd(event)">
+  <div class="mob-top-bar">
+    <div class="mob-badge" id="m-badge" style="color:var(--m2)">未導入</div>
+    <button class="mob-cmp" id="m-cmp-btn" ontouchstart="showOriginal(); e.preventDefault();" ontouchend="showFiltered(); e.preventDefault();">對比</button>
+  </div>
+
+  <div class="mob-preview" id="m-cv-wrap" ontouchstart="mobTouchStart(event)" ontouchmove="mobTouchMove(event)" ontouchend="mobTouchEnd(event)">
     <div class="crop-box" id="m-crop-box"></div>
     <div class="drop-zone" id="m-drop" style="z-index:20">
       <input type="file" accept="image/*" onchange="handleFileSelect(event)">
-      <div class="drop-title" style="font-size:0.95rem">點擊此處導入相片檔案</div>
+      <div class="drop-title" style="font-size:0.95rem;border:1px dashed var(--b3);padding:1rem;border-radius:8px">點擊此處導入相片檔案</div>
     </div>
     <canvas id="mob-canvas"></canvas>
   </div>
@@ -232,12 +242,12 @@ input[type=range].sl-input{position:absolute;inset:0;width:100%;height:100%;opac
 
 <script>
 const baseRecipes = [
-  { id:'c1', name:'Classic Chrome', mood:'人文電影、低飽和經典色彩', tags:'經典', params:{ exp:0, cont:14, sat:-14, temp:3, tint:-2, sharp:8, grain:12, vib:4 } },
-  { id:'c2', name:'Kodak Gold 200', mood:'溫暖懷舊、午後金黃陽光感', tags:'復古', params:{ exp:3, cont:10, sat:12, temp:12, tint:2, sharp:6, grain:18, vib:6 } },
-  { id:'c3', name:'Fujifilm Superia', mood:'清冷綠色調、日系空氣通透感', tags:'日系', params:{ exp:2, cont:-4, sat:4, temp:-12, tint:14, sharp:8, grain:10, vib:-2 } },
-  { id:'c4', name:'Portra 400', mood:'柔和通透、白皙細膩人像膚色', tags:'人像', params:{ exp:4, cont:-8, sat:-5, temp:2, tint:1, sharp:5, grain:6, vib:2 } },
-  { id:'c5', name:'Cinestill 800T', mood:'電影感夜街、微弱光霓虹冷調', tags:'夜景', params:{ exp:6, cont:16, sat:6, temp:-16, tint:-6, sharp:10, grain:22, vib:8 } },
-  { id:'c6', name:'Monochrome 復古黑白', mood:'高反差、人文顆粒光影', tags:'黑白', params:{ exp:0, cont:24, sat:-100, temp:0, tint:0, sharp:12, grain:28, vib:0 } }
+  { id:'c1', name:'Classic Chrome', mood:'人文電影、低飽和經典色彩', params:{ exp:0, cont:14, sat:-14, temp:3, tint:-2, sharp:8, grain:12, vib:4 } },
+  { id:'c2', name:'Kodak Gold 200', mood:'溫暖懷舊、午後金黃陽光感', params:{ exp:3, cont:10, sat:12, temp:12, tint:2, sharp:6, grain:18, vib:6 } },
+  { id:'c3', name:'Fujifilm Superia', mood:'清冷綠色調、日系空氣通透感', params:{ exp:2, cont:-4, sat:4, temp:-12, tint:14, sharp:8, grain:10, vib:-2 } },
+  { id:'c4', name:'Portra 400', mood:'柔和通透、白皙細膩人像膚色', params:{ exp:4, cont:-8, sat:-5, temp:2, tint:1, sharp:5, grain:6, vib:2 } },
+  { id:'c5', name:'Cinestill 800T', mood:'電影感夜街、微弱光霓虹冷調', params:{ exp:6, cont:16, sat:6, temp:-16, tint:-6, sharp:10, grain:22, vib:8 } },
+  { id:'c6', name:'Monochrome 黑白', mood:'高反差、人文顆粒光影', params:{ exp:0, cont:24, sat:-100, temp:0, tint:0, sharp:12, grain:28, vib:0 } }
 ];
 
 let userRecipes = [];
@@ -246,15 +256,12 @@ try { const s = localStorage.getItem('kl-recipes-v2'); if(s) userRecipes = JSON.
 let curId = 'c1';
 let imgElement = null;
 
-// 原始解析度快取
 let masterCanvas = document.createElement('canvas');
-// 80x80 超輕量預覽母圖（效能核心）
-let thumbMasterCanvas = document.createElement('canvas');
+let thumbMasterCanvas = document.createElement('canvas'); // 80x80 快取
 
-// 目前調色參數
 let adj = { exp:0, cont:0, sat:0, temp:0, tint:0, sharp:0, grain:0, vib:0 };
 
-// 檢視轉換矩陣狀態（支援極致流暢的 Zoom & Pan）
+// 檢視轉換矩陣（手機電腦全通用系統）
 let transformState = { x:0, y:0, scale:1 };
 let isDragging = false;
 let startPanX = 0, startPanY = 0;
@@ -264,7 +271,7 @@ let isPipetteMode = false;
 let isSelectingRegion = false;
 let regionStart = { x:0, y:0 };
 
-// 手機多點觸控狀態
+// 手機多點觸控矩陣快取
 let touchStartDist = 0;
 let touchStartScale = 1;
 let touchStartPos = { x:0, y:0 };
@@ -282,13 +289,19 @@ const sliderDefs = [
 
 window.addEventListener('DOMContentLoaded', () => {
   buildSlidersUI();
-  // 建立尚未上傳前的空縮圖狀態
   buildDynamicStrips();
   applyRecipe(curId, false);
+  
+  // 阻斷行動端全網頁非法彈性回彈
+  document.body.addEventListener('touchmove', (e) => {
+    if (e.target.closest('.sheet-body') || e.target.closest('.mob-strip') || e.target.closest('.recipe-list')) {
+      return; // 允許控制面版與滑動列正常滾動
+    }
+    e.preventDefault();
+  }, { passive: false });
 });
 
 function getRecipe(id) { return baseRecipes.find(r=>r.id===id) || userRecipes.find(r=>r.id===id); }
-
 function triggerUpload() { document.getElementById('d-file').click(); }
 
 function handleFileSelect(e) {
@@ -298,30 +311,27 @@ function handleFileSelect(e) {
   r.onload = function(evt){
     imgElement = new Image();
     imgElement.onload = function(){
-      // 1. 寫入高解析原始畫布
       masterCanvas.width = imgElement.width;
       masterCanvas.height = imgElement.height;
       masterCanvas.getContext('2d').drawImage(imgElement, 0, 0);
 
-      // 2. 生成 80x80 超輕量預覽母圖（效能優化關鍵）
+      // 生成 80x80 輕量母圖
       thumbMasterCanvas.width = 80;
       thumbMasterCanvas.height = 80;
       thumbMasterCanvas.getContext('2d').drawImage(imgElement, 0, 0, 80, 80);
 
-      // 隱藏拖放提示，顯示畫布
       document.getElementById('d-drop').style.display = 'none';
       document.getElementById('m-drop').style.display = 'none';
       document.getElementById('d-canvas').style.display = 'block';
       document.getElementById('mob-canvas').style.display = 'block';
       document.getElementById('d-badge').textContent = "已導入";
+      document.getElementById('m-badge').textContent = "已導入";
+      document.getElementById('m-badge').style.color = "var(--gold)";
 
-      // 3. 自動適應大小居中 (Fit view)
       resetViewport();
-      
-      // 4. 即時背景異步重繪所有濾鏡小方塊
       buildDynamicStrips();
       
-      // 5. 執行模擬 AI 分析
+      // 隨機模擬 AI 分析
       document.getElementById('sc-b').textContent = Math.floor(Math.random()*45+20)+'%';
       document.getElementById('sc-s').textContent = Math.floor(Math.random()*30+20)+'%';
       document.getElementById('sc-n').textContent = Math.floor(Math.random()*25+15)+'%';
@@ -338,7 +348,7 @@ function resetViewport() {
   const isMob = window.innerWidth <= 860;
   const container = document.getElementById(isMob ? 'm-cv-wrap' : 'd-cv-wrap');
   const cw = container.clientWidth, ch = container.clientHeight;
-  const ratio = Math.min(cw / imgElement.width, ch / imgElement.height, 1);
+  const ratio = Math.min(cw / imgElement.width, ch / imgElement.height, 1) * 0.95;
   
   transformState.scale = ratio;
   transformState.x = (cw - imgElement.width * ratio) / 2;
@@ -349,12 +359,11 @@ function resetViewport() {
 function applyTransform() {
   const dc = document.getElementById('d-canvas');
   const mc = document.getElementById('mob-canvas');
-  const ts = `translate(${transformState.x}px, ${transformState.y}px) scale(${transformState.scale})`;
+  const ts = `translate3d(${transformState.x}px, ${transformState.y}px, 0) scale(${transformState.scale})`;
   dc.style.transform = ts;
   mc.style.transform = ts;
 }
 
-// ── 建立微調滑桿 ──
 function buildSlidersUI() {
   const dCont = document.getElementById('d-sliders');
   dCont.innerHTML = sliderDefs.map(s => `
@@ -370,17 +379,16 @@ function buildSlidersUI() {
         <div class="sl-val" id="val-${s.k}">0</div>
       </div>
     </div>
-  `).join('') + `<button class="dl-btn" onclick="exportFinalPhoto()">💾 下載匯出相片</button>`;
+  `).join('') + `<button class="dl-btn" onclick="exportFinalPhoto()">💾 下載匯出高解析相片</button>`;
 }
 
-// ── 核心功能：動態正方形濾鏡小方塊優化（高效毫秒渲染） ──
+// ── 正方形縮圖高效異步著色 ──
 function buildDynamicStrips() {
   const all = [...baseRecipes, ...userRecipes];
   const dStrip = document.getElementById('d-strip');
   const mStrip = document.getElementById('m-strip');
   const dRecList = document.getElementById('d-recipe-list');
 
-  // 桌機小方塊
   dStrip.innerHTML = all.map(r => `
     <div class="st-item ${r.id===curId?'active':''}" data-id="${r.id}" onclick="applyRecipe('${r.id}')">
       <canvas class="st-canvas" id="thumb-d-${r.id}"></canvas>
@@ -388,7 +396,6 @@ function buildDynamicStrips() {
     </div>
   `).join('');
 
-  // 手機小方塊
   mStrip.innerHTML = all.map(r => `
     <div class="mob-st ${r.id===curId?'active':''}" data-id="${r.id}" onclick="applyRecipe('${r.id}')">
       <canvas class="mob-st-canvas" id="thumb-m-${r.id}"></canvas>
@@ -396,7 +403,6 @@ function buildDynamicStrips() {
     </div>
   `).join('');
 
-  // 左側列表
   dRecList.innerHTML = all.map(r => `
     <div class="ri ${r.id===curId?'active':''}" data-id="${r.id}" onclick="applyRecipe('${r.id}')">
       <div class="ri-thumb"><canvas id="thumb-l-${r.id}"></canvas></div>
@@ -407,25 +413,19 @@ function buildDynamicStrips() {
     </div>
   `).join('');
 
-  // 渲染縮圖核心：若未上傳，使用純底色色塊；若已上傳，瞬間用 80x80 預覽母圖動態著色
   all.forEach(r => {
     ['thumb-d-', 'thumb-m-', 'thumb-l-'].forEach(prefix => {
       const cv = document.getElementById(prefix + r.id);
       if(!cv) return;
-      cv.width = 64; cv.height = 64;
+      cv.width = 72; cv.height = 72;
       const ctx = cv.getContext('2d');
       
       if(!imgElement) {
-        // 尚未導入相片時，填入對應經典色
-        ctx.fillStyle = r.id==='c6' ? '#666' : '#2d2a26';
-        ctx.fillRect(0,0,64,64);
-        ctx.fillStyle = 'rgba(255,255,255,0.15)';
-        ctx.font = '10px sans-serif';
-        ctx.fillText('No Image', 10, 36);
+        ctx.fillStyle = r.id==='c6' ? '#444' : '#23201d';
+        ctx.fillRect(0,0,72,72);
       } else {
-        // 已導入相片，快速渲染套用該濾鏡參數的縮圖
-        ctx.drawImage(thumbMasterCanvas, 0, 0, 64, 64);
-        applyFilterCore(ctx, 64, 64, r.params);
+        ctx.drawImage(thumbMasterCanvas, 0, 0, 72, 72);
+        applyFilterCore(ctx, 72, 72, r.params);
       }
     });
   });
@@ -463,17 +463,15 @@ function applyRecipe(id, triggerToast = true) {
     document.querySelectorAll('.st-item, .mob-st, .ri').forEach(el => {
       el.classList.toggle('active', el.dataset.id === id);
     });
-    if(triggerToast) toast('套用濾鏡: ' + r.name);
+    if(triggerToast) toast('已套用濾鏡: ' + r.name);
   }
 }
 
-// ── 雙端主視窗流暢渲染 ──
 function renderMainView() {
   if(!imgElement) return;
   const dc = document.getElementById('d-canvas');
   const mc = document.getElementById('mob-canvas');
   
-  // 維持畫布本體尺寸等於照片實際原始尺寸
   dc.width = imgElement.width; dc.height = imgElement.height;
   mc.width = imgElement.width; mc.height = imgElement.height;
 
@@ -487,22 +485,21 @@ function renderMainView() {
   applyFilterCore(mCtx, mc.width, mc.height, adj);
 }
 
-// ── 對比功能 ──
 function showOriginal() {
   if(!imgElement) return;
   const dc = document.getElementById('d-canvas');
   const mc = document.getElementById('mob-canvas');
   dc.getContext('2d').drawImage(masterCanvas, 0, 0);
   mc.getContext('2d').drawImage(masterCanvas, 0, 0);
-  document.getElementById('d-badge').textContent = "對比原圖中";
+  document.getElementById('m-badge').textContent = "對比中";
 }
 function showFiltered() {
   if(!imgElement) return;
   renderMainView();
-  document.getElementById('d-badge').textContent = "已調色";
+  document.getElementById('m-badge').textContent = "已調色";
 }
 
-// ── 專業濾鏡影像核心演算法 ──
+// ── 專業級濾鏡演算法底層 ──
 function applyFilterCore(ctx, w, h, p) {
   const imgData = ctx.getImageData(0, 0, w, h);
   const d = imgData.data;
@@ -518,19 +515,15 @@ function applyFilterCore(ctx, w, h, p) {
   for (let i = 0; i < d.length; i += 4) {
     let r = d[i], g = d[i+1], b = d[i+2];
 
-    // 1. Exposure
     if(ev !== 0) { const f = Math.pow(2, ev); r *= f; g *= f; b *= f; }
-    // 2. Contrast
     if(cv !== 1) {
       r = ((r/255 - 0.5) * cv + 0.5) * 255;
       g = ((g/255 - 0.5) * cv + 0.5) * 255;
       b = ((b/255 - 0.5) * cv + 0.5) * 255;
     }
-    // 3. WB (Temp & Tint)
     r += tempV; b -= tempV;
     g += tintV; r -= tintV * 0.5; b -= tintV * 0.5;
 
-    // 4. Vibrance & Saturation
     let max = Math.max(r, g, b);
     let l = (max + Math.min(r, g, b)) / 2;
     if(vibV !== 0) {
@@ -541,7 +534,6 @@ function applyFilterCore(ctx, w, h, p) {
       let gray = 0.299 * r + 0.587 * g + 0.114 * b;
       r = gray + (r - gray) * sv; g = gray + (g - gray) * sv; b = gray + (b - gray) * sv;
     }
-    // 5. Film Grain
     if(grainV > 0) {
       const ns = (Math.random() - 0.5) * grainV * 0.55;
       r += ns; g += ns; b += ns;
@@ -554,7 +546,6 @@ function applyFilterCore(ctx, w, h, p) {
   ctx.putImageData(imgData, 0, 0);
 }
 
-// ── ✨ 一鍵 AI 智能調色 ──
 function runAIOptimize() {
   if(!imgElement) { toast('❌ 請先導入一張相片'); return; }
   const b = parseInt(document.getElementById('sc-b').textContent) || 30;
@@ -563,19 +554,18 @@ function runAIOptimize() {
 
   if(b > s && b > n) {
     adj = { exp:2, cont:14, sat:-6, temp:-5, tint:2, sharp:12, grain:8, vib:4 };
-    toast('✨ AI優化：都市建築結構，已加強光影與冷冽調性');
+    toast('✨ AI已優化：針對都市結構增強光影與冷冽色調');
   } else if(n > b && n > s) {
     adj = { exp:4, cont:-2, sat:8, temp:-8, tint:10, sharp:6, grain:4, vib:6 };
-    toast('✨ AI優化：自然植被風景，已通透綠意與日系空氣感');
+    toast('✨ AI已優化：針對綠意風景優化通透與空氣感');
   } else {
     adj = { exp:3, cont:8, sat:4, temp:6, tint:-2, sharp:10, grain:15, vib:2 };
-    toast('✨ AI優化：街頭人文場景，已溫潤暖調並提升故事感');
+    toast('✨ AI已優化：針對人文街景注入溫潤底片故事感');
   }
   syncSlidersUI();
   renderMainView();
 }
 
-// ── 🧪 升級版：框選範圍 AI 精准白平衡功能 ──
 function togglePipetteMode() {
   if(!imgElement) { toast('❌ 請先導入相片'); return; }
   isPipetteMode = !isPipetteMode;
@@ -588,7 +578,7 @@ function togglePipetteMode() {
     btn.classList.add('active');
     if(mBtn) mBtn.classList.add('active');
     wrapD.classList.add('pipette-mode');
-    toast('🧪 請在相片上「拉框選取」一個白色或灰色區域');
+    toast('🧪 請在照片上「滑動拉框」圈選中性灰或白色區域');
   } else {
     btn.classList.remove('active');
     if(mBtn) mBtn.classList.remove('active');
@@ -598,23 +588,20 @@ function togglePipetteMode() {
   }
 }
 
-// 核心演算法：將螢幕滑鼠拉框範圍，精準變換還原回原始影像的高解析像素座標
 function calculateAndApplyWBBypet(x1, y1, x2, y2) {
   if(!imgElement) return;
   const dc = document.getElementById('d-canvas');
   const ctx = dc.getContext('2d');
 
-  // 計算選取框在原始影像解析度下的真實矩形
   const rx = Math.min(x1, x2), ry = Math.min(y1, y2);
   const rw = Math.abs(x1 - x2), rh = Math.abs(y1 - y2);
-  if(rw < 3 || rh < 3) return; // 避免極度微小的無效框選
+  if(rw < 4 || rh < 4) return;
 
   try {
     const imgData = ctx.getImageData(rx, ry, rw, rh);
     const d = imgData.data;
     let rSum = 0, gSum = 0, bSum = 0, count = 0;
 
-    // 加總區域內所有像素
     for (let i = 0; i < d.length; i += 4) {
       rSum += d[i]; gSum += d[i+1]; bSum += d[i+2];
       count++;
@@ -624,48 +611,37 @@ function calculateAndApplyWBBypet(x1, y1, x2, y2) {
       const rAvg = rSum / count, gAvg = gSum / count, bAvg = bSum / count;
       const avg = (rAvg + gAvg + bAvg) / 3;
 
-      // AI 反向分析偏色誤差
       if (avg > 0) {
-        const diffTemp = Math.floor(((rAvg - bAvg) / avg) * 32);
-        const diffTint = Math.floor(((gAvg - ((rAvg + bAvg) / 2)) / avg) * 32);
+        const diffTemp = Math.floor(((rAvg - bAvg) / avg) * 28);
+        const diffTint = Math.floor(((gAvg - ((rAvg + bAvg) / 2)) / avg) * 28);
 
         adj.temp = Math.max(-50, Math.min(50, adj.temp - diffTemp));
         adj.tint = Math.max(-50, Math.min(50, adj.tint - diffTint));
 
         syncSlidersUI();
         renderMainView();
-        toast('✓ AI 區域白平衡自動校正完成');
+        toast('✓ AI 區域矩陣白平衡自動修正完成');
       }
     }
   } catch (e) { console.error(e); }
-  
-  // 自動解鎖還原狀態
   togglePipetteMode();
 }
 
-// ── 電腦端滑鼠控制：平移、縮放與框選平衡 ──
+// ── 桌機滑鼠控制系統 ──
 function panStart(e) {
   if(!imgElement) return;
-  const isMob = window.innerWidth <= 860;
-  const wrap = document.getElementById(isMob ? 'm-cv-wrap' : 'd-cv-wrap');
+  const wrap = document.getElementById('d-cv-wrap');
   const rect = wrap.getBoundingClientRect();
-  
-  // 計算相對於取景視窗內部的滑鼠起點
   const clickX = e.clientX - rect.left;
   const clickY = e.clientY - rect.top;
 
   if (isPipetteMode) {
-    // 進入區域框選狀態
     isSelectingRegion = true;
-    regionStart.x = clickX;
-    regionStart.y = clickY;
-    
-    const box = document.getElementById(isMob ? 'm-crop-box' : 'd-crop-box');
+    regionStart.x = clickX; regionStart.y = clickY;
+    const box = document.getElementById('d-crop-box');
     box.style.left = clickX + 'px'; box.style.top = clickY + 'px';
-    box.style.width = '0px'; box.style.height = '0px';
-    box.style.display = 'block';
+    box.style.width = '0px'; box.style.height = '0px'; box.style.display = 'block';
   } else {
-    // 進入普通相片平移狀態
     isDragging = true;
     startPanX = e.clientX - transformState.x;
     startPanY = e.clientY - transformState.y;
@@ -674,46 +650,31 @@ function panStart(e) {
 
 function panMove(e) {
   if(!imgElement) return;
-  const isMob = window.innerWidth <= 860;
-  const wrap = document.getElementById(isMob ? 'm-cv-wrap' : 'd-cv-wrap');
-  const rect = wrap.getBoundingClientRect();
-  const currentX = e.clientX - rect.left;
-  const currentY = e.clientY - rect.top;
-
   if (isPipetteMode && isSelectingRegion) {
-    // 隨滑鼠拉動更新虛線選取框
-    const box = document.getElementById(isMob ? 'm-crop-box' : 'd-crop-box');
-    const x = Math.min(regionStart.x, currentX);
-    const y = Math.min(regionStart.y, currentY);
-    const w = Math.abs(regionStart.x - currentX);
-    const h = Math.abs(regionStart.y - currentY);
+    const wrap = document.getElementById('d-cv-wrap');
+    const rect = wrap.getBoundingClientRect();
+    const curX = e.clientX - rect.left; const curY = e.clientY - rect.top;
+    const box = document.getElementById('d-crop-box');
+    const x = Math.min(regionStart.x, curX); const y = Math.min(regionStart.y, curY);
     box.style.left = x + 'px'; box.style.top = y + 'px';
-    box.style.width = w + 'px'; box.style.height = h + 'px';
+    box.style.width = Math.abs(regionStart.x - curX) + 'px'; box.style.height = Math.abs(regionStart.y - curY) + 'px';
   } else if (isDragging) {
-    // 平移照片位置
     transformState.x = e.clientX - startPanX;
     transformState.y = e.clientY - startPanY;
     applyTransform();
   }
 }
 
-function panEnd(e) {
-  const isMob = window.innerWidth <= 860;
+function panEnd() {
   if (isPipetteMode && isSelectingRegion) {
     isSelectingRegion = false;
-    const box = document.getElementById(isMob ? 'm-crop-box' : 'd-crop-box');
+    const box = document.getElementById('d-crop-box');
     box.style.display = 'none';
 
-    // 核心重連：把畫面的螢幕座標矩形，精確換算還原成高解析 Canvas 內部的像素座標
-    const boxLeft = parseFloat(box.style.left);
-    const boxTop = parseFloat(box.style.top);
-    const boxWidth = parseFloat(box.style.width);
-    const boxHeight = parseFloat(box.style.height);
-
-    const canvasX1 = Math.floor((boxLeft - transformState.x) / transformState.scale);
-    const canvasY1 = Math.floor((boxTop - transformState.y) / transformState.scale);
-    const canvasX2 = Math.floor((boxLeft + boxWidth - transformState.x) / transformState.scale);
-    const canvasY2 = Math.floor((boxTop + boxHeight - transformState.y) / transformState.scale);
+    const canvasX1 = Math.floor((parseFloat(box.style.left) - transformState.x) / transformState.scale);
+    const canvasY1 = Math.floor((parseFloat(box.style.top) - transformState.y) / transformState.scale);
+    const canvasX2 = Math.floor((parseFloat(box.style.left) + parseFloat(box.style.width) - transformState.x) / transformState.scale);
+    const canvasY2 = Math.floor((parseFloat(box.style.top) + parseFloat(box.style.height) - transformState.y) / transformState.scale);
 
     calculateAndApplyWBBypet(canvasX1, canvasY1, canvasX2, canvasY2);
   }
@@ -723,15 +684,11 @@ function panEnd(e) {
 function handleWheel(e) {
   if(!imgElement) return;
   e.preventDefault();
-  const wrap = document.getElementById('d-cv-wrap');
-  const rect = wrap.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
+  const rect = document.getElementById('d-cv-wrap').getBoundingClientRect();
+  const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top;
 
-  // 滾輪縮放核心數學邏輯（以滑鼠指針為中心流暢收放）
-  const zoomFactor = 1.1;
-  const nextScale = e.deltaY < 0 ? transformState.scale * zoomFactor : transformState.scale / zoomFactor;
-  if(nextScale < 0.1 || nextScale > 15) return;
+  const nextScale = e.deltaY < 0 ? transformState.scale * 1.12 : transformState.scale / 1.12;
+  if(nextScale < 0.15 || nextScale > 12) return;
 
   transformState.x = mouseX - (mouseX - transformState.x) * (nextScale / transformState.scale);
   transformState.y = mouseY - (mouseY - transformState.y) * (nextScale / transformState.scale);
@@ -739,11 +696,11 @@ function handleWheel(e) {
   applyTransform();
 }
 
-// ── 手機端觸控手勢核心：完美的單指平移、雙指張開縮放與框選 ──
+// ── 📱 手機端極致流暢多點觸控手勢核心（完美修正瞬移與晃動） ──
 function mobTouchStart(e) {
   if(!imgElement) return;
-  const wrap = document.getElementById('m-cv-wrap');
-  const rect = wrap.getBoundingClientRect();
+  e.preventDefault(); // 阻斷 iOS 滾動
+  const rect = document.getElementById('m-cv-wrap').getBoundingClientRect();
 
   if (isPipetteMode) {
     isSelectingRegion = true;
@@ -760,7 +717,6 @@ function mobTouchStart(e) {
       startPanX = e.touches[0].clientX - transformState.x;
       startPanY = e.touches[0].clientY - transformState.y;
     } else if (e.touches.length === 2) {
-      // 雙指捏合縮放初始化
       isDragging = false;
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -775,8 +731,8 @@ function mobTouchStart(e) {
 
 function mobTouchMove(e) {
   if(!imgElement) return;
-  const wrap = document.getElementById('m-cv-wrap');
-  const rect = wrap.getBoundingClientRect();
+  e.preventDefault();
+  const rect = document.getElementById('m-cv-wrap').getBoundingClientRect();
 
   if (isPipetteMode && isSelectingRegion) {
     const t = e.touches[0];
@@ -797,7 +753,7 @@ function mobTouchMove(e) {
       if(touchStartDist === 0) return;
 
       const nextScale = touchStartScale * (dist / touchStartDist);
-      if(nextScale < 0.1 || nextScale > 15) return;
+      if(nextScale < 0.15 || nextScale > 12) return;
 
       transformState.x = touchStartPos.x - (touchStartPos.x - transformState.x) * (nextScale / transformState.scale);
       transformState.y = touchStartPos.y - (touchStartPos.y - transformState.y) * (nextScale / transformState.scale);
@@ -835,16 +791,16 @@ function exportFinalPhoto() {
   
   out.toBlob(b => {
     const a = document.createElement('a');
-    a.download = `FilmLab_${Date.now()}.jpg`;
+    a.download = `KaiLunFilm_${Date.now()}.jpg`;
     a.href = URL.createObjectURL(b);
-    a.click();
-    toast('✓ 相片已以高解析原始畫質下載導出');
-  }, 'image/jpeg', 0.95);
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    toast('✓ 高解析相片已儲存至您的裝置內');
+  }, 'image/jpeg', 0.96);
 }
 
 function saveAsRecipe() {
   const n = prompt('自訂濾鏡名稱：'); if(!n) return;
-  const r = { id:'u_'+Date.now(), name:n, mood:'個人精心調校配方', tags:'自訂', params:{...adj} };
+  const r = { id:'u_'+Date.now(), name:n, mood:'個人精心調校配方', params:{...adj} };
   userRecipes.push(r);
   localStorage.setItem('kl-recipes-v2', JSON.stringify(userRecipes));
   buildDynamicStrips();
@@ -854,7 +810,7 @@ function saveAsRecipe() {
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2500);
+  setTimeout(()=>t.classList.remove('show'), 2200);
 }
 
 // ── 手機介面面板聯動 ──
@@ -874,20 +830,20 @@ function switchMobSheetTab(tab) {
   const b = document.getElementById('m-sheet-body');
   if(tab === 'adj') {
     b.innerHTML = sliderDefs.map(s => `
-      <div style="display:flex;align-items:center;padding:.5rem 0;gap:.6rem">
-        <span style="min-width:64px;font-size:.82rem">${s.zh}</span>
-        <div style="flex:1;position:relative;height:32px;display:flex;align-items:center">
+      <div style="display:flex;align-items:center;padding:.6rem 0;gap:.6rem">
+        <span style="min-width:68px;font-size:.85rem;font-weight:500">${s.zh}</span>
+        <div style="flex:1;position:relative;height:36px;display:flex;align-items:center">
           <div class="sl-rail ${s.clsl||''}"></div>
-          <input type="range" class="sl-input" min="${s.min}" max="${s.max}" value="${adj[s.k]||0}" oninput="updateParam('${s.k}', this.value);this.parentNode.nextElementSibling.textContent=this.value">
+          <input type="range" class="sl-input" min="${s.min}" max="${s.max}" value="${adj[s.k]||0}" oninput="updateParam('${s.k}', this.value);this.parentNode.nextElementSibling.textContent=this.value > 0 ? '+'+this.value : this.value">
         </div>
-        <div style="font-family:var(--mono);font-size:.75rem;min-width:24px;text-align:right">${adj[s.k]||0}</div>
+        <div style="font-family:var(--mono);font-size:.8rem;min-width:32px;text-align:right">${adj[s.k] > 0 ? '+'+adj[s.k] : (adj[s.k]||0)}</div>
       </div>
-    `).join('') + `<button class="dl-btn" onclick="exportFinalPhoto()">💾 下載匯出相片</button>`;
+    `).join('') + `<button class="dl-btn" onclick="exportFinalPhoto()">💾 下載匯出高解析相片</button>`;
   } else {
     b.innerHTML = `
-      <div style="padding:1rem 0;text-align:center">
-        <p style="font-size:.82rem;color:var(--m2);margin-bottom:.8rem">智慧分析場景：自動匹配最適合底片結構</p>
-        <button class="dl-btn" style="background:var(--teal)" onclick="runAIOptimize()">✨ 執行一鍵 AI 智能優化</button>
+      <div style="padding:1.2rem 0;text-align:center">
+        <p style="font-size:.85rem;color:var(--m2);margin-bottom:1.2rem;line-height:1.5">智慧環境光譜分析：自動感應建築、街景與光影缺陷並一鍵反向補償校正。</p>
+        <button class="dl-btn" style="background:linear-gradient(135deg, var(--teal) 0%, #5d948c 100%);color:#0f0e0d" onclick="runAIOptimize()">✨ 執行一鍵 AI 智慧優化</button>
       </div>
     `;
   }
