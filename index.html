@@ -7,779 +7,177 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Film Lab">
 <meta name="theme-color" content="#0f0e0d">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <title>KaiLun Film Lab</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #0b0a09; --s1: #121110; --s2: #181615; --s3: #22201e; --s4: #2d2a27;
-  --b1: rgba(255,255,255,0.06); --b2: rgba(255,255,255,0.11); --b3: rgba(255,255,255,0.18);
-  --tx: #ede9e3; --m1: #726d67; --m2: #9e968d; --m3: #cbbfae;
-  --gold: #dfb23f; --gold2: rgba(223,178,63,0.12); --gold3: rgba(223,178,63,0.25);
-  --teal: #51a396; --red: #b86060; --green: #689e76;
-  --mono: 'DM Mono', monospace; --serif: 'Instrument Serif', serif; --sans: 'DM Sans', sans-serif;
-  --safe-b: env(safe-area-inset-bottom, 0px);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; background: var(--bg); color: var(--tx); font-family: var(--sans); overscroll-behavior: none; overflow: hidden; }
-::-webkit-scrollbar { display: none; }
-button { font-family: var(--sans); border: none; background: none; cursor: pointer; color: inherit; }
-
-/* ── DESKTOP LAYOUT ── */
-.desk { display: grid; grid-template-columns: 280px 1fr 340px; grid-template-rows: 56px 1fr; height: 100vh; }
-.desk-top { grid-column: 1/-1; height: 56px; border-bottom: 1px solid var(--b1); display: flex; align-items: center; padding: 0 1.25rem; gap: 1rem; background: var(--s1); }
-.desk-left { border-right: 1px solid var(--b1); display: flex; flex-direction: column; overflow: hidden; background: var(--s1); }
-.desk-center { display: flex; flex-direction: column; overflow: hidden; position: relative; background: var(--bg); }
-.desk-right { border-left: 1px solid var(--b1); display: flex; flex-direction: column; overflow: hidden; background: var(--s1); }
-
-/* ── MOBILE LAYOUT ── */
-.mob { display: none; flex-direction: column; height: 100dvh; position: relative; background: var(--bg); }
-.mob-top { height: 48px; border-bottom: 1px solid var(--b1); display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; background: var(--s1); }
-.mob-top .title { font-family: var(--sans); font-weight: 500; font-size: 0.95rem; letter-spacing: 0.05em; }
-.mob-tabs-nav { display: flex; height: 40px; border-bottom: 1px solid var(--b1); background: var(--s1); }
-.mob-nav-btn { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: var(--m2); font-weight: 500; position: relative; }
-.mob-nav-btn.active { color: var(--gold); }
-.mob-nav-btn.active::after { content: ''; position: absolute; bottom: 0; left: 25%; right: 25%; height: 2px; background: var(--gold); }
-
-.mob-content-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; min-height: 0; }
-.mob-view { display: none; flex-direction: column; flex: 1; overflow-y: auto; min-height: 0; }
-.mob-view.active { display: flex; }
-
-.mob-preview-area { height: 35vh; min-height: 220px; position: relative; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 1px solid var(--b1); }
-.mob-strip-area { height: 96px; background: var(--s1); border-bottom: 1px solid var(--b1); display: flex; align-items: center; padding: 0 0.75rem; overflow-x: auto; gap: 0.5rem; }
-
-/* ── TOPBAR ELEMENTS ── */
-.logo { display: flex; align-items: center; gap: .6rem; }
-.logo-mark { width: 24px; height: 24px; background: var(--gold); border-radius: 5px; display: flex; align-items: center; justify-content: center; }
-.logo-mark svg { width: 14px; height: 14px; stroke: #111; fill: none; stroke-width: 2.5; }
-.logo-name { font-family: var(--sans); font-weight: 600; font-size: 1rem; }
-.logo-tag { font-family: var(--mono); font-size: .58rem; color: var(--m1); margin-left: .25rem; }
-.top-tabs { display: flex; background: var(--s3); border-radius: 6px; padding: 2px; }
-.top-tab { padding: .35rem .9rem; border-radius: 5px; font-family: var(--sans); font-size: .75rem; font-weight: 500; color: var(--m2); cursor: pointer; display: flex; align-items: center; gap: .35rem; }
-.top-tab.active { background: var(--s4); color: var(--tx); }
-.top-right { margin-left: auto; display: flex; gap: .5rem; align-items: center; }
-.hdr-btn { padding: .4rem .9rem; background: var(--s3); border: 1px solid var(--b2); border-radius: 6px; font-family: var(--sans); font-size: .75rem; color: var(--tx); font-weight: 500; display: flex; align-items: center; gap: .35rem; }
-.hdr-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
-.icon-btn { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--m2); }
-
-/* ── SIDEBAR & RECIPES ── */
-.sb-hdr { padding: 0.85rem 1rem 0.5rem; display: flex; align-items: center; justify-content: space-between; }
-.sb-label { font-family: var(--sans); font-size: .78rem; font-weight: 600; color: var(--tx); }
-.sb-add { width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--m2); background: var(--s3); font-size: 1rem; }
-.recipe-list { flex: 1; overflow-y: auto; padding: 0 0.75rem 0.75rem; display: flex; flex-direction: column; gap: 0.4rem; }
-.ri { display: flex; align-items: center; gap: .7rem; padding: .6rem; border-radius: 8px; cursor: pointer; background: var(--s2); border: 1px solid transparent; }
-.ri:hover { background: var(--s3); }
-.ri.active { background: var(--s3); border-color: var(--gold3); }
-.ri-thumb { width: 48px; height: 48px; border-radius: 6px; overflow: hidden; background: #000; position: relative; }
-.ri-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.ri-info { flex: 1; min-width: 0; }
-.ri-name { font-size: .82rem; font-weight: 500; color: var(--tx); }
-.ri-mood { font-size: .68rem; color: var(--m1); margin-top: 2px; }
-.ri-star { font-size: .9rem; color: var(--m1); margin-left: auto; }
-.ri-star.on { color: var(--gold); }
-.sb-foot { padding: .75rem; border-top: 1px solid var(--b1); }
-.sb-export-btn { width: 100%; padding: .55rem; background: var(--s2); border: 1px solid var(--b1); border-radius: 6px; font-size: .72rem; color: var(--m2); display: flex; align-items: center; justify-content: center; gap: .35rem; }
-
-/* ── CANVAS & WRAPPER ── */
-.cv-bar { padding: .5rem 1rem; border-bottom: 1px solid var(--b1); display: flex; align-items: center; gap: .75rem; background: var(--s1); }
-.cv-badge { font-family: var(--mono); font-size: .65rem; color: var(--m2); background: var(--s3); padding: 2px 8px; border-radius: 4px; }
-.zoom-wrap { display: flex; align-items: center; gap: 4px; margin-left: auto; }
-.zoom-btn { width: 22px; height: 22px; background: var(--s3); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--m2); font-size: .85rem; }
-.zoom-val { font-family: var(--mono); font-size: .68rem; color: var(--m2); min-width: 36px; text-align: center; }
-.cmp-btn { padding: .3rem .75rem; background: var(--s3); border-radius: 5px; font-size: .7rem; color: var(--tx); display: flex; align-items: center; gap: .3rem; }
-.cv-wrap { flex: 1; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-.cv-wrap canvas, .mob-preview-area canvas { max-width: 100%; max-height: 100%; display: block; object-fit: contain; box-shadow: 0 12px 36px rgba(0,0,0,0.5); }
-.drop-zone { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 10; background: var(--bg); }
-.drop-ring { width: 60px; height: 60px; border-radius: 50%; border: 1.5px dashed var(--b3); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
-.drop-ring svg { width: 24px; height: 24px; stroke: var(--m2); fill: none; stroke-width: 1.5; }
-.drop-title { font-size: .95rem; color: var(--m3); margin-bottom: .25rem; }
-.drop-sub { font-family: var(--mono); font-size: .65rem; color: var(--m1); }
-
-/* ── PHOTO STRIP ── */
-.strip { padding: .6rem 1rem; border-top: 1px solid var(--b1); display: flex; gap: .5rem; overflow-x: auto; background: var(--s1); height: 76px; align-items: center; }
-.st-item { width: 72px; height: 52px; flex-shrink: 0; cursor: pointer; border-radius: 6px; overflow: hidden; border: 2px solid transparent; position: relative; background: #000; }
-.st-item.active { border-color: var(--gold); }
-.st-item img { width: 100%; height: 100%; object-fit: cover; }
-
-/* ── BOTTOM AI BAR (DESKTOP) ── */
-.ai-bar { padding: .5rem 1rem; border-top: 1px solid var(--b1); display: flex; align-items: center; gap: 1.25rem; background: var(--s1); height: 56px; overflow-x: auto; }
-.ai-title-lbl { font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
-.ai-status-tag { font-size: 0.6rem; padding: 1px 5px; background: rgba(104,158,118,0.15); color: var(--green); border-radius: 3px; }
-.ai-scene { display: flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; }
-.ai-scene-ico { font-size: 0.9rem; }
-.ai-scene-lbl { color: var(--m1); }
-.ai-scene-val { color: var(--tx); font-weight: 500; font-family: var(--mono); }
-.ai-recs-row { display: flex; gap: .4rem; margin-left: auto; }
-
-/* ── SLIDERS & PANEL (RIGHT) ── */
-.rp-tabs { display: flex; border-bottom: 1px solid var(--b1); background: var(--s1); }
-.rp-tab { flex: 1; padding: .85rem 0; font-size: .8rem; font-weight: 500; color: var(--m1); cursor: pointer; text-align: center; position: relative; }
-.rp-tab.active { color: var(--tx); }
-.rp-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 30%; right: 30%; height: 2px; background: var(--gold); }
-.rp-body { flex: 1; overflow-y: auto; padding: 1rem 1.25rem; }
-
-.rp-sec { margin-bottom: 1.5rem; }
-.rp-sec-hdr { font-size: .8rem; font-weight: 600; color: var(--tx); margin-bottom: .8rem; display: flex; justify-content: space-between; align-items: center; }
-.rp-sec-hdr a { font-size: .7rem; font-weight: 400; color: var(--m2); text-decoration: none; }
-
-.sl-row { padding: .35rem 0; display: flex; align-items: center; gap: .75rem; position: relative; }
-.sl-lbl { min-width: 90px; display: flex; justify-content: space-between; font-size: .78rem; color: var(--m3); }
-.sl-lbl .en { font-family: var(--mono); font-size: .65rem; color: var(--m1); margin-left: 4px; }
-.sl-track-wrap { flex: 1; height: 24px; position: relative; display: flex; align-items: center; }
-.sl-rail { position: absolute; left: 0; right: 0; height: 4px; background: var(--s3); border-radius: 2px; }
-.sl-fill { position: absolute; height: 4px; background: var(--gold); border-radius: 2px; pointer-events: none; }
-.sl-thumb { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--tx); border: 2px solid var(--bg); box-shadow: 0 0 0 1.5px var(--gold); pointer-events: none; transform: translateX(-50%); }
-input[type=range].sl-input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; -webkit-appearance: none; z-index: 2; }
-.sl-val { font-family: var(--mono); font-size: .72rem; color: var(--tx); min-width: 28px; text-align: right; }
-
-.dl-btn { width: 100%; padding: .75rem; background: var(--gold); border-radius: 6px; font-size: .8rem; font-weight: 600; color: #111; display: flex; align-items: center; justify-content: center; gap: .4rem; margin-top: 1rem; }
-.dl-btn svg { width: 14px; height: 14px; stroke: #111; fill: none; stroke-width: 2.5; }
-
-/* AI CARDS & PILLS */
-.ai-pill-item { display: flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.6rem; background: var(--s3); border-radius: 5px; font-size: 0.7rem; border: 1px solid var(--b1); cursor: pointer; }
-.ai-pill-badge { width: 15px; height: 15px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; color: #000; font-weight: 700; }
-.ai-pill-name { color: var(--tx); }
-.ai-pill-score { color: var(--gold); font-family: var(--mono); font-size: 0.65rem; }
-
-/* ── MOBILE BOTTOM BAR ── */
-.mob-bot-bar { height: calc(56px + var(--safe-b)); padding-bottom: var(--safe-b); border-top: 1px solid var(--b1); background: var(--s1); display: flex; justify-content: space-around; align-items: center; }
-.mob-bot-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--m1); font-size: 0.6rem; }
-.mob-bot-btn.active { color: var(--gold); }
-.mob-bot-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
-
-/* MOBILE GRID/LAYOUT FOR AI */
-.mob-panel-padding { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
-.mob-ai-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-.mob-ai-box { background: var(--s2); border: 1px solid var(--b1); padding: 0.6rem; border-radius: 6px; display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; }
-
-/* RESPONSIVE TOGGLES */
-@media(max-width:860px){ .desk { display: none; } .mob { display: flex; } }
-@media(min-width:861px){ .mob { display: none; } .desk { display: grid; } }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="desk">
-  <header class="desk-top">
-    <div class="logo">
-      <div class="logo-mark"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14"/></svg></div>
-      <span class="logo-name">KaiLun Film Lab</span>
-      <span class="logo-tag">AI Recipe · Offline · Pure Web</span>
+<div id="portal-screen" class="portal-container">
+  <div class="portal-card">
+    <div class="portal-logo">
+      <div class="logo-mark">⚡</div>
+      <h1>KaiLun Film Lab</h1>
+      <p style="color: #9e968d; font-size: 0.9rem; margin-top: 4px;">Next-Gen Professional Photo Processing</p>
     </div>
-    <div class="top-tabs" style="margin-left:2.5rem">
-      <div class="top-tab active" id="d-tab-edit" onclick="switchDeskTab('edit')">濾鏡編輯</div>
-      <div class="top-tab" id="d-tab-ai" onclick="switchDeskTab('ai')">AI 分析推薦</div>
-    </div>
-    <div class="top-right">
-      <button class="hdr-btn" onclick="triggerUpload()">
-        <svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>匯入照片
-      </button>
-      <div class="icon-btn"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
-      <div class="icon-btn"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></div>
-    </div>
-  </header>
-
-  <aside class="desk-left">
-    <div class="sb-hdr">
-      <span class="sb-label">食譜 (Recipe)</span>
-      <button class="sb-add" onclick="addNewRecipe()">+</button>
-    </div>
-    <div class="recipe-list" id="d-recipe-list">
+    <div class="portal-options">
+      <div class="portal-opt-card" onclick="enterMode('ai')">
+        <div class="opt-icon">✨</div>
+        <h3>快速 AI 智慧修圖</h3>
+        <p>自動分析照片直方圖，一鍵自動調整各項滑塊，並保留手動微調空間。</p>
       </div>
-    <div class="sb-foot">
-      <button class="sb-export-btn">
-        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-        匯入 / 匯出 Recipe
-      </button>
-    </div>
-  </aside>
-
-  <section class="desk-center">
-    <div class="cv-bar">
-      <div class="cv-badge" id="d-img-status">原圖</div>
-      <div class="zoom-wrap">
-        <button class="zoom-btn" onclick="adjustZoom(-5)">−</button>
-        <div class="zoom-val" id="d-zoom-lbl">100%</div>
-        <button class="zoom-btn" onclick="adjustZoom(5)">+</button>
-      </div>
-      <button class="cmp-btn" onmousedown="startCompare()" onmouseup="endCompare()" ontouchstart="startCompare()" ontouchend="endCompare()">對比</button>
-    </div>
-    
-    <div class="cv-wrap" id="d-canvas-container">
-      <div class="drop-zone" id="d-drop-zone" onclick="triggerUpload()">
-        <div class="drop-ring"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
-        <div class="drop-title">拖曳或點擊上傳</div>
-        <div class="drop-sub">JPG · PNG · WEBP · 完全離線</div>
-      </div>
-      <canvas id="d-main-canvas" style="display:none;"></canvas>
-    </div>
-
-    <div class="strip" id="d-thumb-strip">
-      </div>
-
-    <div class="ai-bar">
-      <div class="ai-title-lbl">
-        <span class="ai-status-tag">已完成</span>
-        AI 分析結果
-      </div>
-      <div class="ai-scene"><span class="ai-scene-ico">🏛</span><span class="ai-scene-lbl">建築</span><span class="ai-scene-val" id="ai-d-bldg">87%</span></div>
-      <div class="ai-scene"><span class="ai-scene-ico">🛤</span><span class="ai-scene-lbl">街道</span><span class="ai-scene-val" id="ai-d-str">92%</span></div>
-      <div class="ai-scene"><span class="ai-scene-ico">🚗</span><span class="ai-scene-lbl">交通工具</span><span class="ai-scene-val" id="ai-d-car">76%</span></div>
-      <div class="ai-scene"><span class="ai-scene-ico">🧑</span><span class="ai-scene-lbl">人像</span><span class="ai-scene-val" id="ai-d-person">12%</span></div>
-      <div class="ai-scene"><span class="ai-scene-ico">🌿</span><span class="ai-scene-lbl">自然</span><span class="ai-scene-val" id="ai-d-nature">8%</span></div>
-      <div class="ai-scene"><span class="ai-scene-ico">☀️</span><span class="ai-scene-lbl">亮度</span><span class="ai-scene-val" id="ai-d-light">中等偏暗</span></div>
-      <div class="ai-scene"><span class="ai-scene-ico">🌡</span><span class="ai-scene-lbl">色溫</span><span class="ai-scene-val" id="ai-d-temp">偏冷</span></div>
-      <div class="ai-scene"><span class="ai-scene-ico">🌫</span><span class="ai-scene-lbl">氛圍</span><span class="ai-scene-val" id="ai-d-mood">城市 / 陰天</span></div>
-    </div>
-  </section>
-
-  <aside class="desk-right">
-    <div class="rp-tabs">
-      <div class="rp-tab active" id="dr-tab-adj" onclick="switchRightPanel('adj')">調整</div>
-      <div class="rp-tab" id="dr-tab-ai" onclick="switchRightPanel('ai')">AI 推薦</div>
-    </div>
-    
-    <div class="rp-body" id="panel-desk-adj">
-      <div class="rp-sec">
-        <div class="rp-sec-hdr">調整 <a href="#" onclick="resetSliders(event)">重設 ↺</a></div>
-        <div id="d-sliders-container"></div>
-      </div>
-      <div class="rp-sec">
-        <div class="rp-sec-hdr">效果</div>
-        <div id="d-effects-container"></div>
-      </div>
-      <button class="dl-btn" onclick="downloadImage()"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg> 下載照片</button>
-    </div>
-
-    <div class="rp-body" id="panel-desk-ai" style="display:none;">
-      <div class="rp-sec">
-        <div class="rp-sec-hdr">AI 推薦食譜</div>
-        <div id="d-ai-recs-container" style="display:flex; flex-direction:column; gap:0.5rem;"></div>
-      </div>
-    </div>
-  </aside>
-</div>
-
-<div class="mob">
-  <header class="mob-top">
-    <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-    <div class="title">KaiLun Film Lab</div>
-    <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-  </header>
-
-  <nav class="mob-tabs-nav" id="m-top-nav-tabs">
-    <div class="mob-nav-btn active" onclick="switchMobTab('edit')">濾鏡編輯</div>
-    <div class="mob-nav-btn" onclick="switchMobTab('ai')">AI 分析推薦</div>
-  </nav>
-
-  <div class="mob-content-wrapper">
-    
-    <div class="mob-view active" id="m-view-edit">
-      <div class="mob-preview-area" onclick="triggerUpload()">
-        <div class="drop-zone" id="m-drop-zone" style="background:transparent;">
-          <div class="drop-ring"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
-          <div class="drop-title" style="font-size:0.85rem;">點擊上傳照片</div>
-        </div>
-        <canvas id="m-main-canvas" style="display:none;"></canvas>
-      </div>
-      
-      <div class="mob-strip-area" id="m-thumb-strip"></div>
-      
-      <div style="flex:1; overflow-y:auto; padding:1rem;" id="m-sliders-view">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-          <span style="font-size:0.8rem; font-weight:600;">調整</span>
-          <span style="font-size:0.72rem; color:var(--m2);" onclick="resetSliders(event)">重設 ↺</span>
-        </div>
-        <div id="m-sliders-container"></div>
-        <div style="font-size:0.8rem; font-weight:600; margin:1rem 0 0.5rem;">效果</div>
-        <div id="m-effects-container"></div>
-        <button class="dl-btn" onclick="downloadImage()"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg> 下載照片</button>
-      </div>
-    </div>
-
-    <div class="mob-view" id="m-view-ai">
-      <div class="mob-panel-padding">
-        <div style="display:flex; justify-content:between; align-items:center;">
-          <span style="font-size:0.85rem; font-weight:600;">AI 分析結果</span>
-          <span class="ai-status-tag" style="margin-left:auto;">已完成</span>
-        </div>
-        
-        <div class="mob-ai-grid">
-          <div class="mob-ai-box"><span>🏛</span><span style="color:var(--m1)">建築</span><span style="margin-left:auto; font-family:var(--mono);">87%</span></div>
-          <div class="mob-ai-box"><span>🛤</span><span style="color:var(--m1)">街道</span><span style="margin-left:auto; font-family:var(--mono);">92%</span></div>
-          <div class="mob-ai-box"><span>🚗</span><span style="color:var(--m1)">交通工具</span><span style="margin-left:auto; font-family:var(--mono);">76%</span></div>
-          <div class="mob-ai-box"><span>🧑</span><span style="color:var(--m1)">人像</span><span style="margin-left:auto; font-family:var(--mono);">12%</span></div>
-          <div class="mob-ai-box"><span>🌿</span><span style="color:var(--m1)">自然</span><span style="margin-left:auto; font-family:var(--mono);">8%</span></div>
-          <div class="mob-ai-box"><span>☀️</span><span style="color:var(--m1)">亮度</span><span style="margin-left:auto;">中等偏暗</span></div>
-          <div class="mob-ai-box"><span>🌡</span><span style="color:var(--m1)">色溫</span><span style="margin-left:auto;">偏冷</span></div>
-          <div class="mob-ai-box"><span>🌫</span><span style="color:var(--m1)">氛圍</span><span style="margin-left:auto;">城市/陰天</span></div>
-        </div>
-
-        <div style="font-size:0.85rem; font-weight:600; margin-top:0.5rem;">AI 推薦食譜</div>
-        <div id="m-ai-recs-container" style="display:flex; flex-direction:column; gap:0.5rem;"></div>
-      </div>
-    </div>
-
-    <div class="mob-view" id="m-view-recipes">
-      <div class="mob-panel-padding">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:0.85rem; font-weight:600;">您的食譜 (Recipe)</span>
-          <button class="sb-add" onclick="addNewRecipe()">+</button>
-        </div>
-        <div id="m-recipe-list" style="display:flex; flex-direction:column; gap:0.5rem;"></div>
+      <div class="portal-opt-card" onclick="enterMode('manual')">
+        <div class="opt-icon">🎞️</div>
+        <h3>進階底片食譜模式</h3>
+        <p>經典正片、電影感、高對比街頭。完全掌控從頭開始的職人核心調色。</p>
       </div>
     </div>
   </div>
-
-  <footer class="mob-bot-bar">
-    <div class="mob-bot-btn active" id="m-nav-edit" onclick="handleBottomNav('edit')">
-      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>編輯</span>
-    </div>
-    <div class="mob-bot-btn" id="m-nav-ai" onclick="handleBottomNav('ai')">
-      <svg viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg><span>AI 推薦</span>
-    </div>
-    <div class="mob-bot-btn" id="m-nav-recipes" onclick="handleBottomNav('recipes')">
-      <svg viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg><span>食譜</span>
-    </div>
-    <div class="mob-bot-btn" onclick="triggerUpload()">
-      <svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg><span>匯入</span>
-    </div>
-  </footer>
 </div>
 
-<input type="file" id="global-hidden-uploader" accept="image/*" style="display:none" onchange="processSelectedFile(this.files[0])">
-
-<script>
-// 1. App State Data Definitions
-const slidersConfig = [
-  { id: 'exposure', zh: '曝光', en: 'Exposure', min: -2, max: 2, step: 0.01, def: 0.08 },
-  { id: 'contrast', zh: '對比', en: 'Contrast', min: -50, max: 50, step: 1, def: 12 },
-  { id: 'highlights', zh: '高光', en: 'Highlights', min: -50, max: 50, step: 1, def: -18 },
-  { id: 'shadows', zh: '陰影', en: 'Shadows', min: -50, max: 50, step: 1, def: 24 },
-  { id: 'whites', zh: '白色', en: 'Whites', min: -50, max: 50, step: 1, def: 8 },
-  { id: 'blacks', zh: '黑色', en: 'Blacks', min: -50, max: 50, step: 1, def: -12 },
-  { id: 'saturation', zh: '飽和度', en: 'Saturation', min: -50, max: 50, step: 1, def: -6 },
-  { id: 'temperature', zh: '色溫', en: 'Temperature', min: -50, max: 50, step: 1, def: -4 },
-  { id: 'tint', zh: '色調', en: 'Tint', min: -50, max: 50, step: 1, def: 3 }
-];
-
-const effectsConfig = [
-  { id: 'grain', zh: '顆粒', en: 'Grain', min: 0, max: 100, step: 1, def: 18 },
-  { id: 'vignette', zh: '暗角', en: 'Vignette', min: -100, max: 0, step: 1, def: -15 }
-];
-
-let currentParams = {};
-function initParams() {
-  slidersConfig.forEach(s => currentParams[s.id] = s.def);
-  effectsConfig.forEach(e => currentParams[e.id] = e.def);
-}
-initParams();
-
-// Mock Initial Recipes matching the provided high-fidelity visual layout
-let recipes = [
-  { id: 'r1', name: 'Classic Chrome', mood: '經典正片．冷調清爽', params: { exposure: 0.08, contrast: 12, highlights: -18, shadows: 24, whites: 8, blacks: -12, saturation: -6, temperature: -4, tint: 3, grain: 18, vignette: -15 }, starred: true, matchScore: 78 },
-  { id: 'r2', name: 'Prague Mood', mood: '低飽和．電影感氛圍', params: { exposure: -0.15, contrast: 25, highlights: -30, shadows: 10, whites: -5, blacks: -20, saturation: -25, temperature: 8, tint: -5, grain: 40, vignette: -35 }, starred: false, matchScore: 92 },
-  { id: 'r3', name: 'GR Street', mood: '高對比街頭風格', params: { exposure: 0.0, contrast: 45, highlights: -10, shadows: -15, whites: 15, blacks: -30, saturation: -40, temperature: -2, tint: 2, grain: 65, vignette: -20 }, starred: false, matchScore: 85 },
-  { id: 'r4', name: 'Vienna Cafe', mood: '暖調咖啡色調', params: { exposure: 0.1, contrast: 8, highlights: -12, shadows: 18, whites: 4, blacks: -6, saturation: 12, temperature: 18, tint: 5, grain: 12, vignette: -10 }, starred: false },
-  { id: 'r5', name: 'Hallstatt Cold', mood: '冷灰藍色調', params: { exposure: -0.05, contrast: 15, highlights: -25, shadows: 5, whites: 2, blacks: -10, saturation: -18, temperature: -22, tint: -4, grain: 20, vignette: -15 }, starred: false },
-  { id: 'r6', name: 'Fuji Daily', mood: '日常清淡風格', params: { exposure: 0.25, contrast: -10, highlights: 5, shadows: 20, whites: 10, blacks: 5, saturation: 5, temperature: -2, tint: 8, grain: 5, vignette: 0 }, starred: false }
-];
-
-let activeRecipeId = 'r1';
-let sourceImage = null;
-let currentZoom = 38; 
-let isComparing = false;
-let uploadedPhotos = []; 
-
-// 2. Dynamic UI Component Creation (Sliders & Lists)
-function renderSliders() {
-  const dContainer = document.getElementById('d-sliders-container');
-  const mContainer = document.getElementById('m-sliders-container');
-  const dEffects = document.getElementById('d-effects-container');
-  const mEffects = document.getElementById('m-effects-container');
-  
-  if(dContainer) dContainer.innerHTML = '';
-  if(mContainer) mContainer.innerHTML = '';
-  if(dEffects) dEffects.innerHTML = '';
-  if(mEffects) mEffects.innerHTML = '';
-
-  // Build Adjust Sliders
-  slidersConfig.forEach(s => {
-    const html = createSliderHTML(s, false);
-    if(dContainer) dContainer.insertAdjacentHTML('beforeend', html);
-    if(mContainer) mContainer.insertAdjacentHTML('beforeend', createSliderHTML(s, true));
-  });
-
-  // Build Effect Sliders
-  effectsConfig.forEach(e => {
-    const html = createSliderHTML(e, false);
-    if(dEffects) dEffects.insertAdjacentHTML('beforeend', html);
-    if(mEffects) mEffects.insertAdjacentHTML('beforeend', createSliderHTML(e, true));
-  });
-}
-
-function createSliderHTML(s, isMob) {
-  const prefix = isMob ? 'm' : 'd';
-  const val = currentParams[s.id];
-  // Calculate relative fill fill percent
-  const pct = ((val - s.min) / (s.max - s.min)) * 100;
-  
-  return `
-    <div class="sl-row" id="row-${prefix}-${s.id}">
-      <div class="sl-lbl">
-        <span class="zh">${s.zh}</span>
-        <span class="en">${s.en}</span>
-      </div>
-      <div class="sl-track-wrap">
-        <div class="sl-rail"></div>
-        <div class="sl-fill" id="fill-${prefix}-${s.id}" style="width: ${pct}%;"></div>
-        <div class="sl-thumb" id="thumb-${prefix}-${s.id}" style="left: ${pct}%;"></div>
-        <input type="range" class="sl-input" min="${s.min}" max="${s.max}" step="${s.step}" value="${val}" 
-          oninput="handleSliderUpdate('${s.id}', this.value)">
-      </div>
-      <div class="sl-val" id="val-${prefix}-${s.id}">${val > 0 && s.id !== 'exposure' ? '+' + val : val}</div>
+<div id="main-workspace" class="desk" style="display:none;">
+  <header class="desk-top">
+    <div class="logo" onclick="returnToPortal()">
+      <div class="logo-mark">←</div>
+      <span class="logo-name">KaiLun Film Lab</span>
+      <span class="logo-tag" id="current-mode-badge">AI MODE</span>
     </div>
-  `;
-}
+    <div class="top-center-tabs">
+      <button class="top-tab active" id="tab-recipes-btn" onclick="toggleLeftSection('recipes')">底片食譜</button>
+      <button class="top-tab" id="tab-adjust-btn" onclick="toggleLeftSection('adjust')">調色參數</button>
+    </div>
+    <div class="top-right">
+      <button class="hdr-btn" onclick="triggerUpload()">匯入相片</button>
+    </div>
+  </header>
 
-function renderRecipes() {
-  const dList = document.getElementById('d-recipe-list');
-  const mList = document.getElementById('m-recipe-list');
-  const dAIList = document.getElementById('d-ai-recs-container');
-  const mAIList = document.getElementById('m-ai-recs-container');
-  
-  if(dList) dList.innerHTML = '';
-  if(mList) mList.innerHTML = '';
-  if(dAIList) dAIList.innerHTML = '';
-  if(mAIList) mAIList.innerHTML = '';
-
-  // 1. Regular Recipe List Rendering
-  recipes.forEach(r => {
-    const isActive = r.id === activeRecipeId ? 'active' : '';
-    const starClass = r.starred ? 'on' : '';
-    const itemHtml = `
-      <div class="ri ${isActive}" onclick="selectRecipe('${r.id}')">
-        <div class="ri-thumb"><img src="${uploadedPhotos[0] || 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22 style=%22background:%23222;%22></svg>'}" /></div>
-        <div class="ri-info">
-          <div class="ri-name">${r.name}</div>
-          <div class="ri-mood">${r.mood}</div>
+  <div class="desk-body">
+    <aside class="desk-left show-recipes" id="desk-left-panel">
+      <div class="left-section" id="sec-recipes">
+        <div class="section-hdr">
+          <span class="hdr-title">底片風格食譜</span>
+          <div class="hdr-actions">
+            <button class="circle-btn" onclick="saveCurrentAsRecipe()" title="儲存當前參數為新食譜">+</button>
+            <button class="circle-btn" onclick="exportRecipes()" title="匯出食譜">↑</button>
+          </div>
         </div>
-        <div class="ri-star ${starClass}" onclick="toggleStar(event, '${r.id}')">★</div>
-      </div>
-    `;
-    if(dList) dList.insertAdjacentHTML('beforeend', itemHtml);
-    if(mList) mList.insertAdjacentHTML('beforeend', itemHtml);
-  });
-
-  // 2. Render Ranked AI Recommendations sorted by Match Score
-  const aiRanked = [...recipes].filter(r => r.matchScore).sort((a,b) => b.matchScore - a.matchScore);
-  aiRanked.forEach((r, idx) => {
-    const pillHtml = `
-      <div class="ai-pill-item" onclick="selectRecipe('${r.id}')">
-        <div class="ai-pill-badge">${idx + 1}</div>
-        <div class="ri-thumb" style="width:32px; height:32px; border-radius:4px;"><img src="${uploadedPhotos[0] || ''}" /></div>
-        <div style="display:flex; flex-direction:column; margin-left:4px;">
-          <span class="ai-pill-name" style="font-weight:500;">${r.name}</span>
-          <span style="font-size:0.55rem; color:var(--m1);">${r.mood.split('．')[0]}</span>
+        
+        <div class="recipe-filter-bar">
+          <button class="rf-btn active" id="rf-all" onclick="filterRecipes('all')">全部</button>
+          <button class="rf-btn" id="rf-classic" onclick="filterRecipes('經典')">經典</button>
+          <button class="rf-btn" id="rf-cinema" onclick="filterRecipes('電影')">電影</button>
+          <button class="rf-btn" id="rf-user" onclick="filterRecipes('自訂')">自訂</button>
         </div>
-        <span class="ai-pill-score" style="margin-left:auto;">相似度 ${r.matchScore}%</span>
+        
+        <div class="recipe-strips-container" id="recipe-strips">
+          </div>
       </div>
-    `;
-    if(dAIList) dAIList.insertAdjacentHTML('beforeend', pillHtml);
-    if(mAIList) mAIList.insertAdjacentHTML('beforeend', pillHtml);
-  });
-}
 
-// 3. Application Actions & Handlers
-function triggerUpload() {
-  document.getElementById('global-hidden-uploader').click();
-}
+      <div class="left-section" id="sec-adjust">
+        <div class="section-hdr">
+          <span class="hdr-title">沖印參數微調</span>
+          <button class="text-link-btn" onclick="resetAllSliders()">重設全部 ↺</button>
+        </div>
+        
+        <div class="control-toggle-tabs">
+          <div class="ct-tab active" id="panel-tab-global" onclick="switchControlPanel('global')">全圖調整</div>
+          <div class="ct-tab" id="panel-tab-local" onclick="switchControlPanel('local')" style="opacity:0.4;">局部色彩</div>
+        </div>
 
-function processSelectedFile(file) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = new Image();
-    img.onload = function() {
-      sourceImage = img;
-      uploadedPhotos.unshift(e.target.result); // Add to active strip
+        <div class="sliders-scroll-area">
+          <div id="global-sliders-group">
+            <div class="control-group-title">基礎曝光與光線</div>
+            <div id="group-light"></div>
+            <div class="control-group-title" style="margin-top:1.5rem;">色彩與白平衡</div>
+            <div id="group-color"></div>
+            <div class="control-group-title" style="margin-top:1.5rem;">底片顆粒與特效</div>
+            <div id="group-effects"></div>
+          </div>
+
+          <div id="local-sliders-group" style="display:none;">
+            <div class="local-info-box">
+              請先使用右側畫布下方的<strong>「色彩吸管」</strong>點擊你想單獨調整的物體（如天空、草地、膚色），即可解鎖解凍下方局部滑塊！
+            </div>
+            <div class="control-group-title">選定色彩控制 (HSL Range)</div>
+            <div id="group-local"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="desk-center">
+      <div class="canvas-statusbar">
+        <div class="status-meta">
+          <span class="badge" id="lbl-status">READY</span>
+          <span class="meta-text" id="lbl-resolution">0 x 0</span>
+        </div>
+        <div class="canvas-actions">
+          <button class="action-btn" onmousedown="startCompare()" onmouseup="endCompare()" ontouchstart="startCompare()" ontouchend="endCompare()">看原圖</button>
+          <div class="zoom-controls">
+            <button class="zoom-btn" onclick="changeZoom(-10)">−</button>
+            <span class="zoom-text" id="lbl-zoom">100%</span>
+            <button class="zoom-btn" onclick="changeZoom(10)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="canvas-stage" id="canvas-container">
+        <div class="upload-gate" id="upload-gate" onclick="triggerUpload()">
+          <div class="gate-icon">📸</div>
+          <div class="gate-title">匯入底片開始沖印</div>
+          <div class="gate-desc">支援拖曳相片至此處 ‧ 自動啟用 1200px 視網膜雙軌加速</div>
+        </div>
+        <canvas id="main-canvas" style="display:none;"></canvas>
+      </div>
+
+      <div class="pipette-toolbar-strip" id="pipette-bar">
+        <button class="pipette-trigger-btn" id="btn-pipette" onclick="togglePipetteMode()">
+          <span class="p-icon">🧪</span> 色彩吸管局部選取 (天空/草地/人像)
+        </button>
+        <div class="pipette-color-dot" id="pipette-dot"></div>
+        <span class="pipette-hint-text" id="pipette-status-text">未選取局部範圍（目前調整全圖）</span>
+        <button class="pipette-clear-link" id="btn-clear-mask" style="display:none;" onclick="clearLocalMask()">重設全圖 ↺</button>
+      </div>
       
-      // Toggle visibility states
-      document.getElementById('d-drop-zone').style.display = 'none';
-      document.getElementById('m-drop-zone').style.display = 'none';
-      document.getElementById('d-main-canvas').style.display = 'block';
-      document.getElementById('m-main-canvas').style.display = 'block';
-      
-      renderThumbStrip();
-      applyFiltersAndRender();
-      renderRecipes(); // refresh thumbnail backgrounds
-    }
-    img.src = e.target.result;
-  }
-  reader.readAsDataURL(file);
-}
+      <div class="curve-dock" id="curve-dock">
+        <div class="curve-hdr" onclick="toggleCurveDock()">
+          <span class="curve-title">🔬 特性曲線 (Tone Curve)</span>
+          <span class="curve-toggle-arrow" id="curve-arrow">▲</span>
+        </div>
+        <div class="curve-body" id="curve-body">
+          <div class="curve-canvas-wrap">
+            <canvas id="curve-canvas" width="160" height="160"></canvas>
+          </div>
+          <div class="curve-info">
+            <p>點擊曲線可增加控制點，拖曳可改變對比與高光暗部色調調性。</p>
+            <button class="text-link-btn" onclick="resetCurvePoints()">重設曲線 ↺</button>
+          </div>
+        </div>
+      </div>
+    </main>
 
-function renderThumbStrip() {
-  const dStrip = document.getElementById('d-thumb-strip');
-  const mStrip = document.getElementById('m-thumb-strip');
-  if(dStrip) dStrip.innerHTML = '';
-  if(mStrip) mStrip.innerHTML = '';
-  
-  uploadedPhotos.forEach((src, idx) => {
-    const activeClass = idx === 0 ? 'active' : '';
-    const html = `<div class="st-item ${activeClass}"><img src="${src}"/></div>`;
-    if(dStrip) dStrip.insertAdjacentHTML('beforeend', html);
-    if(mStrip) mStrip.insertAdjacentHTML('beforeend', html);
-  });
-}
+    <aside class="desk-right">
+      <div class="right-hdr">輸出端</div>
+      <div class="export-box">
+        <div class="export-row">
+          <span class="ex-lbl">格式</span>
+          <span class="ex-val">JPEG (95% 壓縮)</span>
+        </div>
+        <div class="export-row">
+          <span class="ex-lbl">色彩空間</span>
+          <span class="ex-val">sRGB IEC61966</span>
+        </div>
+        <button class="action-btn primary large" style="margin-top:1.5rem;" onclick="downloadImage()">導出最高畫質大圖</button>
+      </div>
+    </aside>
+  </div>
+</div>
 
-function handleSliderUpdate(id, val) {
-  currentParams[id] = parseFloat(val);
-  activeRecipeId = null; // Unbind preset selection flag
-  
-  // Sync view states across both DOM slider elements
-  ['d', 'm'].forEach(prefix => {
-    const input = document.querySelector(`#row-${prefix}-${id} input`);
-    const fill = document.getElementById(`fill-${prefix}-${id}`);
-    const thumb = document.getElementById(`thumb-${prefix}-${id}`);
-    const lbl = document.getElementById(`val-${prefix}-${id}`);
-    
-    if(input) input.value = val;
-    
-    const config = slidersConfig.find(s => s.id === id) || effectsConfig.find(e => e.id === id);
-    if(config) {
-      const pct = ((val - config.min) / (config.max - config.min)) * 100;
-      if(fill) fill.style.width = pct + '%';
-      if(thumb) thumb.style.left = pct + '%';
-      if(lbl) lbl.innerText = val > 0 && id !== 'exposure' ? '+' + val : val;
-    }
-  });
+<input type="file" id="file-input" accept="image/*" style="display:none;" onchange="handleFileSelect(this)">
+<div class="toast" id="toast"></div>
 
-  applyFiltersAndRender();
-}
-
-function selectRecipe(id) {
-  activeRecipeId = id;
-  const target = recipes.find(r => r.id === id);
-  if(target) {
-    currentParams = { ...target.params };
-    // Trigger batch update to refresh positions
-    Object.keys(currentParams).forEach(key => {
-      handleSliderUpdate(key, currentParams[key]);
-    });
-    activeRecipeId = id; // Reassert id state post unbind
-    renderRecipes();
-  }
-}
-
-function toggleStar(e, id) {
-  e.stopPropagation();
-  const r = recipes.find(rec => rec.id === id);
-  if(r) {
-    r.starred = !r.starred;
-    renderRecipes();
-  }
-}
-
-function resetSliders(e) {
-  if(e) e.preventDefault();
-  initParams();
-  Object.keys(currentParams).forEach(key => {
-    handleSliderUpdate(key, currentParams[key]);
-  });
-}
-
-function addNewRecipe() {
-  const name = prompt("請輸入新食譜名稱:", "My Custom Preset");
-  if(!name) return;
-  const newId = 'r_' + Date.now();
-  recipes.push({
-    id: newId,
-    name: name,
-    mood: '自訂調整參數組合',
-    params: { ...currentParams },
-    starred: false
-  });
-  activeRecipeId = newId;
-  renderRecipes();
-}
-
-// 4. Pure Canvas Image Engine & Context Manipulations
-function applyFiltersAndRender() {
-  if (!sourceImage) return;
-  
-  ['d-main-canvas', 'm-main-canvas'].forEach(canvasId => {
-    const canvas = document.getElementById(canvasId);
-    if(!canvas) return;
-    const ctx = canvas.getContext('2d');
-    
-    // Maintain native dimensions safely
-    canvas.width = sourceImage.naturalWidth;
-    canvas.height = sourceImage.naturalHeight;
-    
-    ctx.drawImage(sourceImage, 0, 0);
-    
-    // Early exit if user holds native comparison badge layer active
-    if (isComparing) return;
-    
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imgData.data;
-    
-    // Extraction variables mapped from parameters context
-    const expFactor = Math.pow(2, currentParams.exposure); 
-    const contrast = (currentParams.contrast + 100) / 100;
-    const satFactor = (currentParams.saturation + 50) / 50;
-    const temp = currentParams.temperature / 100;
-    const tint = currentParams.tint / 100;
-
-    for (let i = 0; i < data.length; i += 4) {
-      let r = data[i];
-      let g = data[i+1];
-      let b = data[i+2];
-      
-      // A. Apply Pure Exposure Factor
-      r *= expFactor; g *= expFactor; b *= expFactor;
-      
-      // B. Apply Contrast Correction Centerpoint Matrix
-      r = (r - 128) * contrast + 128;
-      g = (g - 128) * contrast + 128;
-      b = (b - 128) * contrast + 128;
-      
-      // C. Simple Temperature & Tint Shifting
-      r += temp * 25;
-      b -= temp * 25;
-      g += tint * 15;
-      
-      // D. Apply Standard Desaturation / Saturation Constants
-      const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-      r = gray + (r - gray) * satFactor;
-      g = gray + (g - gray) * satFactor;
-      b = gray + (b - gray) * satFactor;
-
-      // Safe bounds clamping
-      data[i] = Math.max(0, Math.min(255, r));
-      data[i+1] = Math.max(0, Math.min(255, g));
-      data[i+2] = Math.max(0, Math.min(255, b));
-    }
-    
-    ctx.putImageData(imgData, 0, 0);
-    
-    // E. Composite Aesthetic Grain Textures on Top Post-Pixel Processing Loop
-    if(currentParams.grain > 0) {
-      ctx.fillStyle = `rgba(255,255,255,${currentParams.grain / 700})`;
-      for(let j=0; j < (canvas.width * canvas.height) * (currentParams.grain / 100); j++) {
-        const rx = Math.random() * canvas.width;
-        const ry = Math.random() * canvas.height;
-        ctx.fillRect(rx, ry, 1.5, 1.5);
-      }
-    }
-  });
-}
-
-function startCompare() {
-  isComparing = true;
-  document.getElementById('d-img-status').innerText = '對比中';
-  applyFiltersAndRender();
-}
-
-function endCompare() {
-  isComparing = false;
-  document.getElementById('d-img-status').innerText = '已套用';
-  applyFiltersAndRender();
-}
-
-function adjustZoom(amt) {
-  currentZoom = Math.max(10, Math.min(200, currentZoom + amt));
-  document.getElementById('d-zoom-lbl').innerText = currentZoom + '%';
-  const cv = document.getElementById('d-main-canvas');
-  if(cv) cv.style.transform = `scale(${currentZoom / 100})`;
-}
-
-function downloadImage() {
-  if(!sourceImage) return;
-  const c = document.getElementById('d-main-canvas');
-  const link = document.createElement('a');
-  link.download = 'kailun_film_output.png';
-  link.href = c.toDataURL();
-  link.click();
-}
-
-// 5. Desktop Tab and Layout Management Sub-routing
-function switchDeskTab(tab) {
-  const editTab = document.getElementById('d-tab-edit');
-  const aiTab = document.getElementById('d-tab-ai');
-  if(tab === 'edit') {
-    editTab.classList.add('active'); aiTab.classList.remove('active');
-    switchRightPanel('adj');
-  } else {
-    editTab.classList.remove('active'); aiTab.classList.add('active');
-    switchRightPanel('ai');
-  }
-}
-
-function switchRightPanel(target) {
-  const pAdj = document.getElementById('panel-desk-adj');
-  const pAi = document.getElementById('panel-desk-ai');
-  const tAdj = document.getElementById('dr-tab-adj');
-  const tAi = document.getElementById('dr-tab-ai');
-  
-  if(target === 'adj') {
-    pAdj.style.display = 'block'; pAi.style.display = 'none';
-    tAdj.classList.add('active'); tAi.classList.remove('active');
-  } else {
-    pAdj.style.display = 'none'; pAi.style.display = 'block';
-    tAdj.classList.remove('active'); tAi.classList.add('active');
-  }
-}
-
-// 6. Mobile Tab Routing & Content View Swapping
-function switchMobTab(target) {
-  const tabs = document.querySelectorAll('#m-top-nav-tabs .mob-nav-btn');
-  const viewEdit = document.getElementById('m-view-edit');
-  const viewAi = document.getElementById('m-view-ai');
-  
-  tabs.forEach(t => t.classList.remove('active'));
-  
-  if(target === 'edit') {
-    tabs[0].classList.add('active');
-    viewEdit.classList.add('active'); viewAi.classList.remove('active');
-  } else {
-    tabs[1].classList.add('active');
-    viewEdit.classList.remove('active'); viewAi.classList.add('active');
-  }
-}
-
-function handleBottomNav(target) {
-  const btns = document.querySelectorAll('.mob-bot-bar .mob-bot-btn');
-  btns.forEach(b => b.classList.remove('active'));
-  
-  const vEdit = document.getElementById('m-view-edit');
-  const vAi = document.getElementById('m-view-ai');
-  const vRec = document.getElementById('m-view-recipes');
-  
-  vEdit.classList.remove('active');
-  vAi.classList.remove('active');
-  vRec.classList.remove('active');
-  
-  if(target === 'edit') {
-    document.getElementById('m-nav-edit').classList.add('active');
-    vEdit.classList.add('active');
-    switchMobTab('edit');
-  } else if (target === 'ai') {
-    document.getElementById('m-nav-ai').classList.add('active');
-    vAi.classList.add('active');
-    switchMobTab('ai');
-  } else if (target === 'recipes') {
-    document.getElementById('m-nav-recipes').classList.add('active');
-    vRec.classList.add('active');
-  }
-}
-
-// Initial Boot Logic Trigger
-window.onload = function() {
-  renderSliders();
-  renderRecipes();
-};
-</script>
-
+<script src="editor.js"></script>
 </body>
 </html>

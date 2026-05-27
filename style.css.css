@@ -1,0 +1,177 @@
+/* ════════════════ ADDED EXTENSION FOR PORTAL & PIPETTE ════════════════ */
+
+/* 入口首頁滿版容器 */
+.portal-container {
+  position: fixed;
+  inset: 0;
+  background: #0f0e0d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* 磨砂黑極簡卡片 */
+.portal-card {
+  max-width: 760px;
+  width: 100%;
+  animation: fadeInPortal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.portal-logo {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.portal-logo h1 {
+  font-family: 'Instrument Serif', serif;
+  font-size: 2.8rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: #ede9e3;
+}
+
+.portal-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+/* 模式選擇卡片 */
+.portal-opt-card {
+  background: #171614;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 2.5rem 1.8rem;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.25s ease;
+}
+
+.portal-opt-card:hover {
+  border-color: #dfb23f;
+  background: #1e1c1a;
+  transform: translateY(-3px);
+}
+
+.opt-icon {
+  font-size: 2.2rem;
+  margin-bottom: 1.2rem;
+}
+
+.portal-opt-card h3 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 0.6rem;
+  color: #ede9e3;
+}
+
+.portal-opt-card p {
+  font-size: 0.82rem;
+  color: #726d67;
+  line-height: 1.5;
+}
+
+/* 局部色彩控制元件提示框 */
+.local-info-box {
+  font-size: 0.75rem;
+  color: #dfb23f;
+  background: rgba(223, 178, 63, 0.05);
+  border: 1px dashed rgba(223, 178, 63, 0.25);
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1.25rem;
+  line-height: 1.45;
+}
+
+/* 吸管工具列 */
+.pipette-toolbar-strip {
+  height: 44px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: #171614;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  gap: 0.75rem;
+}
+
+.pipette-trigger-btn {
+  padding: 0.35rem 0.75rem;
+  background: #272422;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  font-size: 0.72rem;
+  color: #ede9e3;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.pipette-trigger-btn.active {
+  background: rgba(223, 178, 63, 0.12);
+  border-color: #dfb23f;
+  color: #dfb23f;
+}
+
+.pipette-color-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid #fff;
+  display: none;
+}
+
+.pipette-hint-text {
+  font-size: 0.75rem;
+  color: #9e968d;
+}
+
+.pipette-clear-link {
+  font-size: 0.72rem;
+  color: #b86060;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+/* 切換頁籤樣式 */
+.control-toggle-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 1rem;
+}
+
+.ct-tab {
+  flex: 1;
+  text-align: center;
+  padding: 0.6rem 0;
+  font-size: 0.78rem;
+  color: #726d67;
+  cursor: pointer;
+  font-weight: 500;
+  position: relative;
+}
+
+.ct-tab.active {
+  color: #ede9e3;
+}
+
+.ct-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: #dfb23f;
+}
+
+@keyframes fadeInPortal {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
