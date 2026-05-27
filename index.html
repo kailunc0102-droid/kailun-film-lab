@@ -7,177 +7,896 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Film Lab">
 <meta name="theme-color" content="#0f0e0d">
-<link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/icon-192.png">
 <title>KaiLun Film Lab</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<style>
+:root{
+  --bg:#0f0e0d;--s1:#171614;--s2:#1e1c1a;--s3:#272422;--s4:#302d2a;
+  --b1:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.11);--b3:rgba(255,255,255,0.18);
+  --tx:#ede9e3;--m1:#7a756e;--m2:#a09890;--m3:#c4bdb4;
+  --gold:#c9a84c;--gold2:rgba(201,168,76,0.18);--gold3:rgba(201,168,76,0.32);
+  --teal:#7fb5ad;--red:#b86060;--green:#7aad88;
+  --mono:'DM Mono',monospace;--serif:'Instrument Serif',serif;--sans:'DM Sans',sans-serif;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --tb-h:64px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--sans);overscroll-behavior:none;overflow:hidden}
+::-webkit-scrollbar{display:none}
+button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:inherit}
+
+/* ── DESKTOP LAYOUT ── */
+.desk{display:grid;grid-template-columns:260px 1fr 300px;grid-template-rows:52px 1fr;height:100vh}
+.desk-top{grid-column:1/-1;height:52px;border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 1.25rem;gap:1rem;z-index:10}
+.desk-left{border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.desk-center{display:flex;flex-direction:column;overflow:hidden;position:relative;background:#050505}
+.desk-right{border-left:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+
+/* ── MOBILE LAYOUT ── */
+.mob{display:none;flex-direction:column;height:100dvh;position:relative;background:#000}
+.mob-preview{flex:1;position:relative;overflow:hidden;min-height:0}
+.mob-recipes{height:120px;flex-shrink:0;border-top:1px solid var(--b1);background:var(--bg);z-index:10}
+.mob-sheet{position:absolute;bottom:0;left:0;right:0;border-radius:18px 18px 0 0;background:rgba(15,14,13,0.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--b2);z-index:50;transition:transform .3s cubic-bezier(.32,.72,0,1);touch-action:none}
+.mob-toolbar{height:calc(var(--tb-h) + var(--safe-b));padding-bottom:var(--safe-b);border-top:1px solid var(--b1);background:rgba(15,14,13,0.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;position:relative;z-index:51}
+.mob-tb-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:.5rem .75rem;color:var(--m2)}
+.mob-tb-btn.active{color:var(--gold)}
+.mob-tb-btn span{font-family:var(--sans);font-size:.65rem;font-weight:500}
+
+/* ── LOGO & HEADER ── */
+.logo{display:flex;align-items:center;gap:.6rem}
+.logo-mark{width:24px;height:24px;background:var(--gold);border-radius:5px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:14px;height:14px;stroke:#111;fill:none;stroke-width:2}
+.logo-name{font-family:var(--serif);font-size:1rem;font-style:italic}
+.logo-tag{font-family:var(--mono);font-size:.55rem;color:var(--m1);letter-spacing:.05em}
+.top-tabs{display:flex;background:var(--s2);border-radius:6px;padding:2px}
+.top-tab{padding:.25rem .75rem;border-radius:4px;font-family:var(--mono);font-size:.7rem;color:var(--m2)}
+.top-tab.active{background:var(--s3);color:var(--tx)}
+.top-right{margin-left:auto;display:flex;gap:.5rem;align-items:center}
+.hdr-btn{padding:.3rem .75rem;border:1px solid var(--b2);border-radius:6px;font-family:var(--mono);font-size:.7rem;color:var(--m2)}
+.hdr-btn:hover{color:var(--tx);border-color:var(--b3)}
+
+/* ── SIDEBAR LIST ── */
+.sb-hdr{padding:.7rem .9rem .4rem;display:flex;align-items:center;justify-content:space-between}
+.sb-label{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:var(--m1)}
+.sb-add{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--m1);font-size:1.1rem;cursor:pointer}
+.sb-add:hover{background:var(--s2);color:var(--tx)}
+.recipe-list{flex:1;overflow-y:auto;padding:0 .4rem .4rem}
+.ri{display:flex;align-items:center;gap:.6rem;padding:.45rem .55rem;border-radius:8px;cursor:pointer;border:1px solid transparent;margin-bottom:2px}
+.ri:hover{background:var(--s2)}
+.ri.active{background:var(--s2);border-color:var(--gold3)}
+.ri-thumb{width:40px;height:40px;border-radius:6px;overflow:hidden;flex-shrink:0;background:var(--s3)}
+.ri-thumb canvas{width:100%;height:100%;object-fit:cover;display:block}
+.ri-info{flex:1;min-width:0}
+.ri-name{font-size:.8rem;font-weight:500;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-mood{font-size:.65rem;color:var(--m1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── CANVAS VIEWPORT (CRITICAL FOR ZOOM) ── */
+.cv-bar{padding:.5rem .85rem;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:.5rem;flex-shrink:0;background:var(--bg);z-index:10}
+.cv-badge{font-family:var(--mono);font-size:.65rem;color:var(--m2);background:var(--s2);padding:2px 7px;border-radius:4px}
+.cmp-btn{margin-left:auto;padding:.3rem .75rem;background:var(--s2);border:1px solid var(--b2);border-radius:5px;font-family:var(--mono);font-size:.65rem;color:var(--m2);user-select:none}
+.cmp-btn:active{background:var(--s3);color:var(--tx)}
+.pip-btn{padding:.3rem .75rem;background:var(--s2);border:1px solid var(--b2);border-radius:5px;font-family:var(--mono);font-size:.65rem;color:var(--m2)}
+.pip-btn.active{background:var(--gold2);color:var(--gold);border-color:var(--gold)}
+
+.cv-wrap{flex:1;position:relative;overflow:hidden;cursor:grab}
+.cv-wrap:active{cursor:grabbing}
+.cv-wrap.pipette-mode{cursor:crosshair}
+#d-canvas, #mob-canvas{position:absolute;transform-origin:0 0;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.5)}
+
+/* 局部框選取景框視覺線 */
+.crop-box{position:absolute;border:1.5px dashed var(--gold);background:rgba(201,168,76,0.12);pointer-events:none;display:none;z-index:99}
+
+.drop-zone{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:5}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop-ring{width:56px;height:56px;border-radius:50%;border:1.5px dashed var(--b3);margin-bottom:1rem}
+.drop-title{font-family:var(--serif);font-style:italic;font-size:1.1rem;color:var(--m3)}
+
+/* ── STRIP WITH SQUARE PREVIEWS ── */
+.strip{padding:.5rem .75rem;border-top:1px solid var(--b1);display:flex;gap:.5rem;overflow-x:auto;flex-shrink:0;background:var(--bg)}
+.st-item{flex-shrink:0;cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid transparent;transition:all .15s;position:relative;width:64px;height:64px;background:var(--s2)}
+.st-item.active{border-color:var(--gold)}
+.st-canvas, .mob-st-canvas{width:100%;height:100%;object-fit:cover;display:block}
+.st-label{position:absolute;bottom:0;left:0;right:0;padding:2px;font-family:var(--sans);font-size:.5rem;font-weight:500;text-align:center;background:rgba(0,0,0,0.6);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* AI BAR */
+.ai-bar{padding:.5rem .85rem;border-top:1px solid var(--b1);display:flex;align-items:center;gap:1rem;flex-shrink:0;background:var(--bg)}
+.ai-scene{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.ai-scene-lbl{font-family:var(--mono);font-size:.55rem;color:var(--m1)}
+.ai-scene-val{font-family:var(--mono);font-size:.7rem;color:var(--tx);font-weight:500}
+.ai-action-btn{padding:.4rem 1rem;background:linear-gradient(135deg, var(--gold) 0%, #b3923b 100%);border-radius:6px;font-size:.72rem;color:#111;font-weight:600;margin-left:auto;box-shadow:0 2px 8px rgba(201,168,76,0.2)}
+
+/* ── RIGHT SLIDERS ── */
+.rp-tabs{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0}
+.rp-tab{flex:1;padding:.6rem;font-family:var(--mono);font-size:.62rem;color:var(--m1);text-align:center;border-bottom:2px solid transparent}
+.rp-tab.active{color:var(--tx);border-bottom-color:var(--gold)}
+.rp-body{flex:1;overflow-y:auto;padding:.8rem .9rem}
+.rp-sec{margin-bottom:1.2rem}
+.rp-sec-hdr{font-family:var(--mono);font-size:.58rem;color:var(--m1);margin-bottom:.5rem;display:flex;justify-content:space-between}
+.sl-row{display:flex;align-items:center;gap:.6rem}
+.sl-track{flex:1;height:24px;position:relative;display:flex;align-items:center}
+.sl-rail{position:absolute;left:0;right:0;height:3px;background:var(--s3);border-radius:2px}
+.sl-fill{position:absolute;height:3px;background:var(--gold);pointer-events:none;border-radius:2px}
+.sl-thumb{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--tx);border:2px solid var(--bg);box-shadow:0 0 0 1.5px var(--gold);pointer-events:none;transform:translateX(-50%)}
+input[type=range].sl-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0}
+.sl-val{font-family:var(--mono);font-size:.7rem;color:var(--tx);min-width:28px;text-align:right}
+
+.rail-sat{background:linear-gradient(to right,#555,#d03030)!important}
+.rail-temp{background:linear-gradient(to right,#4080c8,#c88030)!important}
+.rail-tint{background:linear-gradient(to right,#408840,#b040b0)!important}
+
+.dl-btn{width:100%;padding:.65rem;background:var(--gold);border-radius:6px;font-size:.75rem;color:#111;font-weight:600;margin-top:.4rem}
+
+/* ── MOBILE SPECIFIC ── */
+.mob-strip{display:flex;gap:.55rem;overflow-x:auto;padding:.8rem .75rem;align-items:center}
+.mob-st{flex-shrink:0;cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid transparent;width:68px;height:68px;background:var(--s2);position:relative}
+.mob-st.active{border-color:var(--gold)}
+.sheet-handle{width:32px;height:4px;background:var(--b3);border-radius:2px;margin:.6rem auto .4rem}
+.sheet-tabs{display:flex;border-bottom:1px solid var(--b1);padding:0 .5rem}
+.sheet-tab{flex:1;padding:.5rem;font-family:var(--mono);font-size:.65rem;color:var(--m1);text-align:center}
+.sheet-tab.active{color:var(--tx);border-bottom-color:var(--gold)}
+.sheet-body{padding:.6rem 1rem 1rem;overflow-y:auto;max-height:calc(52vh - 60px)}
+
+.toast{position:fixed;bottom:calc(var(--tb-h) + var(--safe-b) + .5rem);right:1rem;background:var(--s4);border:1px solid var(--b2);color:var(--tx);padding:.45rem .85rem;border-radius:6px;font-size:.7rem;z-index:999;transform:translateY(8px);opacity:0;transition:all .2s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+
+@media(max-width:860px){.desk{display:none}.mob{display:flex}}
+@media(min-width:861px){.mob{display:none}.desk{display:grid}}
+</style>
 </head>
 <body>
 
-<div id="portal-screen" class="portal-container">
-  <div class="portal-card">
-    <div class="portal-logo">
-      <div class="logo-mark">⚡</div>
-      <h1>KaiLun Film Lab</h1>
-      <p style="color: #9e968d; font-size: 0.9rem; margin-top: 4px;">Next-Gen Professional Photo Processing</p>
-    </div>
-    <div class="portal-options">
-      <div class="portal-opt-card" onclick="enterMode('ai')">
-        <div class="opt-icon">✨</div>
-        <h3>快速 AI 智慧修圖</h3>
-        <p>自動分析照片直方圖，一鍵自動調整各項滑塊，並保留手動微調空間。</p>
-      </div>
-      <div class="portal-opt-card" onclick="enterMode('manual')">
-        <div class="opt-icon">🎞️</div>
-        <h3>進階底片食譜模式</h3>
-        <p>經典正片、電影感、高對比街頭。完全掌控從頭開始的職人核心調色。</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="main-workspace" class="desk" style="display:none;">
+<div class="desk">
   <header class="desk-top">
-    <div class="logo" onclick="returnToPortal()">
-      <div class="logo-mark">←</div>
+    <div class="logo">
+      <div class="logo-mark"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14"/></svg></div>
       <span class="logo-name">KaiLun Film Lab</span>
-      <span class="logo-tag" id="current-mode-badge">AI MODE</span>
+      <span class="logo-tag">| Zoom & Pro Balanced</span>
     </div>
-    <div class="top-center-tabs">
-      <button class="top-tab active" id="tab-recipes-btn" onclick="toggleLeftSection('recipes')">底片食譜</button>
-      <button class="top-tab" id="tab-adjust-btn" onclick="toggleLeftSection('adjust')">調色參數</button>
-    </div>
+    <div class="top-tabs" style="margin-left:1.5rem"><div class="top-tab active">暗房調色</div></div>
     <div class="top-right">
-      <button class="hdr-btn" onclick="triggerUpload()">匯入相片</button>
+      <button class="hdr-btn" onclick="triggerUpload()">導入相片</button>
+      <input type="file" id="d-file" accept="image/*" style="display:none" onchange="handleFileSelect(event)">
     </div>
   </header>
 
-  <div class="desk-body">
-    <aside class="desk-left show-recipes" id="desk-left-panel">
-      <div class="left-section" id="sec-recipes">
-        <div class="section-hdr">
-          <span class="hdr-title">底片風格食譜</span>
-          <div class="hdr-actions">
-            <button class="circle-btn" onclick="saveCurrentAsRecipe()" title="儲存當前參數為新食譜">+</button>
-            <button class="circle-btn" onclick="exportRecipes()" title="匯出食譜">↑</button>
-          </div>
-        </div>
-        
-        <div class="recipe-filter-bar">
-          <button class="rf-btn active" id="rf-all" onclick="filterRecipes('all')">全部</button>
-          <button class="rf-btn" id="rf-classic" onclick="filterRecipes('經典')">經典</button>
-          <button class="rf-btn" id="rf-cinema" onclick="filterRecipes('電影')">電影</button>
-          <button class="rf-btn" id="rf-user" onclick="filterRecipes('自訂')">自訂</button>
-        </div>
-        
-        <div class="recipe-strips-container" id="recipe-strips">
-          </div>
-      </div>
+  <aside class="desk-left">
+    <div class="sb-hdr"><span class="sb-label">底片大補帖 RECIPES</span><div class="sb-add" onclick="saveAsRecipe()">+</div></div>
+    <div class="recipe-list" id="d-recipe-list"></div>
+  </aside>
 
-      <div class="left-section" id="sec-adjust">
-        <div class="section-hdr">
-          <span class="hdr-title">沖印參數微調</span>
-          <button class="text-link-btn" onclick="resetAllSliders()">重設全部 ↺</button>
-        </div>
-        
-        <div class="control-toggle-tabs">
-          <div class="ct-tab active" id="panel-tab-global" onclick="switchControlPanel('global')">全圖調整</div>
-          <div class="ct-tab" id="panel-tab-local" onclick="switchControlPanel('local')" style="opacity:0.4;">局部色彩</div>
-        </div>
-
-        <div class="sliders-scroll-area">
-          <div id="global-sliders-group">
-            <div class="control-group-title">基礎曝光與光線</div>
-            <div id="group-light"></div>
-            <div class="control-group-title" style="margin-top:1.5rem;">色彩與白平衡</div>
-            <div id="group-color"></div>
-            <div class="control-group-title" style="margin-top:1.5rem;">底片顆粒與特效</div>
-            <div id="group-effects"></div>
-          </div>
-
-          <div id="local-sliders-group" style="display:none;">
-            <div class="local-info-box">
-              請先使用右側畫布下方的<strong>「色彩吸管」</strong>點擊你想單獨調整的物體（如天空、草地、膚色），即可解鎖解凍下方局部滑塊！
-            </div>
-            <div class="control-group-title">選定色彩控制 (HSL Range)</div>
-            <div id="group-local"></div>
-          </div>
-        </div>
+  <section class="desk-center">
+    <div class="cv-bar">
+      <div class="cv-badge" id="d-badge">未導入</div>
+      <button class="pip-btn" id="d-pipette" onclick="togglePipetteMode()"><span>🧪 框選區域校正白平衡</span></button>
+      <button class="cmp-btn" onmousedown="showOriginal()" onmouseup="showFiltered()" ontouchstart="showOriginal()" ontouchend="showFiltered()">對比</button>
+    </div>
+    
+    <div class="cv-wrap" id="d-cv-wrap" onmousedown="panStart(event)" onmousemove="panMove(event)" onmouseup="panEnd()" onmouseleave="panEnd()" onwheel="handleWheel(event)">
+      <div class="crop-box" id="d-crop-box"></div>
+      <div class="drop-zone" id="d-drop">
+        <input type="file" accept="image/*" onchange="handleFileSelect(event)">
+        <div class="drop-ring"></div>
+        <div class="drop-title">拖放或點擊加入照片</div>
       </div>
-    </aside>
+      <canvas id="d-canvas"></canvas>
+    </div>
 
-    <main class="desk-center">
-      <div class="canvas-statusbar">
-        <div class="status-meta">
-          <span class="badge" id="lbl-status">READY</span>
-          <span class="meta-text" id="lbl-resolution">0 x 0</span>
-        </div>
-        <div class="canvas-actions">
-          <button class="action-btn" onmousedown="startCompare()" onmouseup="endCompare()" ontouchstart="startCompare()" ontouchend="endCompare()">看原圖</button>
-          <div class="zoom-controls">
-            <button class="zoom-btn" onclick="changeZoom(-10)">−</button>
-            <span class="zoom-text" id="lbl-zoom">100%</span>
-            <button class="zoom-btn" onclick="changeZoom(10)">+</button>
-          </div>
-        </div>
-      </div>
+    <div class="strip" id="d-strip"></div>
+    
+    <div class="ai-bar">
+      <div class="ai-scene"><span class="ai-scene-lbl">🏛 建築感</span><span class="ai-scene-val" id="sc-b">0%</span></div>
+      <div class="ai-scene"><span class="ai-scene-lbl">🛤 街道感</span><span class="ai-scene-val" id="sc-s">0%</span></div>
+      <div class="ai-scene"><span class="ai-scene-lbl">🌳 自然感</span><span class="ai-scene-val" id="sc-n">0%</span></div>
+      <button class="ai-action-btn" onclick="runAIOptimize()">✨ 一鍵 AI 智能優化</button>
+    </div>
+  </section>
 
-      <div class="canvas-stage" id="canvas-container">
-        <div class="upload-gate" id="upload-gate" onclick="triggerUpload()">
-          <div class="gate-icon">📸</div>
-          <div class="gate-title">匯入底片開始沖印</div>
-          <div class="gate-desc">支援拖曳相片至此處 ‧ 自動啟用 1200px 視網膜雙軌加速</div>
-        </div>
-        <canvas id="main-canvas" style="display:none;"></canvas>
-      </div>
+  <aside class="desk-right">
+    <div class="rp-tabs"><div class="rp-tab active">控制面板</div></div>
+    <div class="rp-body" id="d-sliders"></div>
+  </aside>
+</div>
 
-      <div class="pipette-toolbar-strip" id="pipette-bar">
-        <button class="pipette-trigger-btn" id="btn-pipette" onclick="togglePipetteMode()">
-          <span class="p-icon">🧪</span> 色彩吸管局部選取 (天空/草地/人像)
-        </button>
-        <div class="pipette-color-dot" id="pipette-dot"></div>
-        <span class="pipette-hint-text" id="pipette-status-text">未選取局部範圍（目前調整全圖）</span>
-        <button class="pipette-clear-link" id="btn-clear-mask" style="display:none;" onclick="clearLocalMask()">重設全圖 ↺</button>
-      </div>
-      
-      <div class="curve-dock" id="curve-dock">
-        <div class="curve-hdr" onclick="toggleCurveDock()">
-          <span class="curve-title">🔬 特性曲線 (Tone Curve)</span>
-          <span class="curve-toggle-arrow" id="curve-arrow">▲</span>
-        </div>
-        <div class="curve-body" id="curve-body">
-          <div class="curve-canvas-wrap">
-            <canvas id="curve-canvas" width="160" height="160"></canvas>
-          </div>
-          <div class="curve-info">
-            <p>點擊曲線可增加控制點，拖曳可改變對比與高光暗部色調調性。</p>
-            <button class="text-link-btn" onclick="resetCurvePoints()">重設曲線 ↺</button>
-          </div>
-        </div>
-      </div>
-    </main>
+<div class="mob">
+  <div class="mob-preview" id="m-cv-wrap" ontouchstart="mobTouchStart(event)" ontovemove="mobTouchMove(event)" ontouchend="mobTouchEnd(event)">
+    <div class="crop-box" id="m-crop-box"></div>
+    <div class="drop-zone" id="m-drop" style="z-index:20">
+      <input type="file" accept="image/*" onchange="handleFileSelect(event)">
+      <div class="drop-title" style="font-size:0.95rem">點擊此處導入相片檔案</div>
+    </div>
+    <canvas id="mob-canvas"></canvas>
+  </div>
+  
+  <div class="mob-recipes">
+    <div class="mob-strip" id="m-strip"></div>
+  </div>
 
-    <aside class="desk-right">
-      <div class="right-hdr">輸出端</div>
-      <div class="export-box">
-        <div class="export-row">
-          <span class="ex-lbl">格式</span>
-          <span class="ex-val">JPEG (95% 壓縮)</span>
-        </div>
-        <div class="export-row">
-          <span class="ex-lbl">色彩空間</span>
-          <span class="ex-val">sRGB IEC61966</span>
-        </div>
-        <button class="action-btn primary large" style="margin-top:1.5rem;" onclick="downloadImage()">導出最高畫質大圖</button>
-      </div>
-    </aside>
+  <div class="mob-sheet" id="m-sheet" style="transform:translateY(100%)">
+    <div class="sheet-handle" onclick="toggleMobSheet()"></div>
+    <div class="sheet-tabs">
+      <div class="sheet-tab active" id="mtab-adj" onclick="switchMobSheetTab('adj')">微調滑桿</div>
+      <div class="sheet-tab" id="mtab-ai" onclick="switchMobSheetTab('ai')">AI 智能分析</div>
+    </div>
+    <div class="sheet-body" id="m-sheet-body"></div>
+  </div>
+
+  <div class="mob-toolbar">
+    <button class="mob-tb-btn active" id="mtb-recipe" onclick="setMobMode('recipe')"><span>底片庫</span></button>
+    <button class="mob-tb-btn" id="mtb-edit" onclick="setMobMode('edit')"><span>調色盤</span></button>
+    <button class="mob-tb-btn" id="m-pipette-btn" onclick="togglePipetteMode()"><span>🧪 框選平衡</span></button>
+    <button class="mob-tb-btn" onclick="triggerUpload()"><span>換照片</span></button>
   </div>
 </div>
 
-<input type="file" id="file-input" accept="image/*" style="display:none;" onchange="handleFileSelect(this)">
 <div class="toast" id="toast"></div>
 
-<script src="editor.js"></script>
+<script>
+const baseRecipes = [
+  { id:'c1', name:'Classic Chrome', mood:'人文電影、低飽和經典色彩', tags:'經典', params:{ exp:0, cont:14, sat:-14, temp:3, tint:-2, sharp:8, grain:12, vib:4 } },
+  { id:'c2', name:'Kodak Gold 200', mood:'溫暖懷舊、午後金黃陽光感', tags:'復古', params:{ exp:3, cont:10, sat:12, temp:12, tint:2, sharp:6, grain:18, vib:6 } },
+  { id:'c3', name:'Fujifilm Superia', mood:'清冷綠色調、日系空氣通透感', tags:'日系', params:{ exp:2, cont:-4, sat:4, temp:-12, tint:14, sharp:8, grain:10, vib:-2 } },
+  { id:'c4', name:'Portra 400', mood:'柔和通透、白皙細膩人像膚色', tags:'人像', params:{ exp:4, cont:-8, sat:-5, temp:2, tint:1, sharp:5, grain:6, vib:2 } },
+  { id:'c5', name:'Cinestill 800T', mood:'電影感夜街、微弱光霓虹冷調', tags:'夜景', params:{ exp:6, cont:16, sat:6, temp:-16, tint:-6, sharp:10, grain:22, vib:8 } },
+  { id:'c6', name:'Monochrome 復古黑白', mood:'高反差、人文顆粒光影', tags:'黑白', params:{ exp:0, cont:24, sat:-100, temp:0, tint:0, sharp:12, grain:28, vib:0 } }
+];
+
+let userRecipes = [];
+try { const s = localStorage.getItem('kl-recipes-v2'); if(s) userRecipes = JSON.parse(s); }catch(e){}
+
+let curId = 'c1';
+let imgElement = null;
+
+// 原始解析度快取
+let masterCanvas = document.createElement('canvas');
+// 80x80 超輕量預覽母圖（效能核心）
+let thumbMasterCanvas = document.createElement('canvas');
+
+// 目前調色參數
+let adj = { exp:0, cont:0, sat:0, temp:0, tint:0, sharp:0, grain:0, vib:0 };
+
+// 檢視轉換矩陣狀態（支援極致流暢的 Zoom & Pan）
+let transformState = { x:0, y:0, scale:1 };
+let isDragging = false;
+let startPanX = 0, startPanY = 0;
+
+// 框選白平衡狀態
+let isPipetteMode = false;
+let isSelectingRegion = false;
+let regionStart = { x:0, y:0 };
+
+// 手機多點觸控狀態
+let touchStartDist = 0;
+let touchStartScale = 1;
+let touchStartPos = { x:0, y:0 };
+
+const sliderDefs = [
+  { k:'exp', zh:'曝光度', en:'Exposure', min:-50, max:50, def:0 },
+  { k:'cont', zh:'對比度', en:'Contrast', min:-50, max:50, def:0 },
+  { k:'sat', zh:'飽和度', en:'Saturation', min:-100, max:100, def:0, clsl:'rail-sat' },
+  { k:'temp', zh:'色溫', en:'Temperature', min:-50, max:50, def:0, clsl:'rail-temp' },
+  { k:'tint', zh:'色調', en:'Tint', min:-50, max:50, def:0, clsl:'rail-tint' },
+  { k:'sharp', zh:'銳利度', en:'Sharpness', min:0, max:50, def:0 },
+  { k:'grain', zh:'顆粒感', en:'Grain', min:0, max:100, def:0 },
+  { k:'vib', zh:'鮮豔度', en:'Vibrance', min:-50, max:50, def:0 }
+];
+
+window.addEventListener('DOMContentLoaded', () => {
+  buildSlidersUI();
+  // 建立尚未上傳前的空縮圖狀態
+  buildDynamicStrips();
+  applyRecipe(curId, false);
+});
+
+function getRecipe(id) { return baseRecipes.find(r=>r.id===id) || userRecipes.find(r=>r.id===id); }
+
+function triggerUpload() { document.getElementById('d-file').click(); }
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = function(evt){
+    imgElement = new Image();
+    imgElement.onload = function(){
+      // 1. 寫入高解析原始畫布
+      masterCanvas.width = imgElement.width;
+      masterCanvas.height = imgElement.height;
+      masterCanvas.getContext('2d').drawImage(imgElement, 0, 0);
+
+      // 2. 生成 80x80 超輕量預覽母圖（效能優化關鍵）
+      thumbMasterCanvas.width = 80;
+      thumbMasterCanvas.height = 80;
+      thumbMasterCanvas.getContext('2d').drawImage(imgElement, 0, 0, 80, 80);
+
+      // 隱藏拖放提示，顯示畫布
+      document.getElementById('d-drop').style.display = 'none';
+      document.getElementById('m-drop').style.display = 'none';
+      document.getElementById('d-canvas').style.display = 'block';
+      document.getElementById('mob-canvas').style.display = 'block';
+      document.getElementById('d-badge').textContent = "已導入";
+
+      // 3. 自動適應大小居中 (Fit view)
+      resetViewport();
+      
+      // 4. 即時背景異步重繪所有濾鏡小方塊
+      buildDynamicStrips();
+      
+      // 5. 執行模擬 AI 分析
+      document.getElementById('sc-b').textContent = Math.floor(Math.random()*45+20)+'%';
+      document.getElementById('sc-s').textContent = Math.floor(Math.random()*30+20)+'%';
+      document.getElementById('sc-n').textContent = Math.floor(Math.random()*25+15)+'%';
+
+      applyRecipe(curId, false);
+    };
+    imgElement.src = evt.target.result;
+  };
+  r.readAsDataURL(file);
+}
+
+function resetViewport() {
+  if(!imgElement) return;
+  const isMob = window.innerWidth <= 860;
+  const container = document.getElementById(isMob ? 'm-cv-wrap' : 'd-cv-wrap');
+  const cw = container.clientWidth, ch = container.clientHeight;
+  const ratio = Math.min(cw / imgElement.width, ch / imgElement.height, 1);
+  
+  transformState.scale = ratio;
+  transformState.x = (cw - imgElement.width * ratio) / 2;
+  transformState.y = (ch - imgElement.height * ratio) / 2;
+  applyTransform();
+}
+
+function applyTransform() {
+  const dc = document.getElementById('d-canvas');
+  const mc = document.getElementById('mob-canvas');
+  const ts = `translate(${transformState.x}px, ${transformState.y}px) scale(${transformState.scale})`;
+  dc.style.transform = ts;
+  mc.style.transform = ts;
+}
+
+// ── 建立微調滑桿 ──
+function buildSlidersUI() {
+  const dCont = document.getElementById('d-sliders');
+  dCont.innerHTML = sliderDefs.map(s => `
+    <div class="rp-sec">
+      <div class="rp-sec-hdr"><span class="zh">${s.zh}</span><span style="font-family:var(--mono);color:var(--m1)">${s.en}</span></div>
+      <div class="sl-row">
+        <div class="sl-track">
+          <div class="sl-rail ${s.clsl||''}"></div>
+          <div class="sl-fill" id="fill-${s.k}"></div>
+          <div class="sl-thumb" id="thumb-${s.k}"></div>
+          <input type="range" class="sl-input" min="${s.min}" max="${s.max}" value="${s.def}" id="sl-${s.k}" oninput="updateParam('${s.k}', this.value)">
+        </div>
+        <div class="sl-val" id="val-${s.k}">0</div>
+      </div>
+    </div>
+  `).join('') + `<button class="dl-btn" onclick="exportFinalPhoto()">💾 下載匯出相片</button>`;
+}
+
+// ── 核心功能：動態正方形濾鏡小方塊優化（高效毫秒渲染） ──
+function buildDynamicStrips() {
+  const all = [...baseRecipes, ...userRecipes];
+  const dStrip = document.getElementById('d-strip');
+  const mStrip = document.getElementById('m-strip');
+  const dRecList = document.getElementById('d-recipe-list');
+
+  // 桌機小方塊
+  dStrip.innerHTML = all.map(r => `
+    <div class="st-item ${r.id===curId?'active':''}" data-id="${r.id}" onclick="applyRecipe('${r.id}')">
+      <canvas class="st-canvas" id="thumb-d-${r.id}"></canvas>
+      <div class="st-label">${r.name}</div>
+    </div>
+  `).join('');
+
+  // 手機小方塊
+  mStrip.innerHTML = all.map(r => `
+    <div class="mob-st ${r.id===curId?'active':''}" data-id="${r.id}" onclick="applyRecipe('${r.id}')">
+      <canvas class="mob-st-canvas" id="thumb-m-${r.id}"></canvas>
+      <div class="st-label">${r.name}</div>
+    </div>
+  `).join('');
+
+  // 左側列表
+  dRecList.innerHTML = all.map(r => `
+    <div class="ri ${r.id===curId?'active':''}" data-id="${r.id}" onclick="applyRecipe('${r.id}')">
+      <div class="ri-thumb"><canvas id="thumb-l-${r.id}"></canvas></div>
+      <div class="ri-info">
+        <div class="ri-name">${r.name}</div>
+        <div class="ri-mood">${r.mood}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // 渲染縮圖核心：若未上傳，使用純底色色塊；若已上傳，瞬間用 80x80 預覽母圖動態著色
+  all.forEach(r => {
+    ['thumb-d-', 'thumb-m-', 'thumb-l-'].forEach(prefix => {
+      const cv = document.getElementById(prefix + r.id);
+      if(!cv) return;
+      cv.width = 64; cv.height = 64;
+      const ctx = cv.getContext('2d');
+      
+      if(!imgElement) {
+        // 尚未導入相片時，填入對應經典色
+        ctx.fillStyle = r.id==='c6' ? '#666' : '#2d2a26';
+        ctx.fillRect(0,0,64,64);
+        ctx.fillStyle = 'rgba(255,255,255,0.15)';
+        ctx.font = '10px sans-serif';
+        ctx.fillText('No Image', 10, 36);
+      } else {
+        // 已導入相片，快速渲染套用該濾鏡參數的縮圖
+        ctx.drawImage(thumbMasterCanvas, 0, 0, 64, 64);
+        applyFilterCore(ctx, 64, 64, r.params);
+      }
+    });
+  });
+}
+
+function updateParam(k, val) {
+  adj[k] = parseInt(val);
+  syncSlidersUI();
+  renderMainView();
+}
+
+function syncSlidersUI() {
+  sliderDefs.forEach(s => {
+    const v = adj[s.k] !== undefined ? adj[s.k] : s.def;
+    const input = document.getElementById(`sl-${s.k}`);
+    if(input) input.value = v;
+    const txt = document.getElementById(`val-${s.k}`);
+    if(txt) txt.textContent = v > 0 ? `+${v}` : v;
+
+    const pct = ((v - s.min) / (s.max - s.min)) * 100;
+    const fill = document.getElementById(`fill-${s.k}`);
+    const thumb = document.getElementById(`thumb-${s.k}`);
+    if(fill) fill.style.width = `${pct}%`;
+    if(thumb) thumb.style.left = `${pct}%`;
+  });
+}
+
+function applyRecipe(id, triggerToast = true) {
+  curId = id;
+  const r = getRecipe(id);
+  if(r) {
+    adj = { ...r.params };
+    syncSlidersUI();
+    renderMainView();
+    document.querySelectorAll('.st-item, .mob-st, .ri').forEach(el => {
+      el.classList.toggle('active', el.dataset.id === id);
+    });
+    if(triggerToast) toast('套用濾鏡: ' + r.name);
+  }
+}
+
+// ── 雙端主視窗流暢渲染 ──
+function renderMainView() {
+  if(!imgElement) return;
+  const dc = document.getElementById('d-canvas');
+  const mc = document.getElementById('mob-canvas');
+  
+  // 維持畫布本體尺寸等於照片實際原始尺寸
+  dc.width = imgElement.width; dc.height = imgElement.height;
+  mc.width = imgElement.width; mc.height = imgElement.height;
+
+  const dCtx = dc.getContext('2d');
+  const mCtx = mc.getContext('2d');
+
+  dCtx.drawImage(masterCanvas, 0, 0);
+  mCtx.drawImage(masterCanvas, 0, 0);
+
+  applyFilterCore(dCtx, dc.width, dc.height, adj);
+  applyFilterCore(mCtx, mc.width, mc.height, adj);
+}
+
+// ── 對比功能 ──
+function showOriginal() {
+  if(!imgElement) return;
+  const dc = document.getElementById('d-canvas');
+  const mc = document.getElementById('mob-canvas');
+  dc.getContext('2d').drawImage(masterCanvas, 0, 0);
+  mc.getContext('2d').drawImage(masterCanvas, 0, 0);
+  document.getElementById('d-badge').textContent = "對比原圖中";
+}
+function showFiltered() {
+  if(!imgElement) return;
+  renderMainView();
+  document.getElementById('d-badge').textContent = "已調色";
+}
+
+// ── 專業濾鏡影像核心演算法 ──
+function applyFilterCore(ctx, w, h, p) {
+  const imgData = ctx.getImageData(0, 0, w, h);
+  const d = imgData.data;
+
+  const ev = (p.exp || 0) / 25;
+  const cv = ((p.cont || 0) + 50) / 50;
+  const sv = ((p.sat || 0) + 100) / 100;
+  const tempV = (p.temp || 0) * 0.6;
+  const tintV = (p.tint || 0) * 0.6;
+  const vibV = (p.vib || 0) / 50;
+  const grainV = p.grain || 0;
+
+  for (let i = 0; i < d.length; i += 4) {
+    let r = d[i], g = d[i+1], b = d[i+2];
+
+    // 1. Exposure
+    if(ev !== 0) { const f = Math.pow(2, ev); r *= f; g *= f; b *= f; }
+    // 2. Contrast
+    if(cv !== 1) {
+      r = ((r/255 - 0.5) * cv + 0.5) * 255;
+      g = ((g/255 - 0.5) * cv + 0.5) * 255;
+      b = ((b/255 - 0.5) * cv + 0.5) * 255;
+    }
+    // 3. WB (Temp & Tint)
+    r += tempV; b -= tempV;
+    g += tintV; r -= tintV * 0.5; b -= tintV * 0.5;
+
+    // 4. Vibrance & Saturation
+    let max = Math.max(r, g, b);
+    let l = (max + Math.min(r, g, b)) / 2;
+    if(vibV !== 0) {
+      let amt = (Math.abs(max - l) / 127) * vibV;
+      r += (max - r) * amt; g += (max - g) * amt; b += (max - b) * amt;
+    }
+    if(sv !== 1) {
+      let gray = 0.299 * r + 0.587 * g + 0.114 * b;
+      r = gray + (r - gray) * sv; g = gray + (g - gray) * sv; b = gray + (b - gray) * sv;
+    }
+    // 5. Film Grain
+    if(grainV > 0) {
+      const ns = (Math.random() - 0.5) * grainV * 0.55;
+      r += ns; g += ns; b += ns;
+    }
+
+    d[i] = r < 0 ? 0 : r > 255 ? 255 : r;
+    d[i+1] = g < 0 ? 0 : g > 255 ? 255 : g;
+    d[i+2] = b < 0 ? 0 : b > 255 ? 255 : b;
+  }
+  ctx.putImageData(imgData, 0, 0);
+}
+
+// ── ✨ 一鍵 AI 智能調色 ──
+function runAIOptimize() {
+  if(!imgElement) { toast('❌ 請先導入一張相片'); return; }
+  const b = parseInt(document.getElementById('sc-b').textContent) || 30;
+  const s = parseInt(document.getElementById('sc-s').textContent) || 30;
+  const n = parseInt(document.getElementById('sc-n').textContent) || 40;
+
+  if(b > s && b > n) {
+    adj = { exp:2, cont:14, sat:-6, temp:-5, tint:2, sharp:12, grain:8, vib:4 };
+    toast('✨ AI優化：都市建築結構，已加強光影與冷冽調性');
+  } else if(n > b && n > s) {
+    adj = { exp:4, cont:-2, sat:8, temp:-8, tint:10, sharp:6, grain:4, vib:6 };
+    toast('✨ AI優化：自然植被風景，已通透綠意與日系空氣感');
+  } else {
+    adj = { exp:3, cont:8, sat:4, temp:6, tint:-2, sharp:10, grain:15, vib:2 };
+    toast('✨ AI優化：街頭人文場景，已溫潤暖調並提升故事感');
+  }
+  syncSlidersUI();
+  renderMainView();
+}
+
+// ── 🧪 升級版：框選範圍 AI 精准白平衡功能 ──
+function togglePipetteMode() {
+  if(!imgElement) { toast('❌ 請先導入相片'); return; }
+  isPipetteMode = !isPipetteMode;
+  
+  const btn = document.getElementById('d-pipette');
+  const mBtn = document.getElementById('m-pipette-btn');
+  const wrapD = document.getElementById('d-cv-wrap');
+  
+  if(isPipetteMode) {
+    btn.classList.add('active');
+    if(mBtn) mBtn.classList.add('active');
+    wrapD.classList.add('pipette-mode');
+    toast('🧪 請在相片上「拉框選取」一個白色或灰色區域');
+  } else {
+    btn.classList.remove('active');
+    if(mBtn) mBtn.classList.remove('active');
+    wrapD.classList.remove('pipette-mode');
+    document.getElementById('d-crop-box').style.display = 'none';
+    document.getElementById('m-crop-box').style.display = 'none';
+  }
+}
+
+// 核心演算法：將螢幕滑鼠拉框範圍，精準變換還原回原始影像的高解析像素座標
+function calculateAndApplyWBBypet(x1, y1, x2, y2) {
+  if(!imgElement) return;
+  const dc = document.getElementById('d-canvas');
+  const ctx = dc.getContext('2d');
+
+  // 計算選取框在原始影像解析度下的真實矩形
+  const rx = Math.min(x1, x2), ry = Math.min(y1, y2);
+  const rw = Math.abs(x1 - x2), rh = Math.abs(y1 - y2);
+  if(rw < 3 || rh < 3) return; // 避免極度微小的無效框選
+
+  try {
+    const imgData = ctx.getImageData(rx, ry, rw, rh);
+    const d = imgData.data;
+    let rSum = 0, gSum = 0, bSum = 0, count = 0;
+
+    // 加總區域內所有像素
+    for (let i = 0; i < d.length; i += 4) {
+      rSum += d[i]; gSum += d[i+1]; bSum += d[i+2];
+      count++;
+    }
+
+    if (count > 0) {
+      const rAvg = rSum / count, gAvg = gSum / count, bAvg = bSum / count;
+      const avg = (rAvg + gAvg + bAvg) / 3;
+
+      // AI 反向分析偏色誤差
+      if (avg > 0) {
+        const diffTemp = Math.floor(((rAvg - bAvg) / avg) * 32);
+        const diffTint = Math.floor(((gAvg - ((rAvg + bAvg) / 2)) / avg) * 32);
+
+        adj.temp = Math.max(-50, Math.min(50, adj.temp - diffTemp));
+        adj.tint = Math.max(-50, Math.min(50, adj.tint - diffTint));
+
+        syncSlidersUI();
+        renderMainView();
+        toast('✓ AI 區域白平衡自動校正完成');
+      }
+    }
+  } catch (e) { console.error(e); }
+  
+  // 自動解鎖還原狀態
+  togglePipetteMode();
+}
+
+// ── 電腦端滑鼠控制：平移、縮放與框選平衡 ──
+function panStart(e) {
+  if(!imgElement) return;
+  const isMob = window.innerWidth <= 860;
+  const wrap = document.getElementById(isMob ? 'm-cv-wrap' : 'd-cv-wrap');
+  const rect = wrap.getBoundingClientRect();
+  
+  // 計算相對於取景視窗內部的滑鼠起點
+  const clickX = e.clientX - rect.left;
+  const clickY = e.clientY - rect.top;
+
+  if (isPipetteMode) {
+    // 進入區域框選狀態
+    isSelectingRegion = true;
+    regionStart.x = clickX;
+    regionStart.y = clickY;
+    
+    const box = document.getElementById(isMob ? 'm-crop-box' : 'd-crop-box');
+    box.style.left = clickX + 'px'; box.style.top = clickY + 'px';
+    box.style.width = '0px'; box.style.height = '0px';
+    box.style.display = 'block';
+  } else {
+    // 進入普通相片平移狀態
+    isDragging = true;
+    startPanX = e.clientX - transformState.x;
+    startPanY = e.clientY - transformState.y;
+  }
+}
+
+function panMove(e) {
+  if(!imgElement) return;
+  const isMob = window.innerWidth <= 860;
+  const wrap = document.getElementById(isMob ? 'm-cv-wrap' : 'd-cv-wrap');
+  const rect = wrap.getBoundingClientRect();
+  const currentX = e.clientX - rect.left;
+  const currentY = e.clientY - rect.top;
+
+  if (isPipetteMode && isSelectingRegion) {
+    // 隨滑鼠拉動更新虛線選取框
+    const box = document.getElementById(isMob ? 'm-crop-box' : 'd-crop-box');
+    const x = Math.min(regionStart.x, currentX);
+    const y = Math.min(regionStart.y, currentY);
+    const w = Math.abs(regionStart.x - currentX);
+    const h = Math.abs(regionStart.y - currentY);
+    box.style.left = x + 'px'; box.style.top = y + 'px';
+    box.style.width = w + 'px'; box.style.height = h + 'px';
+  } else if (isDragging) {
+    // 平移照片位置
+    transformState.x = e.clientX - startPanX;
+    transformState.y = e.clientY - startPanY;
+    applyTransform();
+  }
+}
+
+function panEnd(e) {
+  const isMob = window.innerWidth <= 860;
+  if (isPipetteMode && isSelectingRegion) {
+    isSelectingRegion = false;
+    const box = document.getElementById(isMob ? 'm-crop-box' : 'd-crop-box');
+    box.style.display = 'none';
+
+    // 核心重連：把畫面的螢幕座標矩形，精確換算還原成高解析 Canvas 內部的像素座標
+    const boxLeft = parseFloat(box.style.left);
+    const boxTop = parseFloat(box.style.top);
+    const boxWidth = parseFloat(box.style.width);
+    const boxHeight = parseFloat(box.style.height);
+
+    const canvasX1 = Math.floor((boxLeft - transformState.x) / transformState.scale);
+    const canvasY1 = Math.floor((boxTop - transformState.y) / transformState.scale);
+    const canvasX2 = Math.floor((boxLeft + boxWidth - transformState.x) / transformState.scale);
+    const canvasY2 = Math.floor((boxTop + boxHeight - transformState.y) / transformState.scale);
+
+    calculateAndApplyWBBypet(canvasX1, canvasY1, canvasX2, canvasY2);
+  }
+  isDragging = false;
+}
+
+function handleWheel(e) {
+  if(!imgElement) return;
+  e.preventDefault();
+  const wrap = document.getElementById('d-cv-wrap');
+  const rect = wrap.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  // 滾輪縮放核心數學邏輯（以滑鼠指針為中心流暢收放）
+  const zoomFactor = 1.1;
+  const nextScale = e.deltaY < 0 ? transformState.scale * zoomFactor : transformState.scale / zoomFactor;
+  if(nextScale < 0.1 || nextScale > 15) return;
+
+  transformState.x = mouseX - (mouseX - transformState.x) * (nextScale / transformState.scale);
+  transformState.y = mouseY - (mouseY - transformState.y) * (nextScale / transformState.scale);
+  transformState.scale = nextScale;
+  applyTransform();
+}
+
+// ── 手機端觸控手勢核心：完美的單指平移、雙指張開縮放與框選 ──
+function mobTouchStart(e) {
+  if(!imgElement) return;
+  const wrap = document.getElementById('m-cv-wrap');
+  const rect = wrap.getBoundingClientRect();
+
+  if (isPipetteMode) {
+    isSelectingRegion = true;
+    const t = e.touches[0];
+    const clickX = t.clientX - rect.left; const clickY = t.clientY - rect.top;
+    regionStart.x = clickX; regionStart.y = clickY;
+    
+    const box = document.getElementById('m-crop-box');
+    box.style.left = clickX+'px'; box.style.top = clickY+'px';
+    box.style.width = '0px'; box.style.height = '0px'; box.style.display = 'block';
+  } else {
+    if (e.touches.length === 1) {
+      isDragging = true;
+      startPanX = e.touches[0].clientX - transformState.x;
+      startPanY = e.touches[0].clientY - transformState.y;
+    } else if (e.touches.length === 2) {
+      // 雙指捏合縮放初始化
+      isDragging = false;
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      touchStartDist = Math.sqrt(dx*dx + dy*dy);
+      touchStartScale = transformState.scale;
+      
+      touchStartPos.x = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+      touchStartPos.y = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+    }
+  }
+}
+
+function mobTouchMove(e) {
+  if(!imgElement) return;
+  const wrap = document.getElementById('m-cv-wrap');
+  const rect = wrap.getBoundingClientRect();
+
+  if (isPipetteMode && isSelectingRegion) {
+    const t = e.touches[0];
+    const curX = t.clientX - rect.left; const curY = t.clientY - rect.top;
+    const box = document.getElementById('m-crop-box');
+    const x = Math.min(regionStart.x, curX); const y = Math.min(regionStart.y, curY);
+    box.style.left = x+'px'; box.style.top = y+'px';
+    box.style.width = Math.abs(regionStart.x - curX)+'px'; box.style.height = Math.abs(regionStart.y - curY)+'px';
+  } else {
+    if (e.touches.length === 1 && isDragging) {
+      transformState.x = e.touches[0].clientX - startPanX;
+      transformState.y = e.touches[0].clientY - startPanY;
+      applyTransform();
+    } else if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if(touchStartDist === 0) return;
+
+      const nextScale = touchStartScale * (dist / touchStartDist);
+      if(nextScale < 0.1 || nextScale > 15) return;
+
+      transformState.x = touchStartPos.x - (touchStartPos.x - transformState.x) * (nextScale / transformState.scale);
+      transformState.y = touchStartPos.y - (touchStartPos.y - transformState.y) * (nextScale / transformState.scale);
+      transformState.scale = nextScale;
+      applyTransform();
+    }
+  }
+}
+
+function mobTouchEnd(e) {
+  if (isPipetteMode && isSelectingRegion) {
+    isSelectingRegion = false;
+    const box = document.getElementById('m-crop-box');
+    box.style.display = 'none';
+
+    const canvasX1 = Math.floor((parseFloat(box.style.left) - transformState.x) / transformState.scale);
+    const canvasY1 = Math.floor((parseFloat(box.style.top) - transformState.y) / transformState.scale);
+    const canvasX2 = Math.floor((parseFloat(box.style.left) + parseFloat(box.style.width) - transformState.x) / transformState.scale);
+    const canvasY2 = Math.floor((parseFloat(box.style.top) + parseFloat(box.style.height) - transformState.y) / transformState.scale);
+
+    calculateAndApplyWBBypet(canvasX1, canvasY1, canvasX2, canvasY2);
+  }
+  isDragging = false;
+  touchStartDist = 0;
+}
+
+// ── 下載導出 ──
+function exportFinalPhoto() {
+  if(!imgElement) return;
+  const out = document.createElement('canvas');
+  out.width = imgElement.width; out.height = imgElement.height;
+  const ctx = out.getContext('2d');
+  ctx.drawImage(masterCanvas, 0, 0);
+  applyFilterCore(ctx, out.width, out.height, adj);
+  
+  out.toBlob(b => {
+    const a = document.createElement('a');
+    a.download = `FilmLab_${Date.now()}.jpg`;
+    a.href = URL.createObjectURL(b);
+    a.click();
+    toast('✓ 相片已以高解析原始畫質下載導出');
+  }, 'image/jpeg', 0.95);
+}
+
+function saveAsRecipe() {
+  const n = prompt('自訂濾鏡名稱：'); if(!n) return;
+  const r = { id:'u_'+Date.now(), name:n, mood:'個人精心調校配方', tags:'自訂', params:{...adj} };
+  userRecipes.push(r);
+  localStorage.setItem('kl-recipes-v2', JSON.stringify(userRecipes));
+  buildDynamicStrips();
+  applyRecipe(r.id);
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ── 手機介面面板聯動 ──
+let mobMode = 'recipe';
+function setMobMode(m) {
+  mobMode = m;
+  document.getElementById('mtb-recipe').classList.toggle('active', m==='recipe');
+  document.getElementById('mtb-edit').classList.toggle('active', m==='edit');
+  const sheet = document.getElementById('m-sheet');
+  if(m === 'edit') { sheet.style.transform = 'translateY(0)'; switchMobSheetTab('adj'); }
+  else { sheet.style.transform = 'translateY(100%)'; }
+}
+
+function switchMobSheetTab(tab) {
+  document.getElementById('mtab-adj').classList.toggle('active', tab==='adj');
+  document.getElementById('mtab-ai').classList.toggle('active', tab==='ai');
+  const b = document.getElementById('m-sheet-body');
+  if(tab === 'adj') {
+    b.innerHTML = sliderDefs.map(s => `
+      <div style="display:flex;align-items:center;padding:.5rem 0;gap:.6rem">
+        <span style="min-width:64px;font-size:.82rem">${s.zh}</span>
+        <div style="flex:1;position:relative;height:32px;display:flex;align-items:center">
+          <div class="sl-rail ${s.clsl||''}"></div>
+          <input type="range" class="sl-input" min="${s.min}" max="${s.max}" value="${adj[s.k]||0}" oninput="updateParam('${s.k}', this.value);this.parentNode.nextElementSibling.textContent=this.value">
+        </div>
+        <div style="font-family:var(--mono);font-size:.75rem;min-width:24px;text-align:right">${adj[s.k]||0}</div>
+      </div>
+    `).join('') + `<button class="dl-btn" onclick="exportFinalPhoto()">💾 下載匯出相片</button>`;
+  } else {
+    b.innerHTML = `
+      <div style="padding:1rem 0;text-align:center">
+        <p style="font-size:.82rem;color:var(--m2);margin-bottom:.8rem">智慧分析場景：自動匹配最適合底片結構</p>
+        <button class="dl-btn" style="background:var(--teal)" onclick="runAIOptimize()">✨ 執行一鍵 AI 智能優化</button>
+      </div>
+    `;
+  }
+}
+
+function toggleMobSheet() {
+  const s = document.getElementById('m-sheet');
+  s.style.transform = (s.style.transform==='translateY(0px)'||s.style.transform==='translateY(0%)')?'translateY(100%)':'translateY(0)';
+}
+</script>
 </body>
 </html>
