@@ -2,850 +2,970 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KaiLun Film Lab</title>
-<link rel="manifest" href="/manifest.json">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Film Lab">
+<meta name="theme-color" content="#0f0e0d">
+<link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-192.png">
-<meta name="theme-color" content="#111010">
-<script>if("serviceWorker"in navigator)navigator.serviceWorker.register("/sw.js");</script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>KaiLun Film Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #111010;
-  --surface: #191817;
-  --surface2: #222120;
-  --surface3: #2a2928;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
-  --text: #f0ede6;
-  --muted: #6b6860;
-  --muted2: #9a9690;
-  --accent: #c9a84c;
-  --accent-dim: rgba(201,168,76,0.15);
-  --accent-border: rgba(201,168,76,0.3);
-  --teal: #7ab8b0;
-  --red: #c46060;
-  --mono: 'DM Mono', monospace;
-  --serif: 'Instrument Serif', serif;
-  --sans: 'DM Sans', sans-serif;
-  --radius: 8px;
-  --sb-w: 272px;
-  --panel-w: 300px;
+:root{
+  --bg:#0f0e0d;--s1:#171614;--s2:#1e1c1a;--s3:#272422;--s4:#302d2a;
+  --b1:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.11);--b3:rgba(255,255,255,0.18);
+  --tx:#ede9e3;--m1:#7a756e;--m2:#a09890;--m3:#c4bdb4;
+  --gold:#c9a84c;--gold2:rgba(201,168,76,0.18);--gold3:rgba(201,168,76,0.32);
+  --teal:#7fb5ad;--red:#b86060;--green:#7aad88;
+  --mono:'DM Mono',monospace;--serif:'Instrument Serif',serif;--sans:'DM Sans',sans-serif;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --tb-h:64px;--sheet-peek:180px;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px}
-/* scrollbar */
-::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
-/* grain overlay */
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.25;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E")}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--sans);overscroll-behavior:none}
+::-webkit-scrollbar{display:none}
+button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:inherit}
 
-/* ── LAYOUT ────────────────────────────────── */
-.layout{display:grid;grid-template-columns:var(--sb-w) 1fr var(--panel-w);grid-template-rows:52px 1fr;height:100vh;width:100vw}
-.topbar{grid-column:1/-1;display:flex;align-items:center;border-bottom:1px solid var(--border);padding:0 1.25rem;gap:1rem;position:relative;z-index:10}
-.sidebar{grid-column:1;grid-row:2;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.canvas-area{grid-column:2;grid-row:2;display:flex;flex-direction:column;overflow:hidden;position:relative}
-.right-panel{grid-column:3;grid-row:2;border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+/* ── DESKTOP LAYOUT ── */
+.desk{display:grid;grid-template-columns:260px 1fr 300px;grid-template-rows:52px 1fr;height:100vh}
+.desk-top{grid-column:1/-1;height:52px;border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 1.25rem;gap:1rem}
+.desk-left{border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
+.desk-center{display:flex;flex-direction:column;overflow:hidden;position:relative}
+.desk-right{border-left:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
 
-/* ── TOPBAR ────────────────────────────────── */
-.logo-wrap{display:flex;align-items:center;gap:.6rem;margin-right:1rem}
-.logo-icon{width:28px;height:28px;background:var(--accent);border-radius:5px;display:flex;align-items:center;justify-content:center}
-.logo-icon svg{width:16px;height:16px;fill:none;stroke:#111;stroke-width:2}
-.logo-text{font-family:var(--serif);font-size:1.05rem;color:var(--text);line-height:1}
-.logo-sub{font-family:var(--mono);font-size:.6rem;color:var(--muted);letter-spacing:.1em}
-.tab-bar{display:flex;gap:2px;background:var(--surface2);border-radius:7px;padding:3px}
-.tab{padding:.3rem .9rem;border-radius:5px;font-size:.8rem;cursor:pointer;color:var(--muted2);transition:all .18s;display:flex;align-items:center;gap:.4rem;font-family:var(--mono);letter-spacing:.04em}
-.tab.active{background:var(--surface3);color:var(--text)}
-.tab svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.5}
-.topbar-right{margin-left:auto;display:flex;align-items:center;gap:.6rem}
-.icon-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;color:var(--muted2);transition:all .15s;border:1px solid transparent}
-.icon-btn:hover{background:var(--surface2);color:var(--text)}
-.import-btn{padding:.35rem .9rem;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;font-size:.78rem;cursor:pointer;color:var(--muted2);display:flex;align-items:center;gap:.4rem;font-family:var(--mono);transition:all .15s}
-.import-btn:hover{color:var(--text);border-color:var(--border2)}
+/* ── MOBILE LAYOUT ── */
+.mob{display:none;flex-direction:column;height:100dvh;position:relative}
+.mob-preview{flex:1;position:relative;overflow:hidden;background:#000;min-height:0}
+.mob-recipes{height:130px;flex-shrink:0;border-top:1px solid var(--b1)}
+.mob-sheet{position:absolute;bottom:0;left:0;right:0;border-radius:18px 18px 0 0;background:rgba(15,14,13,0.94);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-top:1px solid var(--b2);z-index:50;transition:transform .32s cubic-bezier(.32,.72,0,1);touch-action:none}
+.mob-toolbar{height:calc(var(--tb-h) + var(--safe-b));padding-bottom:var(--safe-b);border-top:1px solid var(--b1);background:rgba(15,14,13,0.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;position:relative;z-index:51}
+.mob-tb-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:.5rem .75rem;border-radius:10px;transition:all .15s;color:var(--m2)}
+.mob-tb-btn.active{color:var(--gold)}
+.mob-tb-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.mob-tb-btn span{font-family:var(--mono);font-size:.58rem;letter-spacing:.06em}
 
-/* ── SIDEBAR ───────────────────────────────── */
-.sb-section-header{padding:.75rem 1rem .4rem;display:flex;align-items:center;justify-content:space-between}
-.sb-label{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.sb-add-btn{width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:4px;cursor:pointer;color:var(--muted);transition:all .15s;font-size:1rem;line-height:1}
-.sb-add-btn:hover{background:var(--surface2);color:var(--text)}
-.recipe-list{flex:1;overflow-y:auto;padding:0 .5rem .5rem}
-.recipe-item{display:flex;align-items:center;gap:.7rem;padding:.55rem .6rem;border-radius:7px;cursor:pointer;transition:all .15s;border:1px solid transparent;margin-bottom:2px}
-.recipe-item:hover{background:var(--surface2)}
-.recipe-item.active{background:var(--surface2);border-color:var(--accent-border)}
-.recipe-thumb{width:46px;height:34px;border-radius:5px;overflow:hidden;flex-shrink:0;background:var(--surface3)}
-.recipe-thumb canvas{width:100%;height:100%;display:block}
-.recipe-info{flex:1;min-width:0}
-.recipe-name{font-size:.85rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.recipe-desc{font-size:.7rem;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.recipe-star{color:var(--muted);font-size:.85rem;cursor:pointer;transition:color .15s;flex-shrink:0}
-.recipe-star.starred{color:var(--accent)}
-.sb-footer{padding:.75rem;border-top:1px solid var(--border)}
-.import-recipe-btn{width:100%;padding:.55rem;background:transparent;border:1px solid var(--border2);border-radius:6px;font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.4rem;transition:all .15s}
-.import-recipe-btn:hover{color:var(--text);border-color:var(--muted)}
+/* ── TOPBAR ── */
+.logo{display:flex;align-items:center;gap:.6rem}
+.logo-mark{width:28px;height:28px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-mark svg{width:15px;height:15px;stroke:#111;fill:none;stroke-width:2}
+.logo-name{font-family:var(--serif);font-size:1rem;color:var(--tx);font-style:italic}
+.logo-tag{font-family:var(--mono);font-size:.58rem;color:var(--m1);letter-spacing:.1em;margin-left:.25rem}
+.top-tabs{display:flex;background:var(--s2);border-radius:8px;padding:3px;gap:2px}
+.top-tab{padding:.3rem .85rem;border-radius:6px;font-family:var(--mono);font-size:.72rem;letter-spacing:.05em;color:var(--m2);cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:.35rem}
+.top-tab svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.5}
+.top-tab.active{background:var(--s3);color:var(--tx)}
+.top-right{margin-left:auto;display:flex;gap:.5rem;align-items:center}
+.hdr-btn{padding:.32rem .8rem;border:1px solid var(--b2);border-radius:6px;font-family:var(--mono);font-size:.7rem;color:var(--m2);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s}
+.hdr-btn:hover{color:var(--tx);border-color:var(--b3)}
+.hdr-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.5}
+.icon-btn{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--m2);cursor:pointer;transition:all .15s}
+.icon-btn:hover{background:var(--s2);color:var(--tx)}
+.icon-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5}
 
-/* ── CANVAS AREA ────────────────────────────── */
-.canvas-toolbar{padding:.6rem .9rem;display:flex;align-items:center;gap:.5rem;border-bottom:1px solid var(--border);flex-shrink:0}
-.ct-badge{font-family:var(--mono);font-size:.68rem;color:var(--muted2);background:var(--surface2);padding:2px 8px;border-radius:4px;border:1px solid var(--border)}
-.ct-zoom{display:flex;align-items:center;gap:4px}
-.ct-zoom-btn{width:22px;height:22px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted2);font-size:.9rem;transition:all .15s}
-.ct-zoom-btn:hover{color:var(--text)}
-.ct-zoom-val{font-family:var(--mono);font-size:.68rem;color:var(--muted2);min-width:36px;text-align:center}
-.compare-btn{margin-left:auto;padding:.3rem .7rem;background:var(--surface2);border:1px solid var(--border2);border-radius:5px;font-family:var(--mono);font-size:.68rem;color:var(--muted2);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s}
-.compare-btn:hover,.compare-btn.active{background:var(--surface3);color:var(--text);border-color:var(--accent-border)}
-.canvas-wrap{flex:1;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;background:var(--bg)}
-#main-canvas{max-width:100%;max-height:100%;display:block;cursor:crosshair}
-.drop-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
-.drop-overlay.over{background:rgba(201,168,76,.04)}
-.drop-overlay input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.drop-icon-wrap{width:72px;height:72px;border-radius:50%;border:1.5px dashed var(--border2);display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;transition:all .2s}
-.drop-overlay:hover .drop-icon-wrap,.drop-overlay.over .drop-icon-wrap{border-color:var(--accent)}
-.drop-title{font-family:var(--serif);font-size:1.3rem;font-style:italic;color:var(--muted2);margin-bottom:.4rem}
-.drop-sub{font-family:var(--mono);font-size:.68rem;color:var(--muted);letter-spacing:.08em}
+/* ── SIDEBAR (desktop) ── */
+.sb-hdr{padding:.6rem .9rem .4rem;display:flex;align-items:center;justify-content:space-between}
+.sb-label{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--m1)}
+.sb-add{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--m1);cursor:pointer;font-size:1.1rem;line-height:1;transition:all .15s}
+.sb-add:hover{background:var(--s2);color:var(--tx)}
+.recipe-list{flex:1;overflow-y:auto;padding:0 .4rem .4rem}
+.ri{display:flex;align-items:center;gap:.6rem;padding:.45rem .55rem;border-radius:8px;cursor:pointer;transition:all .18s;border:1px solid transparent;margin-bottom:2px}
+.ri:hover{background:var(--s2)}
+.ri.active{background:var(--s2);border-color:var(--gold3)}
+.ri-thumb{width:44px;height:32px;border-radius:5px;overflow:hidden;flex-shrink:0;background:var(--s3)}
+.ri-thumb canvas{width:100%;height:100%;display:block}
+.ri-info{flex:1;min-width:0}
+.ri-name{font-size:.82rem;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-mood{font-size:.68rem;color:var(--m1);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-star{font-size:.8rem;color:var(--m1);cursor:pointer;flex-shrink:0;transition:color .15s}
+.ri-star.on{color:var(--gold)}
+.sb-foot{padding:.6rem;border-top:1px solid var(--b1)}
+.sb-export-btn{width:100%;padding:.5rem;background:transparent;border:1px solid var(--b2);border-radius:6px;font-family:var(--mono);font-size:.68rem;color:var(--m2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.35rem;transition:all .15s}
+.sb-export-btn:hover{color:var(--tx)}
+.sb-export-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.5}
+
+/* ── CANVAS (desktop) ── */
+.cv-bar{padding:.5rem .85rem;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+.cv-badge{font-family:var(--mono);font-size:.65rem;color:var(--m2);background:var(--s2);padding:2px 7px;border-radius:4px;border:1px solid var(--b1)}
+.zoom-wrap{display:flex;align-items:center;gap:3px}
+.zoom-btn{width:20px;height:20px;background:var(--s2);border:1px solid var(--b1);border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--m2);font-size:.85rem;cursor:pointer;transition:all .15s}
+.zoom-btn:hover{color:var(--tx)}
+.zoom-val{font-family:var(--mono);font-size:.65rem;color:var(--m2);min-width:34px;text-align:center}
+.cmp-btn{margin-left:auto;padding:.28rem .65rem;background:var(--s2);border:1px solid var(--b2);border-radius:5px;font-family:var(--mono);font-size:.65rem;color:var(--m2);cursor:pointer;display:flex;align-items:center;gap:.3rem;transition:all .15s;user-select:none}
+.cmp-btn.on,.cmp-btn:hover{background:var(--s3);color:var(--tx);border-color:var(--gold3)}
+.cmp-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.5}
+.cv-wrap{flex:1;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.cv-wrap canvas{max-width:100%;max-height:100%;display:block;transition:opacity .3s}
+.drop-zone{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
+.drop-zone.over{background:rgba(201,168,76,.04)}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-ring{width:68px;height:68px;border-radius:50%;border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center;margin-bottom:1.1rem;transition:border-color .2s}
+.drop-zone:hover .drop-ring,.drop-zone.over .drop-ring{border-color:var(--gold)}
+.drop-ring svg{width:26px;height:26px;stroke:var(--m2);fill:none;stroke-width:1.2}
+.drop-title{font-family:var(--serif);font-style:italic;font-size:1.2rem;color:var(--m2);margin-bottom:.3rem}
+.drop-sub{font-family:var(--mono);font-size:.64rem;color:var(--m1);letter-spacing:.08em}
 /* strip */
-.strip-wrap{padding:.6rem .75rem;border-top:1px solid var(--border);display:flex;gap:.5rem;overflow-x:auto;flex-shrink:0;scrollbar-width:thin}
-.strip-item{flex-shrink:0;cursor:pointer;border-radius:6px;overflow:hidden;border:2px solid transparent;transition:all .15s;position:relative}
-.strip-item.active{border-color:var(--accent)}
-.strip-item:hover:not(.active){border-color:var(--border2)}
-.strip-canvas{width:72px;height:54px;display:block;background:var(--surface2)}
-.strip-name{position:absolute;bottom:0;left:0;right:0;padding:2px 4px;font-family:var(--mono);font-size:.52rem;text-align:center;background:rgba(0,0,0,.55);color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* ai bar */
-.ai-bar{padding:.65rem .9rem;border-top:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:1.5rem;overflow-x:auto}
-.ai-scene-item{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0}
-.ai-scene-icon{font-size:1.1rem;opacity:.6}
-.ai-scene-label{font-family:var(--mono);font-size:.58rem;color:var(--muted)}
-.ai-scene-val{font-family:var(--mono);font-size:.72rem;color:var(--text);font-weight:500}
-.ai-bar-recs{display:flex;gap:.5rem;margin-left:auto;flex-shrink:0}
-.ai-rec-pill{display:flex;align-items:center;gap:.5rem;padding:.3rem .7rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .15s}
-.ai-rec-pill:hover{border-color:var(--accent-border)}
-.ai-rec-num{width:18px;height:18px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.6rem;color:#111;font-weight:600;flex-shrink:0}
-.ai-rec-info{display:flex;flex-direction:column;gap:1px}
-.ai-rec-name{font-size:.75rem;color:var(--text)}
-.ai-rec-score{font-family:var(--mono);font-size:.6rem;color:var(--accent)}
-.ai-analyze-btn{padding:.32rem .8rem;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:5px;font-family:var(--mono);font-size:.68rem;color:var(--accent);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;white-space:nowrap;flex-shrink:0}
-.ai-analyze-btn:hover{background:rgba(201,168,76,.25)}
-.ai-analyze-btn:disabled{opacity:.4;cursor:not-allowed}
-.ai-status-dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
-.ai-status-dot.ready{background:var(--teal)}
-.ai-status-dot.analyzing{background:var(--accent);animation:pulse .8s infinite alternate}
-@keyframes pulse{to{opacity:.3}}
+.strip{padding:.5rem .6rem;border-top:1px solid var(--b1);display:flex;gap:.4rem;overflow-x:auto;flex-shrink:0}
+.st-item{flex-shrink:0;cursor:pointer;border-radius:6px;overflow:hidden;border:2px solid transparent;transition:all .18s;position:relative}
+.st-item.active{border-color:var(--gold)}
+.st-item:hover:not(.active){border-color:var(--b2)}
+.st-canvas{width:68px;height:50px;display:block;background:var(--s2)}
+.st-label{position:absolute;bottom:0;left:0;right:0;padding:2px 3px;font-family:var(--mono);font-size:.5rem;text-align:center;background:rgba(0,0,0,.55);color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* AI bar */
+.ai-bar{padding:.5rem .85rem;border-top:1px solid var(--b1);display:flex;align-items:center;gap:1rem;overflow-x:auto;flex-shrink:0;min-height:52px}
+.ai-scene{display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0}
+.ai-scene-ico{font-size:1rem;opacity:.55}
+.ai-scene-lbl{font-family:var(--mono);font-size:.55rem;color:var(--m1)}
+.ai-scene-val{font-family:var(--mono);font-size:.68rem;color:var(--tx);font-weight:500}
+.ai-recs-row{display:flex;gap:.4rem;margin-left:auto;flex-shrink:0}
+.ai-rec-pill{display:flex;align-items:center;gap:.4rem;padding:.25rem .6rem;background:var(--s2);border:1px solid var(--b1);border-radius:5px;cursor:pointer;transition:all .15s}
+.ai-rec-pill:hover{border-color:var(--gold3)}
+.ai-rec-n{width:16px;height:16px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.55rem;color:#111;font-weight:700;flex-shrink:0}
+.ai-rec-info .rname{font-size:.72rem;color:var(--tx)}
+.ai-rec-info .rscore{font-family:var(--mono);font-size:.58rem;color:var(--gold)}
+.ai-run-btn{padding:.28rem .7rem;background:var(--gold2);border:1px solid var(--gold3);border-radius:5px;font-family:var(--mono);font-size:.65rem;color:var(--gold);cursor:pointer;display:flex;align-items:center;gap:.3rem;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.ai-run-btn:hover{background:rgba(201,168,76,.28)}
+.ai-run-btn:disabled{opacity:.35;cursor:not-allowed}
+.ai-dot{width:5px;height:5px;border-radius:50%;background:var(--m1);flex-shrink:0}
+.ai-dot.ready{background:var(--teal)}
+.ai-dot.busy{background:var(--gold);animation:pulse .7s infinite alternate}
+@keyframes pulse{to{opacity:.25}}
 
-/* ── RIGHT PANEL ────────────────────────────── */
-.rp-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
-.rp-tab{flex:1;padding:.55rem .5rem;font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s;border-bottom:2px solid transparent}
-.rp-tab.active{color:var(--text);border-bottom-color:var(--accent)}
-.rp-body{flex:1;overflow-y:auto;padding:.75rem .9rem}
-.rp-section{margin-bottom:1.5rem}
-.rp-section-title{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between}
-.rp-section-title a{font-size:.7rem;color:var(--muted);cursor:pointer;text-transform:none;letter-spacing:0;transition:color .15s}
-.rp-section-title a:hover{color:var(--text)}
-/* sliders */
-.slider-row{display:flex;align-items:center;gap:.5rem;padding:.28rem 0}
-.slider-label{font-size:.78rem;color:var(--muted2);min-width:80px;display:flex;flex-direction:column;gap:1px}
-.slider-label .en{font-family:var(--mono);font-size:.6rem;color:var(--muted);letter-spacing:.04em}
-.slider-track{flex:1;position:relative;height:2px;background:var(--surface3);border-radius:1px}
-.slider-fill{position:absolute;top:0;height:2px;border-radius:1px;background:var(--accent);pointer-events:none}
-input[type=range]{-webkit-appearance:none;position:absolute;inset:0;width:100%;height:2px;background:transparent;cursor:pointer;margin:0}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--text);border:2px solid var(--bg);box-shadow:0 0 0 1px var(--accent);cursor:pointer;transition:transform .15s}
-input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
-/* coloured tracks */
-.track-sat input[type=range]{background:linear-gradient(to right,#888,#e84040)}
-.track-temp input[type=range]{background:linear-gradient(to right,#5090d0,#e8a030)}
-.track-tint input[type=range]{background:linear-gradient(to right,#408840,#c040c0)}
-.slider-val{font-family:var(--mono);font-size:.72rem;color:var(--text);min-width:32px;text-align:right}
+/* ── RIGHT PANEL ── */
+.rp-tabs{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0}
+.rp-tab{flex:1;padding:.5rem .4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--m1);cursor:pointer;text-align:center;transition:all .15s;border-bottom:2px solid transparent}
+.rp-tab.active{color:var(--tx);border-bottom-color:var(--gold)}
+.rp-body{flex:1;overflow-y:auto;padding:.7rem .85rem}
+
+/* ── SLIDERS ── */
+.rp-sec{margin-bottom:1.4rem}
+.rp-sec-hdr{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--m1);margin-bottom:.65rem;display:flex;justify-content:space-between;align-items:center}
+.rp-sec-hdr a{text-transform:none;letter-spacing:0;font-size:.68rem;cursor:pointer;color:var(--m1);transition:color .15s}
+.rp-sec-hdr a:hover{color:var(--tx)}
+.sl-row{padding:.3rem 0;display:flex;align-items:center;gap:.55rem}
+.sl-lbl{min-width:76px;display:flex;flex-direction:column;gap:1px}
+.sl-lbl .zh{font-size:.78rem;color:var(--m3)}
+.sl-lbl .en{font-family:var(--mono);font-size:.58rem;color:var(--m1);letter-spacing:.04em}
+.sl-track{flex:1;height:28px;display:flex;align-items:center;position:relative;cursor:pointer}
+.sl-rail{position:absolute;left:0;right:0;height:3px;background:var(--s3);border-radius:2px}
+.sl-fill{position:absolute;height:3px;border-radius:2px;background:var(--gold);pointer-events:none;transition:width .05s,left .05s}
+.sl-thumb{position:absolute;width:18px;height:18px;border-radius:50%;background:var(--tx);border:2px solid var(--bg);box-shadow:0 0 0 1.5px var(--gold);pointer-events:none;transform:translateX(-50%);transition:transform .12s;top:50%;margin-top:-9px}
+.sl-track:active .sl-thumb{transform:translateX(-50%) scale(1.25)}
+input[type=range].sl-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;margin:0;-webkit-appearance:none}
+.sl-val{font-family:var(--mono);font-size:.7rem;color:var(--tx);min-width:30px;text-align:right}
+/* coloured rails */
+.rail-sat{background:linear-gradient(to right,#555,#d03030)}
+.rail-temp{background:linear-gradient(to right,#4080c8,#c88030)}
+.rail-tint{background:linear-gradient(to right,#408840,#b040b0)}
+
 /* download */
-.download-btn{width:100%;padding:.75rem;background:var(--accent);border:none;border-radius:7px;font-family:var(--mono);font-size:.8rem;letter-spacing:.08em;color:#111;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;font-weight:500;transition:all .2s;margin-top:.5rem}
-.download-btn:hover{background:#d9b85c;transform:translateY(-1px)}
-.download-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.dl-btn{width:100%;padding:.7rem;background:var(--gold);border-radius:7px;font-family:var(--mono);font-size:.78rem;letter-spacing:.07em;color:#111;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.45rem;font-weight:500;transition:all .2s;margin-top:.4rem}
+.dl-btn:hover{background:#d9b85c;transform:translateY(-1px)}
+.dl-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.dl-btn svg{width:13px;height:13px;stroke:#111;fill:none;stroke-width:2}
 
-/* ── AI TAB ─────────────────────────────────── */
-.ai-panel-rec{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;background:var(--surface2);border:1px solid var(--border);border-radius:7px;cursor:pointer;margin-bottom:.5rem;transition:all .15s}
-.ai-panel-rec:hover{border-color:var(--accent-border)}
-.ai-panel-num{width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.65rem;color:#111;font-weight:600;flex-shrink:0}
-.ai-panel-thumb{width:44px;height:32px;border-radius:4px;overflow:hidden;flex-shrink:0;background:var(--surface3)}
-.ai-panel-info{flex:1;min-width:0}
-.ai-panel-name{font-size:.82rem;color:var(--text);margin-bottom:1px}
-.ai-panel-mood{font-size:.7rem;color:var(--muted)}
-.ai-panel-score{font-family:var(--mono);font-size:.7rem;color:var(--accent);flex-shrink:0}
-.model-status-box{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:.85rem 1rem;margin-bottom:1rem}
-.model-status-title{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem}
-.model-status-text{font-size:.78rem;color:var(--muted2);line-height:1.6;margin-bottom:.75rem}
-.load-model-btn{width:100%;padding:.55rem;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:6px;font-family:var(--mono);font-size:.72rem;color:var(--accent);cursor:pointer;transition:all .15s}
-.load-model-btn:hover{background:rgba(201,168,76,.22)}
-.load-model-btn:disabled{opacity:.4;cursor:not-allowed}
-.progress-wrap{height:2px;background:var(--surface3);border-radius:1px;overflow:hidden;margin-bottom:.75rem;display:none}
-.progress-bar{height:100%;background:var(--teal);border-radius:1px;transition:width .3s}
-.ai-scene-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem}
-.ai-scene-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.5rem .65rem;display:flex;align-items:center;gap:.5rem}
-.ai-scene-card-icon{font-size:1rem;opacity:.7}
-.ai-scene-card-info{display:flex;flex-direction:column;gap:1px}
-.ai-scene-card-label{font-family:var(--mono);font-size:.58rem;color:var(--muted)}
-.ai-scene-card-val{font-size:.78rem;color:var(--text)}
-.spinner{display:inline-block;width:11px;height:11px;border:1.5px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .65s linear infinite;vertical-align:middle}
+/* ── AI PANEL (right) ── */
+.ai-model-box{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.8rem .9rem;margin-bottom:.9rem}
+.ai-model-hdr{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--m1);margin-bottom:.45rem;display:flex;align-items:center;gap:.35rem}
+.ai-model-txt{font-size:.76rem;color:var(--m2);line-height:1.6;margin-bottom:.6rem}
+.prog{height:2px;background:var(--s3);border-radius:1px;overflow:hidden;margin-bottom:.6rem;display:none}
+.prog-bar{height:100%;background:var(--teal);border-radius:1px;transition:width .3s}
+.load-btn{width:100%;padding:.5rem;background:var(--gold2);border:1px solid var(--gold3);border-radius:6px;font-family:var(--mono);font-size:.7rem;color:var(--gold);cursor:pointer;transition:all .15s}
+.load-btn:hover{background:rgba(201,168,76,.26)}
+.load-btn:disabled{opacity:.35;cursor:not-allowed}
+/* AI scene cards */
+.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.8rem}
+.ai-card{background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem}
+.ai-card-ico{font-size:.95rem;opacity:.65}
+.ai-card-info .lbl{font-family:var(--mono);font-size:.55rem;color:var(--m1)}
+.ai-card-info .val{font-size:.75rem;color:var(--tx)}
+/* AI adjust result */
+.ai-adj-result{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.8rem .9rem;margin-bottom:.8rem;display:none}
+.ai-adj-result.show{display:block}
+.ai-adj-title{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem}
+.ai-adj-row{display:flex;justify-content:space-between;align-items:center;padding:.2rem 0;border-bottom:1px solid var(--b1);font-size:.76rem}
+.ai-adj-row:last-child{border-bottom:none}
+.ai-adj-row .lbl{color:var(--m2)}
+.ai-adj-row .val{font-family:var(--mono);color:var(--gold)}
+.ai-apply-btn{width:100%;padding:.55rem;background:rgba(127,181,173,.12);border:1px solid rgba(127,181,173,.3);border-radius:6px;font-family:var(--mono);font-size:.7rem;color:var(--teal);cursor:pointer;transition:all .15s;margin-top:.6rem;display:flex;align-items:center;justify-content:center;gap:.35rem}
+.ai-apply-btn:hover{background:rgba(127,181,173,.22)}
+.ai-rec-panel{margin-bottom:.8rem}
+.ai-p-rec{display:flex;align-items:center;gap:.65rem;padding:.55rem .7rem;background:var(--s2);border:1px solid var(--b1);border-radius:7px;cursor:pointer;margin-bottom:.4rem;transition:all .15s}
+.ai-p-rec:hover{border-color:var(--gold3)}
+.ai-p-num{width:20px;height:20px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.6rem;color:#111;font-weight:700;flex-shrink:0}
+.ai-p-thumb{width:40px;height:30px;border-radius:4px;overflow:hidden;flex-shrink:0;background:var(--s3)}
+.ai-p-info .pname{font-size:.8rem;color:var(--tx)}
+.ai-p-info .pmood{font-size:.68rem;color:var(--m1)}
+.ai-p-score{font-family:var(--mono);font-size:.65rem;color:var(--gold);margin-left:auto}
+/* scene analysis card */
+.scene-analysis{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.8rem .9rem;margin-bottom:.8rem;font-size:.8rem;line-height:1.8;color:var(--m2);display:none}
+.scene-analysis.show{display:block}
+.scene-line{display:flex;gap:.5rem}
+.scene-line .sk{color:var(--m1);font-family:var(--mono);font-size:.65rem;min-width:64px}
+.scene-line .sv{color:var(--tx)}
+
+/* ── MOBILE RECIPE STRIP ── */
+.mob-strip{display:flex;gap:.5rem;overflow-x:auto;padding:.7rem .75rem;height:130px;align-items:center}
+.mob-st{flex-shrink:0;cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid transparent;transition:all .2s;position:relative;width:82px;height:106px;display:flex;flex-direction:column}
+.mob-st.active{border-color:var(--gold)}
+.mob-st-canvas{width:82px;height:72px;display:block;flex-shrink:0;background:var(--s2)}
+.mob-st-info{flex:1;padding:3px 5px;background:var(--s2);display:flex;flex-direction:column;justify-content:center}
+.mob-st-name{font-family:var(--mono);font-size:.55rem;color:var(--m3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mob-st-mood{font-family:var(--mono);font-size:.48rem;color:var(--m1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mob-st.active .mob-st-name{color:var(--gold)}
+
+/* ── MOBILE SHEET ── */
+.sheet-handle{width:36px;height:4px;background:var(--b3);border-radius:2px;margin:.65rem auto .5rem}
+.sheet-tabs{display:flex;border-bottom:1px solid var(--b1);padding:0 1rem}
+.sheet-tab{flex:1;padding:.5rem .25rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--m1);text-align:center;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.sheet-tab.active{color:var(--tx);border-bottom-color:var(--gold)}
+.sheet-body{padding:.75rem 1rem 1rem;overflow-y:auto;max-height:calc(60vh - 80px)}
+/* mobile sliders — bigger touch targets */
+.mob-sl-row{padding:.45rem 0;display:flex;align-items:center;gap:.6rem}
+.mob-sl-lbl{min-width:70px;display:flex;flex-direction:column;gap:1px}
+.mob-sl-lbl .zh{font-size:.82rem;color:var(--m3)}
+.mob-sl-lbl .en{font-family:var(--mono);font-size:.6rem;color:var(--m1)}
+.mob-sl-track{flex:1;height:36px;position:relative;display:flex;align-items:center}
+.mob-sl-rail{position:absolute;left:0;right:0;height:4px;background:var(--s3);border-radius:2px}
+.mob-sl-fill{position:absolute;height:4px;border-radius:2px;background:var(--gold);pointer-events:none}
+.mob-sl-thumb{position:absolute;width:22px;height:22px;border-radius:50%;background:var(--tx);border:2px solid var(--bg);box-shadow:0 0 0 2px var(--gold);pointer-events:none;transform:translateX(-50%);top:50%;margin-top:-11px}
+input[type=range].mob-sl-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;-webkit-appearance:none}
+.mob-sl-val{font-family:var(--mono);font-size:.72rem;color:var(--tx);min-width:30px;text-align:right}
+/* mobile AI result */
+.mob-ai-result{padding:.75rem 1rem 1rem}
+.mob-scene-card{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.75rem .9rem;margin-bottom:.75rem}
+.mob-scene-title{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--m1);margin-bottom:.5rem}
+.mob-scene-row{display:flex;justify-content:space-between;padding:.22rem 0;border-bottom:1px solid var(--b1);font-size:.78rem}
+.mob-scene-row:last-child{border-bottom:none}
+.mob-scene-row .k{color:var(--m2);font-family:var(--mono);font-size:.65rem}
+.mob-scene-row .v{color:var(--tx)}
+.mob-ai-adj{background:var(--s2);border:1px solid rgba(127,181,173,.2);border-radius:8px;padding:.75rem .9rem;margin-bottom:.75rem;display:none}
+.mob-ai-adj.show{display:block}
+.mob-ai-adj-title{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.5rem}
+.mob-adj-row{display:flex;justify-content:space-between;padding:.22rem 0;border-bottom:1px solid var(--b1);font-size:.78rem}
+.mob-adj-row:last-child{border-bottom:none}
+.mob-adj-row .k{color:var(--m2)}
+.mob-adj-row .v{font-family:var(--mono);color:var(--gold)}
+.mob-ai-apply{width:100%;padding:.65rem;background:rgba(127,181,173,.12);border:1px solid rgba(127,181,173,.3);border-radius:7px;font-family:var(--mono);font-size:.75rem;color:var(--teal);cursor:pointer;margin-top:.5rem;transition:all .15s}
+.mob-ai-apply:hover{background:rgba(127,181,173,.22)}
+
+/* ── MOBILE CANVAS ── */
+#mob-canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.mob-drop{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;z-index:5}
+.mob-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.mob-drop-ring{width:56px;height:56px;border-radius:50%;border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center;margin-bottom:.9rem}
+.mob-drop svg{width:22px;height:22px;stroke:var(--m2);fill:none;stroke-width:1.2}
+.mob-drop-title{font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--m2);margin-bottom:.25rem}
+.mob-drop-sub{font-family:var(--mono);font-size:.6rem;color:var(--m1);letter-spacing:.07em}
+.compare-badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid var(--b2);border-radius:5px;font-family:var(--mono);font-size:.62rem;color:var(--m3);padding:3px 8px;pointer-events:none;display:none}
+.compare-badge.show{display:block}
+
+/* ── SPINNER / TOAST ── */
+.spinner{display:inline-block;width:10px;height:10px;border:1.5px solid var(--b2);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── TOAST ──────────────────────────────────── */
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface3);border:1px solid var(--border2);color:var(--text);padding:.55rem 1rem;border-radius:7px;font-family:var(--mono);font-size:.75rem;z-index:9998;transform:translateY(12px);opacity:0;transition:all .22s;pointer-events:none}
+.toast{position:fixed;bottom:calc(var(--tb-h) + var(--safe-b) + .75rem);right:1rem;background:var(--s3);border:1px solid var(--b2);color:var(--tx);padding:.5rem .95rem;border-radius:7px;font-family:var(--mono);font-size:.72rem;z-index:999;transform:translateY(10px);opacity:0;transition:all .22s;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
+@media(min-width:861px){.toast{bottom:1.25rem}}
 
-/* ── MOBILE ─────────────────────────────────── */
+/* ── RESPONSIVE ── */
 @media(max-width:860px){
-  .layout{grid-template-columns:1fr;grid-template-rows:52px 1fr auto auto;height:auto;min-height:100vh;overflow:visible}
-  html,body{overflow:visible;height:auto}
-  .topbar{grid-column:1;grid-row:1}
-  .sidebar{display:none}
-  .canvas-area{grid-column:1;grid-row:2}
-  .canvas-wrap{min-height:50vw}
-  .right-panel{grid-column:1;grid-row:3;border-left:none;border-top:1px solid var(--border);max-height:60vh}
-  .ai-bar{grid-column:1;grid-row:4}
-  .logo-sub{display:none}
-  .rp-body{max-height:none}
+  .desk{display:none}
+  .mob{display:flex}
+}
+@media(min-width:861px){
+  .mob{display:none}
+  .desk{display:grid}
 }
 </style>
 </head>
 <body>
 
-<div class="layout">
+<!-- ════════════════════════════════ DESKTOP ════════════════════════════════ -->
+<div class="desk">
 
-<!-- ── TOPBAR ── -->
-<header class="topbar">
-  <div class="logo-wrap">
-    <div class="logo-icon">
-      <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2"/></svg>
+  <!-- topbar -->
+  <header class="desk-top">
+    <div class="logo">
+      <div class="logo-mark"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 2v1.5M8 12.5V14M2 8h1.5M12.5 8H14"/></svg></div>
+      <span class="logo-name">KaiLun Film Lab</span>
+      <span class="logo-tag">Crafted for quiet colors.</span>
     </div>
-    <div>
-      <div class="logo-text">KaiLun Film Lab</div>
-      <div class="logo-sub">AI Recipe · Offline · Pure Web</div>
-    </div>
-  </div>
-
-  <div class="tab-bar">
-    <div class="tab active" id="tab-edit" onclick="switchMainTab('edit')">
-      <svg viewBox="0 0 16 16"><path d="M2 12l8-8 2 2-8 8H2v-2z"/></svg>
-      濾鏡編輯
-    </div>
-    <div class="tab" id="tab-ai" onclick="switchMainTab('ai')">
-      <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
-      AI 分析推薦
-    </div>
-  </div>
-
-  <div class="topbar-right">
-    <button class="import-btn" onclick="document.getElementById('main-file-input').click()">
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 7l3 3 3-3M3 12h10"/></svg>
-      匯入照片
-    </button>
-    <input type="file" id="main-file-input" accept="image/*" style="display:none" onchange="loadPhoto(this.files[0])">
-    <div class="icon-btn" title="設定">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg>
-    </div>
-  </div>
-</header>
-
-<!-- ── SIDEBAR ── -->
-<aside class="sidebar">
-  <div class="sb-section-header">
-    <span class="sb-label">食譜 (Recipe)</span>
-    <div class="sb-add-btn" onclick="openAddRecipeModal()" title="新增食譜">+</div>
-  </div>
-  <div class="recipe-list" id="recipe-list"></div>
-  <div class="sb-footer">
-    <button class="import-recipe-btn" onclick="exportRecipes()">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 3V2M11 3V2M2 7h12"/></svg>
-      匯入 / 匯出 Recipe
-    </button>
-  </div>
-</aside>
-
-<!-- ── CANVAS AREA ── -->
-<section class="canvas-area">
-  <div class="canvas-toolbar">
-    <div class="ct-badge" id="orig-badge">原圖</div>
-    <div class="ct-zoom">
-      <div class="ct-zoom-btn" onclick="changeZoom(-10)">−</div>
-      <div class="ct-zoom-val" id="zoom-val">100%</div>
-      <div class="ct-zoom-btn" onclick="changeZoom(10)">+</div>
-    </div>
-    <button class="compare-btn" id="compare-btn" onmousedown="startCompare()" onmouseup="endCompare()" ontouchstart="startCompare()" ontouchend="endCompare()">
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M2 8h4M10 8h4"/></svg>
-      對比
-    </button>
-  </div>
-
-  <div class="canvas-wrap" id="canvas-wrap">
-    <!-- drop overlay -->
-    <div class="drop-overlay" id="drop-overlay"
-      ondragover="event.preventDefault();this.classList.add('over')"
-      ondragleave="this.classList.remove('over')"
-      ondrop="handleDrop(event)">
-      <input type="file" accept="image/*" onchange="loadPhoto(this.files[0])">
-      <div class="drop-icon-wrap">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--muted2)" stroke-width="1.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    <div class="top-tabs" style="margin-left:1.5rem">
+      <div class="top-tab active" id="dtab-edit" onclick="deskTab('edit')">
+        <svg viewBox="0 0 16 16"><path d="M2 13l8-8 2 2-8 8H2v-2z"/></svg>濾鏡編輯
       </div>
-      <div class="drop-title">拖曳或點擊上傳照片</div>
-      <div class="drop-sub">JPG · PNG · WEBP · 完全離線</div>
+      <div class="top-tab" id="dtab-ai" onclick="deskTab('ai')">
+        <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5V8l1.5 1.5"/></svg>AI 分析推薦
+      </div>
     </div>
-    <canvas id="main-canvas" style="display:none"></canvas>
+    <div class="top-right">
+      <button class="hdr-btn" onclick="document.getElementById('d-file').click()">
+        <svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3M2 12h12"/></svg>匯入照片
+      </button>
+      <input type="file" id="d-file" accept="image/*" style="display:none" onchange="loadPhoto(this.files[0])">
+      <div class="icon-btn"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.4 1.4M11.55 11.55l1.4 1.4M3.05 12.95l1.4-1.4M11.55 4.45l1.4-1.4"/></svg></div>
+    </div>
+  </header>
+
+  <!-- sidebar -->
+  <aside class="desk-left">
+    <div class="sb-hdr">
+      <span class="sb-label">食譜 Recipe</span>
+      <div class="sb-add" onclick="saveCurrentAsRecipe()">+</div>
+    </div>
+    <div class="recipe-list" id="d-recipe-list"></div>
+    <div class="sb-foot">
+      <button class="sb-export-btn" onclick="exportRecipes()">
+        <svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 3V2M11 3V2M2 7h12"/></svg>
+        匯入 / 匯出 Recipe
+      </button>
+    </div>
+  </aside>
+
+  <!-- canvas -->
+  <section class="desk-center">
+    <div class="cv-bar">
+      <div class="cv-badge" id="d-badge">原圖</div>
+      <div class="zoom-wrap">
+        <div class="zoom-btn" onclick="chgZoom(-10)">−</div>
+        <div class="zoom-val" id="d-zoom">100%</div>
+        <div class="zoom-btn" onclick="chgZoom(10)">+</div>
+      </div>
+      <button class="cmp-btn" id="d-cmp" onmousedown="cmpStart()" onmouseup="cmpEnd()" ontouchstart="cmpStart()" ontouchend="cmpEnd()">
+        <svg viewBox="0 0 16 16"><path d="M8 2v12M2 8h4M10 8h4"/></svg>對比
+      </button>
+    </div>
+    <div class="cv-wrap" id="d-cv-wrap">
+      <div class="drop-zone" id="d-drop"
+        ondragover="event.preventDefault();this.classList.add('over')"
+        ondragleave="this.classList.remove('over')"
+        ondrop="dropHandler(event)">
+        <input type="file" accept="image/*" onchange="loadPhoto(this.files[0])">
+        <div class="drop-ring"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+        <div class="drop-title">拖曳或點擊上傳</div>
+        <div class="drop-sub">JPG · PNG · WEBP · 完全離線</div>
+      </div>
+      <canvas id="d-canvas" style="display:none"></canvas>
+    </div>
+    <div class="strip" id="d-strip"></div>
+    <div class="ai-bar" id="d-ai-bar">
+      <div style="display:flex;align-items:center;gap:.35rem;flex-shrink:0">
+        <div class="ai-dot" id="d-ai-dot"></div>
+        <span style="font-family:var(--mono);font-size:.58rem;color:var(--m1)">AI</span>
+      </div>
+      <div class="ai-scene"><div class="ai-scene-ico">🏛</div><div class="ai-scene-lbl">建築</div><div class="ai-scene-val" id="sc-b">—</div></div>
+      <div class="ai-scene"><div class="ai-scene-ico">🛤</div><div class="ai-scene-lbl">街道</div><div class="ai-scene-val" id="sc-s">—</div></div>
+      <div class="ai-scene"><div class="ai-scene-ico">🚗</div><div class="ai-scene-lbl">交通</div><div class="ai-scene-val" id="sc-v">—</div></div>
+      <div class="ai-scene"><div class="ai-scene-ico">🧑</div><div class="ai-scene-lbl">人像</div><div class="ai-scene-val" id="sc-p">—</div></div>
+      <div class="ai-scene"><div class="ai-scene-ico">🌿</div><div class="ai-scene-lbl">自然</div><div class="ai-scene-val" id="sc-n">—</div></div>
+      <div class="ai-scene"><div class="ai-scene-ico">☀️</div><div class="ai-scene-lbl">亮度</div><div class="ai-scene-val" id="sc-br">—</div></div>
+      <div class="ai-scene"><div class="ai-scene-ico">🌡</div><div class="ai-scene-lbl">色溫</div><div class="ai-scene-val" id="sc-t">—</div></div>
+      <div class="ai-scene"><div class="ai-scene-ico">🌫</div><div class="ai-scene-lbl">氛圍</div><div class="ai-scene-val" id="sc-m">—</div></div>
+      <div class="ai-recs-row" id="d-ai-recs"></div>
+      <button class="ai-run-btn" id="d-ai-btn" onclick="runAI()" disabled>
+        <div class="ai-dot" style="background:var(--gold)"></div>AI 分析
+      </button>
+    </div>
+  </section>
+
+  <!-- right panel -->
+  <aside class="desk-right">
+    <div class="rp-tabs">
+      <div class="rp-tab active" id="rpt-adj" onclick="rpTab('adj')">調整</div>
+      <div class="rp-tab" id="rpt-ai" onclick="rpTab('ai')">AI 推薦</div>
+    </div>
+    <div class="rp-body" id="rp-adj">
+      <div class="rp-sec">
+        <div class="rp-sec-hdr">調整 <a onclick="resetAdj()">重設</a></div>
+        <div id="d-sliders"></div>
+      </div>
+      <div class="rp-sec">
+        <div class="rp-sec-hdr">效果</div>
+        <div id="d-effects"></div>
+      </div>
+      <button class="dl-btn" id="d-dl" onclick="doDownload()" disabled>
+        <svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3M2 12h12"/></svg>下載照片
+      </button>
+    </div>
+    <div class="rp-body" id="rp-ai" style="display:none">
+      <div class="ai-model-box">
+        <div class="ai-model-hdr"><div class="ai-dot" id="d-model-dot"></div>YOLO 模型</div>
+        <div class="ai-model-txt" id="d-model-txt">尚未載入，點擊下方按鈕（約 6MB，只需一次）。</div>
+        <div class="prog" id="d-prog"><div class="prog-bar" id="d-prog-bar" style="width:0%"></div></div>
+        <button class="load-btn" id="d-load-btn" onclick="loadModel()">載入 YOLO 模型</button>
+      </div>
+      <div class="scene-analysis" id="d-scene-analysis"></div>
+      <div class="ai-adj-result" id="d-ai-adj">
+        <div class="ai-adj-title">✦ AI 客製化調整建議</div>
+        <div id="d-ai-adj-rows"></div>
+        <button class="ai-apply-btn" onclick="applyAIAdj()">✓ 套用這組調整</button>
+      </div>
+      <div class="rp-sec">
+        <div class="rp-sec-hdr">推薦食譜</div>
+        <div id="d-ai-recs-panel"></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- ════════════════════════════════ MOBILE ════════════════════════════════ -->
+<div class="mob">
+
+  <!-- preview -->
+  <div class="mob-preview" id="m-preview"
+    ontouchstart="mobTouchStart(event)"
+    ontouchmove="mobTouchMove(event)"
+    ontouchend="mobTouchEnd(event)">
+    <div class="mob-drop" id="m-drop">
+      <input type="file" accept="image/*" onchange="loadPhoto(this.files[0])">
+      <div class="mob-drop-ring"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+      <div class="mob-drop-title">點擊上傳照片</div>
+      <div class="mob-drop-sub">JPG · PNG · WEBP · 完全離線</div>
+    </div>
+    <canvas id="m-canvas" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:contain"></canvas>
+    <div class="compare-badge" id="m-cmp-badge">原圖</div>
   </div>
 
   <!-- recipe strip -->
-  <div class="strip-wrap" id="strip-wrap"></div>
+  <div class="mob-recipes">
+    <div class="mob-strip" id="m-strip"></div>
+  </div>
 
-  <!-- AI bar -->
-  <div class="ai-bar" id="ai-bar">
-    <div style="display:flex;align-items:center;gap:.4rem;flex-shrink:0">
-      <div class="ai-status-dot" id="ai-dot"></div>
-      <span style="font-family:var(--mono);font-size:.62rem;color:var(--muted)">AI</span>
+  <!-- bottom sheet -->
+  <div class="mob-sheet" id="m-sheet" style="transform:translateY(calc(100% - var(--sheet-peek)))">
+    <div class="sheet-handle" id="m-sheet-handle"></div>
+    <div class="sheet-tabs">
+      <div class="sheet-tab active" id="mst-adj" onclick="mSheetTab('adj')">調整</div>
+      <div class="sheet-tab" id="mst-ai" onclick="mSheetTab('ai')">AI 推薦</div>
     </div>
-    <div class="ai-scene-item"><div class="ai-scene-icon">🏛</div><div class="ai-scene-label">建築</div><div class="ai-scene-val" id="sc-building">—</div></div>
-    <div class="ai-scene-item"><div class="ai-scene-icon">🛤</div><div class="ai-scene-label">街道</div><div class="ai-scene-val" id="sc-street">—</div></div>
-    <div class="ai-scene-item"><div class="ai-scene-icon">🚗</div><div class="ai-scene-label">交通</div><div class="ai-scene-val" id="sc-vehicle">—</div></div>
-    <div class="ai-scene-item"><div class="ai-scene-icon">🧑</div><div class="ai-scene-label">人像</div><div class="ai-scene-val" id="sc-person">—</div></div>
-    <div class="ai-scene-item"><div class="ai-scene-icon">🌿</div><div class="ai-scene-label">自然</div><div class="ai-scene-val" id="sc-nature">—</div></div>
-    <div class="ai-scene-item"><div class="ai-scene-icon">☀️</div><div class="ai-scene-label">亮度</div><div class="ai-scene-val" id="sc-brightness">—</div></div>
-    <div class="ai-scene-item"><div class="ai-scene-icon">🌡</div><div class="ai-scene-label">色溫</div><div class="ai-scene-val" id="sc-temp">—</div></div>
-    <div class="ai-scene-item"><div class="ai-scene-icon">🌫</div><div class="ai-scene-label">氛圍</div><div class="ai-scene-val" id="sc-mood">—</div></div>
-    <div class="ai-bar-recs" id="ai-bar-recs"></div>
-    <button class="ai-analyze-btn" id="ai-analyze-btn" onclick="runAnalysis()" disabled>
-      <div class="ai-status-dot" style="background:var(--accent)"></div>
-      AI 分析
+    <div class="sheet-body" id="m-sheet-adj">
+      <div style="padding:.2rem 0 .3rem;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--m1)">調整</span>
+        <span style="font-family:var(--mono);font-size:.65rem;color:var(--m1);cursor:pointer" onclick="resetAdj()">重設</span>
+      </div>
+      <div id="m-sliders"></div>
+    </div>
+    <div class="sheet-body" id="m-sheet-ai" style="display:none">
+      <div class="mob-ai-result" id="m-ai-content">
+        <div style="font-family:var(--mono);font-size:.65rem;color:var(--m1);text-align:center;padding:1rem 0">載入 YOLO 模型後即可分析</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- toolbar -->
+  <div class="mob-toolbar">
+    <button class="mob-tb-btn" id="mtb-compare"
+      onpointerdown="cmpStart();this.classList.add('active')"
+      onpointerup="cmpEnd();this.classList.remove('active')"
+      onpointerleave="cmpEnd();this.classList.remove('active')">
+      <svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h6M15 12h6"/></svg>
+      <span>對比</span>
+    </button>
+    <button class="mob-tb-btn" id="mtb-ai" onclick="mobAITap()">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2 2"/></svg>
+      <span>AI 分析</span>
+    </button>
+    <button class="mob-tb-btn" onclick="document.getElementById('m-file').click()">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      <span>上傳</span>
+    </button>
+    <input type="file" id="m-file" accept="image/*" style="display:none" onchange="loadPhoto(this.files[0])">
+    <button class="mob-tb-btn" onclick="doDownload()">
+      <svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/></svg>
+      <span>匯出</span>
+    </button>
+    <button class="mob-tb-btn" onclick="resetAdj()">
+      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 109-9 9 9 0 00-7 3.5L3 9"/><path d="M3 3v6h6"/></svg>
+      <span>重設</span>
     </button>
   </div>
-</section>
-
-<!-- ── RIGHT PANEL ── -->
-<aside class="right-panel">
-  <div class="rp-tabs">
-    <div class="rp-tab active" id="rp-tab-adjust" onclick="switchRpTab('adjust')">調整</div>
-    <div class="rp-tab" id="rp-tab-ai" onclick="switchRpTab('ai')">AI 推薦</div>
-  </div>
-
-  <!-- ADJUST TAB -->
-  <div class="rp-body" id="rp-adjust">
-    <div class="rp-section">
-      <div class="rp-section-title">
-        調整 <a onclick="resetAll()">重設</a>
-      </div>
-      <!-- sliders -->
-      <div id="sliders-wrap"></div>
-    </div>
-    <div class="rp-section">
-      <div class="rp-section-title">效果</div>
-      <div id="effects-wrap"></div>
-    </div>
-    <button class="download-btn" id="dl-btn" onclick="downloadPhoto()" disabled>
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v8M5 7l3 3 3-3M2 12h12"/></svg>
-      下載照片
-    </button>
-  </div>
-
-  <!-- AI TAB -->
-  <div class="rp-body" id="rp-ai" style="display:none">
-    <div class="model-status-box">
-      <div class="model-status-title">
-        <div class="ai-status-dot" id="model-dot"></div>
-        YOLO 模型
-      </div>
-      <div class="model-status-text" id="model-status-text">尚未載入。點擊下方按鈕下載模型（約 6MB，只需一次）。</div>
-      <div class="progress-wrap" id="prog-wrap"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
-      <button class="load-model-btn" id="load-model-btn" onclick="loadModel()">載入 YOLO 模型</button>
-    </div>
-
-    <div class="rp-section">
-      <div class="rp-section-title">場景分析</div>
-      <div class="ai-scene-grid" id="ai-scene-grid">
-        <div class="ai-scene-card"><div class="ai-scene-card-icon">🏛</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">建築</div><div class="ai-scene-card-val" id="asc-building">—</div></div></div>
-        <div class="ai-scene-card"><div class="ai-scene-card-icon">🧑</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">人像</div><div class="ai-scene-card-val" id="asc-person">—</div></div></div>
-        <div class="ai-scene-card"><div class="ai-scene-card-icon">🚗</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">交通</div><div class="ai-scene-card-val" id="asc-vehicle">—</div></div></div>
-        <div class="ai-scene-card"><div class="ai-scene-card-icon">🌿</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">自然</div><div class="ai-scene-card-val" id="asc-nature">—</div></div></div>
-        <div class="ai-scene-card"><div class="ai-scene-card-icon">☀️</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">亮度</div><div class="ai-scene-card-val" id="asc-brightness">—</div></div></div>
-        <div class="ai-scene-card"><div class="ai-scene-card-icon">🌡</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">色溫</div><div class="ai-scene-card-val" id="asc-temp">—</div></div></div>
-        <div class="ai-scene-card"><div class="ai-scene-card-icon">💧</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">飽和度</div><div class="ai-scene-card-val" id="asc-sat">—</div></div></div>
-        <div class="ai-scene-card"><div class="ai-scene-card-icon">🌫</div><div class="ai-scene-card-info"><div class="ai-scene-card-label">氛圍</div><div class="ai-scene-card-val" id="asc-mood">—</div></div></div>
-      </div>
-    </div>
-
-    <div class="rp-section">
-      <div class="rp-section-title">AI 推薦食譜</div>
-      <div id="ai-recs-panel"></div>
-    </div>
-  </div>
-</aside>
-
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+
+// ══════════════════════════════
 // RECIPES
-// ══════════════════════════════════════════════
+// ══════════════════════════════
 const RECIPES = [
-  {
-    id:'classicChrome', name:'Classic Chrome', mood:'經典正片，冷調清爽',
-    accent:'#8ab4b0', starred:false,
-    keywords:['person','building','car','road','traffic light','bench'],
-    params:{exposure:0.04,contrast:8,highlights:-14,shadows:18,whites:4,blacks:-8,saturation:-8,temperature:-3,tint:1,grain:10,vignette:-8,fade:6},
-  },
-  {
-    id:'pragueMood', name:'Prague Mood', mood:'低飽和，電影感氛圍',
-    accent:'#9aa0b0', starred:false,
-    keywords:['building','car','street','road','bus','tram','bicycle'],
-    params:{exposure:0.08,contrast:12,highlights:-18,shadows:24,whites:8,blacks:-12,saturation:-6,temperature:-4,tint:3,grain:18,vignette:-15,fade:8},
-  },
-  {
-    id:'grStreet', name:'GR Street', mood:'高對比街頭風格',
-    accent:'#b0a898', starred:false,
-    keywords:['person','car','bicycle','motorcycle','bus','street','building'],
-    params:{exposure:-0.1,contrast:22,highlights:-8,shadows:10,whites:-4,blacks:-22,saturation:-14,temperature:-2,tint:0,grain:24,vignette:-20,fade:3},
-  },
-  {
-    id:'viennaCafe', name:'Vienna Cafe', mood:'暖棕，柔和咖啡廳',
-    accent:'#c4a870', starred:false,
-    keywords:['cup','bowl','chair','couch','dining table','person','book','laptop'],
-    params:{exposure:0.12,contrast:6,highlights:-10,shadows:28,whites:12,blacks:-4,saturation:4,temperature:12,tint:4,grain:8,vignette:-10,fade:12},
-  },
-  {
-    id:'hallstattCold', name:'Hallstatt Cold', mood:'冷灰藍色調',
-    accent:'#70a4c0', starred:false,
-    keywords:['sky','mountain','lake','tree','bird','boat','river'],
-    params:{exposure:0.02,contrast:10,highlights:-22,shadows:14,whites:6,blacks:-10,saturation:-4,temperature:-10,tint:-2,grain:6,vignette:-12,fade:10},
-  },
-  {
-    id:'fujiDaily', name:'Fuji Daily', mood:'日常清淡風格',
-    accent:'#c8b4a0', starred:false,
-    keywords:['person','food','cup','bowl','plant','bed','laptop'],
-    params:{exposure:0.06,contrast:4,highlights:-8,shadows:20,whites:10,blacks:-6,saturation:2,temperature:4,tint:2,grain:5,vignette:-6,fade:14},
-  },
+  {id:'classicChrome',name:'Classic Chrome',mood:'Cold / Airy / Film',tags:'冷調 正片',accent:'#8ab4b0',starred:false,
+   keywords:['person','building','car','road','traffic light'],
+   params:{exposure:0.04,contrast:8,highlights:-14,shadows:18,whites:4,blacks:-8,saturation:-8,temperature:-3,tint:1,grain:10,vignette:-8,fade:6},
+   curve:[0,18,64,75,128,130,192,196,255,245]},
+  {id:'pragueMood',name:'Prague Mood',mood:'Cold / Cinematic / Grey',tags:'冷灰 電影感',accent:'#9aa0b0',starred:false,
+   keywords:['building','car','street','road','bus','bicycle','tram'],
+   params:{exposure:0.08,contrast:12,highlights:-18,shadows:24,whites:8,blacks:-12,saturation:-6,temperature:-4,tint:3,grain:18,vignette:-15,fade:8},
+   curve:[0,22,64,72,128,126,192,194,255,240]},
+  {id:'grStreet',name:'GR Street',mood:'Contrast / Urban / Raw',tags:'高對比 街頭',accent:'#b0a898',starred:false,
+   keywords:['person','car','bicycle','motorcycle','bus','building'],
+   params:{exposure:-0.1,contrast:22,highlights:-8,shadows:10,whites:-4,blacks:-22,saturation:-14,temperature:-2,tint:0,grain:24,vignette:-20,fade:3},
+   curve:[0,10,64,60,128,128,192,198,255,250]},
+  {id:'viennaCafe',name:'Vienna Cafe',mood:'Warm / Creamy / Cozy',tags:'暖棕 柔和',accent:'#c4a870',starred:false,
+   keywords:['cup','bowl','chair','couch','dining table','person','book','laptop'],
+   params:{exposure:0.12,contrast:6,highlights:-10,shadows:28,whites:12,blacks:-4,saturation:4,temperature:12,tint:4,grain:8,vignette:-10,fade:12},
+   curve:[0,28,64,80,128,134,192,198,255,248]},
+  {id:'hallstattCold',name:'Hallstatt Cold',mood:'Blue / Mist / Mountain',tags:'冷藍 空氣感',accent:'#70a4c0',starred:false,
+   keywords:['sky','mountain','lake','tree','bird','boat','river'],
+   params:{exposure:0.02,contrast:10,highlights:-22,shadows:14,whites:6,blacks:-10,saturation:-4,temperature:-10,tint:-2,grain:6,vignette:-12,fade:10},
+   curve:[0,20,64,70,128,128,192,192,255,242]},
+  {id:'fujiDaily',name:'Fuji Daily',mood:'Soft / Natural / Everyday',tags:'清淡 日常',accent:'#c8b4a0',starred:false,
+   keywords:['person','food','cup','bowl','plant','bed','laptop','book'],
+   params:{exposure:0.06,contrast:4,highlights:-8,shadows:20,whites:10,blacks:-6,saturation:2,temperature:4,tint:2,grain:5,vignette:-6,fade:14},
+   curve:[0,24,64,76,128,132,192,196,255,246]},
 ];
 
-let userRecipes = JSON.parse(localStorage.getItem('kl-recipes')||'[]');
-let favs = new Set(JSON.parse(localStorage.getItem('kl-favs')||'[]'));
-let currentId = 'pragueMood';
-let origImg = null;
-let origCanvas = null;
-let adjustments = {};
-let compareMode = false;
-let zoomPct = 100;
-let onnxSession = null;
-let modelReady = false;
-let aiImageFile = null;
-let lastAiResult = null;
-
-function allRecipes(){ return [...RECIPES,...userRecipes]; }
-function getRecipe(id){ return allRecipes().find(r=>r.id===id); }
-
-// ── SLIDER DEFINITIONS ──────────────────────────────
-const SLIDERS = [
-  {key:'exposure',label:'曝光',en:'Exposure',min:-1,max:1,step:.01,def:0,colored:false},
-  {key:'contrast',label:'對比',en:'Contrast',min:-50,max:50,step:1,def:0,colored:false},
-  {key:'highlights',label:'高光',en:'Highlights',min:-100,max:100,step:1,def:0,colored:false},
-  {key:'shadows',label:'陰影',en:'Shadows',min:-100,max:100,step:1,def:0,colored:false},
-  {key:'whites',label:'白色',en:'Whites',min:-100,max:100,step:1,def:0,colored:false},
-  {key:'blacks',label:'黑色',en:'Blacks',min:-100,max:100,step:1,def:0,colored:false},
-  {key:'saturation',label:'飽和度',en:'Saturation',min:-100,max:100,step:1,def:0,colored:'sat'},
-  {key:'temperature',label:'色溫',en:'Temperature',min:-40,max:40,step:1,def:0,colored:'temp'},
-  {key:'tint',label:'色調',en:'Tint',min:-40,max:40,step:1,def:0,colored:'tint'},
+const SLIDERS=[
+  {k:'exposure',zh:'曝光',en:'Exposure',min:-1,max:1,step:.01},
+  {k:'contrast',zh:'對比',en:'Contrast',min:-50,max:50,step:1},
+  {k:'highlights',zh:'高光',en:'Highlights',min:-100,max:100,step:1},
+  {k:'shadows',zh:'陰影',en:'Shadows',min:-100,max:100,step:1},
+  {k:'whites',zh:'白色',en:'Whites',min:-100,max:100,step:1},
+  {k:'blacks',zh:'黑色',en:'Blacks',min:-100,max:100,step:1},
+  {k:'saturation',zh:'飽和度',en:'Saturation',min:-100,max:100,step:1,rail:'sat'},
+  {k:'temperature',zh:'色溫',en:'Temperature',min:-40,max:40,step:1,rail:'temp'},
+  {k:'tint',zh:'色調',en:'Tint',min:-40,max:40,step:1,rail:'tint'},
 ];
-const EFFECTS = [
-  {key:'grain',label:'顆粒',en:'Grain',min:0,max:50,step:1,def:0},
-  {key:'vignette',label:'暗角',en:'Vignette',min:-60,max:0,step:1,def:0},
-  {key:'fade',label:'褪色',en:'Fade',min:0,max:40,step:1,def:0},
+const EFFECTS=[
+  {k:'grain',zh:'顆粒',en:'Grain',min:0,max:50,step:1},
+  {k:'vignette',zh:'暗角',en:'Vignette',min:-60,max:0,step:1},
+  {k:'fade',zh:'褪色',en:'Fade',min:0,max:40,step:1},
 ];
 
-function buildSliders(){
-  const sw=document.getElementById('sliders-wrap');
-  const ew=document.getElementById('effects-wrap');
-  sw.innerHTML=''; ew.innerHTML='';
-  [...SLIDERS,...EFFECTS].forEach((s,i)=>{
-    const wrap=document.createElement('div');
-    wrap.className='slider-row';
-    const colorClass=s.colored?`track-${s.colored}`:'';
-    const pct=((adjustments[s.key]-s.min)/(s.max-s.min)*100).toFixed(1);
-    const fillLeft=s.min<0?50:0;
-    const fillWidth=s.min<0?((adjustments[s.key]/(s.max-s.min))*100):pct;
-    wrap.innerHTML=`
-      <div class="slider-label">${s.label}<span class="en">${s.en}</span></div>
-      <div class="slider-track ${colorClass}" id="track-${s.key}">
-        <div class="slider-fill" id="fill-${s.key}" style="left:${s.min<0?50:0}%;width:${s.min<0?Math.abs(adjustments[s.key])/(s.max-s.min)*100:pct}%;${adjustments[s.key]<0&&s.min<0?`left:${(adjustments[s.key]-s.min)/(s.max-s.min)*100}%`:''};"></div>
-        <input type="range" min="${s.min}" max="${s.max}" step="${s.step}" value="${adjustments[s.key]}"
-          oninput="onSlider('${s.key}',parseFloat(this.value),${s.min},${s.max})">
-      </div>
-      <div class="slider-val" id="val-${s.key}">${formatVal(adjustments[s.key],s.step)}</div>`;
-    if(i<SLIDERS.length) sw.appendChild(wrap); else ew.appendChild(wrap);
-  });
+let userRecipes=JSON.parse(localStorage.getItem('kl-recipes')||'[]');
+let favs=new Set(JSON.parse(localStorage.getItem('kl-favs')||'[]'));
+let curId='pragueMood';
+let adj={};
+let origImg=null, origCanvas=null;
+let comparing=false;
+let zoom=100;
+let onnxSess=null, modelReady=false;
+let aiFile=null, lastAIAdj=null;
+let sheetExpanded=false;
+let sheetStartY=0, sheetStartT=0;
+
+function allR(){return[...RECIPES,...userRecipes];}
+function getR(id){return allR().find(r=>r.id===id);}
+
+// ── DEFAULT ADJ ──
+function defaults(){
+  const d={exposure:0,contrast:0,highlights:0,shadows:0,whites:0,blacks:0,saturation:0,temperature:0,tint:0,grain:0,vignette:0,fade:0};
+  return d;
 }
+function setAdj(params){adj={...defaults(),...params};}
 
-function formatVal(v,step){
-  if(step<1) return v.toFixed(2);
-  return v>0?'+'+v:String(v);
-}
-
-function onSlider(key,val,min,max){
-  adjustments[key]=val;
-  document.getElementById('val-'+key).textContent=formatVal(val,key==='exposure'?.01:1);
-  const fill=document.getElementById('fill-'+key);
-  if(fill){
-    if(min<0){
-      const pct=(val-min)/(max-min)*100;
-      if(val>=0){fill.style.left='50%';fill.style.width=((val)/(max-min)*100)+'%';}
-      else{fill.style.left=pct+'%';fill.style.width=((Math.abs(val))/(max-min)*100)+'%';}
-    } else {
-      fill.style.width=((val-min)/(max-min)*100)+'%';
-    }
-  }
-  requestAnimationFrame(renderPhoto);
-}
-
-function resetAll(){
-  const r=getRecipe(currentId);
-  if(r) setAdjustments(r.params);
-  buildSliders();
-  renderPhoto();
-}
-
-function setAdjustments(params){
-  const allDefs={};
-  [...SLIDERS,...EFFECTS].forEach(s=>allDefs[s.key]=s.def);
-  adjustments={...allDefs,...params};
-}
-
-// ── CANVAS ENGINE ─────────────────────────────────────
-function renderPhoto(){
-  if(!origCanvas) return;
-  const canvas=document.getElementById('main-canvas');
-  const ctx=canvas.getContext('2d');
-  const w=canvas.width, h=canvas.height;
-
-  if(compareMode){
-    ctx.drawImage(origCanvas,0,0);
-    return;
-  }
-
-  // draw orig
-  ctx.drawImage(origCanvas,0,0);
-  const imgData=ctx.getImageData(0,0,w,h);
-  const d=imgData.data;
-  const out=new Uint8ClampedArray(d.length);
-
-  const a=adjustments;
-  const expMul=Math.pow(2,a.exposure||0);
-  const contrastF=(a.contrast||0)/100;
-  const hlF=(a.highlights||0)/200;
-  const shF=(a.shadows||0)/200;
-  const wF=(a.whites||0)/200;
-  const bF=(a.blacks||0)/200;
-  const satF=1+(a.saturation||0)/100;
-  const tempF=(a.temperature||0)/40;
-  const tintF=(a.tint||0)/40;
-  const fadeF=(a.fade||0)/100*0.15;
-
-  for(let i=0;i<d.length;i+=4){
-    let r=d[i]/255,g=d[i+1]/255,b=d[i+2]/255;
-
-    // exposure
-    r*=expMul; g*=expMul; b*=expMul;
-
-    // fade (lift blacks)
-    r=r*(1-fadeF)+fadeF; g=g*(1-fadeF)+fadeF; b=b*(1-fadeF)+fadeF;
-
-    // contrast (S-curve)
-    r=0.5+Math.tanh((r-0.5)*(1+contrastF*1.5))/(2*Math.tanh(0.5*(1+contrastF*1.5)));
-    g=0.5+Math.tanh((g-0.5)*(1+contrastF*1.5))/(2*Math.tanh(0.5*(1+contrastF*1.5)));
-    b=0.5+Math.tanh((b-0.5)*(1+contrastF*1.5))/(2*Math.tanh(0.5*(1+contrastF*1.5)));
-
-    // clamp after exposure
-    r=Math.max(0,Math.min(1,r));
-    g=Math.max(0,Math.min(1,g));
-    b=Math.max(0,Math.min(1,b));
-
-    // highlights/shadows/whites/blacks
-    const lum=0.299*r+0.587*g+0.114*b;
-    const hlBoost=hlF*Math.pow(lum,1.5);
-    const shBoost=shF*Math.pow(1-lum,1.5);
-    const wBoost=wF*Math.pow(lum,3);
-    const bBoost=bF*Math.pow(1-lum,3);
-    r=Math.max(0,Math.min(1,r+hlBoost+shBoost+wBoost+bBoost));
-    g=Math.max(0,Math.min(1,g+hlBoost+shBoost+wBoost+bBoost));
-    b=Math.max(0,Math.min(1,b+hlBoost+shBoost+wBoost+bBoost));
-
-    // saturation
-    const gray2=0.299*r+0.587*g+0.114*b;
-    r=Math.max(0,Math.min(1,gray2+(r-gray2)*satF));
-    g=Math.max(0,Math.min(1,gray2+(g-gray2)*satF));
-    b=Math.max(0,Math.min(1,gray2+(b-gray2)*satF));
-
-    // temperature
-    r=Math.max(0,Math.min(1,r+tempF*0.08));
-    b=Math.max(0,Math.min(1,b-tempF*0.08));
-    // tint
-    g=Math.max(0,Math.min(1,g+tintF*0.04));
-
-    out[i]=Math.round(r*255);
-    out[i+1]=Math.round(g*255);
-    out[i+2]=Math.round(b*255);
-    out[i+3]=d[i+3];
-  }
-
-  // grain
-  const grainStr=(a.grain||0);
-  if(grainStr>0){
-    for(let i=0;i<out.length;i+=4){
-      const n=(Math.random()-0.5)*grainStr*0.9;
-      out[i]=Math.max(0,Math.min(255,out[i]+n));
-      out[i+1]=Math.max(0,Math.min(255,out[i+1]+n));
-      out[i+2]=Math.max(0,Math.min(255,out[i+2]+n));
-    }
-  }
-
-  ctx.putImageData(new ImageData(out,w,h),0,0);
-
-  // vignette
-  const vigStr=Math.abs(a.vignette||0)/100;
-  if(vigStr>0){
-    const grad=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.3,w/2,h/2,Math.max(w,h)*0.75);
-    grad.addColorStop(0,'rgba(0,0,0,0)');
-    grad.addColorStop(1,`rgba(0,0,0,${vigStr*0.9})`);
-    ctx.fillStyle=grad;
-    ctx.fillRect(0,0,w,h);
-  }
-}
-
-// ── PHOTO LOADING ────────────────────────────────────
+// ── PHOTO LOAD ──
 function loadPhoto(file){
-  if(!file) return;
-  aiImageFile=file;
+  if(!file)return;
+  aiFile=file;
   const url=URL.createObjectURL(file);
   const img=new Image();
   img.onload=()=>{
     origImg=img;
-    // build full-res orig canvas
     origCanvas=document.createElement('canvas');
-    const MAX=1400;
-    let w=img.width,h=img.height;
-    if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
-    if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
-    origCanvas.width=w; origCanvas.height=h;
-    origCanvas.getContext('2d').drawImage(img,0,0,w,h);
-    // display canvas
-    const mc=document.getElementById('main-canvas');
-    mc.width=w; mc.height=h;
+    const MAX=1600,w=img.width,h=img.height;
+    const sc=Math.min(1,MAX/Math.max(w,h));
+    origCanvas.width=Math.round(w*sc); origCanvas.height=Math.round(h*sc);
+    origCanvas.getContext('2d').drawImage(img,0,0,origCanvas.width,origCanvas.height);
+    // desktop
+    const dc=document.getElementById('d-canvas');
+    dc.width=origCanvas.width; dc.height=origCanvas.height;
+    dc.style.display='block';
+    document.getElementById('d-drop').style.display='none';
+    document.getElementById('d-dl').disabled=false;
+    if(modelReady) document.getElementById('d-ai-btn').disabled=false;
+    // mobile
+    const mc=document.getElementById('m-canvas');
+    mc.width=origCanvas.width; mc.height=origCanvas.height;
     mc.style.display='block';
-    mc.style.maxWidth='100%';
-    mc.style.maxHeight='100%';
-    document.getElementById('drop-overlay').style.display='none';
-    document.getElementById('dl-btn').disabled=false;
-    document.getElementById('ai-analyze-btn').disabled=!modelReady;
-    selectRecipe(currentId);
-    buildStrip();
+    document.getElementById('m-drop').style.display='none';
     URL.revokeObjectURL(url);
+    selectR(curId);
+    buildStrips();
     toast('照片已載入');
   };
   img.src=url;
 }
-
-function handleDrop(e){
+function dropHandler(e){
   e.preventDefault();
-  document.getElementById('drop-overlay').classList.remove('over');
-  const f=e.dataTransfer.files[0];
-  if(f) loadPhoto(f);
+  document.getElementById('d-drop').classList.remove('over');
+  if(e.dataTransfer.files[0]) loadPhoto(e.dataTransfer.files[0]);
 }
 
-// ── RECIPE ───────────────────────────────────────────
-function selectRecipe(id){
-  currentId=id;
-  const r=getRecipe(id);
-  if(!r) return;
-  setAdjustments(r.params);
-  buildSliders();
-  renderPhoto();
-  // update list active state
-  document.querySelectorAll('.recipe-item').forEach(el=>{
-    el.classList.toggle('active',el.dataset.id===id);
+// ── RENDER ──
+function render(){
+  ['d-canvas','m-canvas'].forEach(id=>{
+    const cv=document.getElementById(id);
+    if(!cv||!origCanvas||cv.style.display==='none')return;
+    cv.width=origCanvas.width; cv.height=origCanvas.height;
+    const ctx=cv.getContext('2d');
+    ctx.drawImage(origCanvas,0,0);
+    if(comparing)return;
+    applyAdj(ctx,cv.width,cv.height);
   });
-  // update strip active
-  document.querySelectorAll('.strip-item').forEach(el=>{
-    el.classList.toggle('active',el.dataset.id===id);
+}
+
+function applyAdj(ctx,w,h){
+  const a=adj;
+  const imgData=ctx.getImageData(0,0,w,h);
+  const d=imgData.data, out=new Uint8ClampedArray(d.length);
+  const expM=Math.pow(2,a.exposure||0);
+  const cF=Math.max(-0.98,(a.contrast||0)/100);
+  const hlF=(a.highlights||0)/200, shF=(a.shadows||0)/200;
+  const wF=(a.whites||0)/200, bF=(a.blacks||0)/200;
+  const satF=Math.max(0,1+(a.saturation||0)/100);
+  const tmpF=(a.temperature||0)/40, tintF=(a.tint||0)/40;
+  const fadeF=Math.min(.18,(a.fade||0)/100*.15);
+  const r=getR(curId);
+  const cv=r?.curve;
+
+  for(let i=0;i<d.length;i+=4){
+    let R=d[i]/255, G=d[i+1]/255, B=d[i+2]/255;
+    // exposure
+    R=Math.min(1,R*expM); G=Math.min(1,G*expM); B=Math.min(1,B*expM);
+    // fade
+    R=R*(1-fadeF)+fadeF; G=G*(1-fadeF)+fadeF; B=B*(1-fadeF)+fadeF;
+    // contrast (smooth s-curve)
+    const k=1+cF*1.4;
+    R=Math.max(0,Math.min(1,.5+Math.tanh((R-.5)*k)/(2*Math.tanh(.5*k))));
+    G=Math.max(0,Math.min(1,.5+Math.tanh((G-.5)*k)/(2*Math.tanh(.5*k))));
+    B=Math.max(0,Math.min(1,.5+Math.tanh((B-.5)*k)/(2*Math.tanh(.5*k))));
+    // tonal
+    const lum=.299*R+.587*G+.114*B;
+    const hl=hlF*Math.pow(lum,1.8), sh=shF*Math.pow(1-lum,1.8);
+    const wh=wF*Math.pow(lum,3.5), bl=bF*Math.pow(1-lum,3.5);
+    R=Math.max(0,Math.min(1,R+hl+sh+wh+bl));
+    G=Math.max(0,Math.min(1,G+hl+sh+wh+bl));
+    B=Math.max(0,Math.min(1,B+hl+sh+wh+bl));
+    // saturation
+    const gr=.299*R+.587*G+.114*B;
+    R=Math.max(0,Math.min(1,gr+(R-gr)*satF));
+    G=Math.max(0,Math.min(1,gr+(G-gr)*satF));
+    B=Math.max(0,Math.min(1,gr+(B-gr)*satF));
+    // temperature & tint
+    R=Math.max(0,Math.min(1,R+tmpF*.08)); B=Math.max(0,Math.min(1,B-tmpF*.08));
+    G=Math.max(0,Math.min(1,G+tintF*.04));
+    // recipe curve (simple 5-point interpolation on luminance)
+    if(cv){
+      const lv=.299*R+.587*G+.114*B;
+      const cv2=applyToneCurve(lv,cv);
+      const ratio=lv>0?cv2/lv:1;
+      R=Math.max(0,Math.min(1,R*ratio));
+      G=Math.max(0,Math.min(1,G*ratio));
+      B=Math.max(0,Math.min(1,B*ratio));
+    }
+    out[i]=Math.round(R*255); out[i+1]=Math.round(G*255); out[i+2]=Math.round(B*255); out[i+3]=d[i+3];
+  }
+  // film grain (luminance-based)
+  const grainStr=(a.grain||0);
+  if(grainStr>0){
+    for(let i=0;i<out.length;i+=4){
+      const lv=(out[i]*.299+out[i+1]*.587+out[i+2]*.114)/255;
+      const gw=grainStr*(0.6+0.8*(1-Math.pow(lv-.5,2)*4)); // more grain in mids/shadows
+      const n=(Math.random()-.5)*gw*0.85;
+      out[i]=Math.max(0,Math.min(255,out[i]+n));
+      out[i+1]=Math.max(0,Math.min(255,out[i+1]+n*.9)); // slight mono-ish grain
+      out[i+2]=Math.max(0,Math.min(255,out[i+2]+n*.8));
+    }
+  }
+  ctx.putImageData(new ImageData(out,w,h),0,0);
+  // vignette
+  const vs=Math.abs(a.vignette||0)/100;
+  if(vs>0){
+    const g=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*.28,w/2,h/2,Math.max(w,h)*.72);
+    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,`rgba(0,0,0,${vs*.85})`);
+    ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
+  }
+}
+
+function applyToneCurve(v,pts){
+  // pts = [in0,out0, in1,out1, ...] normalised 0-255
+  for(let i=0;i<pts.length-2;i+=2){
+    const x0=pts[i]/255, y0=pts[i+1]/255;
+    const x1=pts[i+2]/255, y1=pts[i+3]/255;
+    if(v>=x0&&v<=x1){
+      const t=(v-x0)/(x1-x0);
+      return y0+(y1-y0)*t;
+    }
+  }
+  return v;
+}
+
+// ── SELECT RECIPE ──
+function selectR(id){
+  curId=id;
+  const r=getR(id);
+  if(!r)return;
+  setAdj(r.params);
+  buildSliders();
+  requestAnimationFrame(render);
+  document.querySelectorAll('.ri').forEach(el=>el.classList.toggle('active',el.dataset.id===id));
+  document.querySelectorAll('.st-item,.mob-st').forEach(el=>el.classList.toggle('active',el.dataset.id===id));
+  document.getElementById('d-badge').textContent=r.name;
+}
+
+// ── SLIDERS ──
+function buildSliders(){
+  _buildSl('d-sliders','d-effects',false);
+  _buildSl('m-sliders',null,true);
+}
+
+function _buildSl(slId,efId,mob){
+  const sw=document.getElementById(slId);
+  const ew=efId?document.getElementById(efId):null;
+  sw.innerHTML=''; if(ew)ew.innerHTML='';
+  const cls=mob?'mob-sl':'';
+  const items=[...SLIDERS,...EFFECTS];
+  items.forEach((s,i)=>{
+    const isMob=mob;
+    const rowClass=isMob?'mob-sl-row':'sl-row';
+    const lblClass=isMob?'mob-sl-lbl':'sl-lbl';
+    const trackClass=isMob?'mob-sl-track':'sl-track';
+    const railClass=isMob?'mob-sl-rail':'sl-rail';
+    const fillClass=isMob?'mob-sl-fill':'sl-fill';
+    const thumbClass=isMob?'mob-sl-thumb':'sl-thumb';
+    const inputClass=isMob?'mob-sl-input':'sl-input';
+    const valClass=isMob?'mob-sl-val':'sl-val';
+    const v=adj[s.k]??0;
+    const pct=((v-s.min)/(s.max-s.min)*100);
+    const mid=s.min<0?50:0;
+    const fillW=s.min<0?Math.abs(v)/(s.max-s.min)*100:pct;
+    const fillL=s.min<0&&v<0?((v-s.min)/(s.max-s.min)*100):mid;
+    const uid=`${isMob?'m':'d'}-sl-${s.k}`;
+    const railCol=s.rail?`rail-${s.rail}`:'';
+    const div=document.createElement('div');
+    div.className=rowClass;
+    div.innerHTML=`
+      <div class="${lblClass}"><span class="zh">${s.zh}</span><span class="en">${s.en}</span></div>
+      <div class="${trackClass}" id="${uid}-track">
+        <div class="${railClass} ${railCol}"></div>
+        <div class="${fillClass}" id="${uid}-fill" style="left:${fillL}%;width:${fillW}%"></div>
+        <div class="${thumbClass}" id="${uid}-thumb" style="left:${pct}%"></div>
+        <input type="range" class="${inputClass}" min="${s.min}" max="${s.max}" step="${s.step}" value="${v}"
+          oninput="onSl('${s.k}',parseFloat(this.value),${s.min},${s.max},'${isMob?'m':'d'}')">
+      </div>
+      <div class="${valClass}" id="${uid}-val">${fmtV(v,s.step)}</div>`;
+    const target=(i<SLIDERS.length)?sw:ew||sw;
+    target.appendChild(div);
+  });
+}
+
+function onSl(k,v,min,max,pfx){
+  adj[k]=v;
+  const uid=`${pfx}-sl-${k}`;
+  const pct=((v-min)/(max-min)*100);
+  const fillW=min<0?Math.abs(v)/(max-min)*100:pct;
+  const fillL=min<0&&v<0?((v-min)/(max-min)*100):(min<0?50:0);
+  const fill=document.getElementById(uid+'-fill');
+  const thumb=document.getElementById(uid+'-thumb');
+  const val=document.getElementById(uid+'-val');
+  if(fill){fill.style.left=fillL+'%';fill.style.width=fillW+'%';}
+  if(thumb) thumb.style.left=pct+'%';
+  if(val) val.textContent=fmtV(v,k==='exposure'?.01:1);
+  // sync other panel
+  const other=pfx==='m'?'d':'m';
+  const oid=`${other}-sl-${k}`;
+  const oi=document.querySelector(`#${oid}-track input`);
+  if(oi){oi.value=v;onSl(k,v,min,max,other);}
+  requestAnimationFrame(render);
+}
+
+function fmtV(v,step){
+  if(step<1)return v.toFixed(2);
+  return v>0?'+'+v:String(v);
+}
+
+function resetAdj(){
+  const r=getR(curId);
+  if(r)setAdj(r.params); else setAdj({});
+  buildSliders(); requestAnimationFrame(render);
+  toast('已重設');
+}
+
+// ── STRIPS ──
+function buildStrips(){
+  _buildStrip('d-strip',false);
+  _buildStrip('m-strip',true);
+  buildRecipeList();
+}
+
+function _buildStrip(id,mob){
+  const el=document.getElementById(id);
+  el.innerHTML='';
+  allR().forEach(r=>{
+    const item=document.createElement('div');
+    if(mob){
+      item.className='mob-st'+(r.id===curId?' active':'');
+      item.dataset.id=r.id;
+      item.onclick=()=>selectR(r.id);
+      const tc=document.createElement('canvas');
+      tc.className='mob-st-canvas'; tc.width=82; tc.height=72;
+      const info=document.createElement('div');
+      info.className='mob-st-info';
+      info.innerHTML=`<div class="mob-st-name">${r.name}</div><div class="mob-st-mood">${r.tags}</div>`;
+      item.appendChild(tc); item.appendChild(info);
+      el.appendChild(item);
+      setTimeout(()=>drawThumb(tc,r),10);
+    } else {
+      item.className='st-item'+(r.id===curId?' active':'');
+      item.dataset.id=r.id;
+      item.onclick=()=>selectR(r.id);
+      const tc=document.createElement('canvas');
+      tc.className='st-canvas'; tc.width=68; tc.height=50;
+      const lbl=document.createElement('div');
+      lbl.className='st-label'; lbl.textContent=r.name;
+      item.appendChild(tc); item.appendChild(lbl);
+      el.appendChild(item);
+      setTimeout(()=>drawThumb(tc,r),10);
+    }
   });
 }
 
 function buildRecipeList(){
-  const list=document.getElementById('recipe-list');
-  list.innerHTML='';
-  allRecipes().forEach(r=>{
+  const el=document.getElementById('d-recipe-list');
+  el.innerHTML='';
+  allR().forEach(r=>{
     const item=document.createElement('div');
-    item.className='recipe-item'+(r.id===currentId?' active':'');
+    item.className='ri'+(r.id===curId?' active':'');
     item.dataset.id=r.id;
-    item.onclick=()=>selectRecipe(r.id);
+    item.onclick=()=>selectR(r.id);
     const tc=document.createElement('canvas');
-    tc.width=46;tc.height=34;tc.style.cssText='width:46px;height:34px;border-radius:4px;';
-    item.innerHTML=`
-      <div class="recipe-thumb"></div>
-      <div class="recipe-info">
-        <div class="recipe-name">${r.name}</div>
-        <div class="recipe-desc">${r.mood}</div>
-      </div>
-      <div class="recipe-star ${favs.has(r.id)?'starred':''}" onclick="event.stopPropagation();toggleFav('${r.id}',this)">★</div>`;
-    item.querySelector('.recipe-thumb').appendChild(tc);
-    // draw thumb preview
-    setTimeout(()=>drawThumb(tc,r),0);
-    list.appendChild(item);
-  });
-}
-
-function buildStrip(){
-  const strip=document.getElementById('strip-wrap');
-  strip.innerHTML='';
-  allRecipes().forEach(r=>{
-    const item=document.createElement('div');
-    item.className='strip-item'+(r.id===currentId?' active':'');
-    item.dataset.id=r.id;
-    item.onclick=()=>selectRecipe(r.id);
-    const tc=document.createElement('canvas');
-    tc.className='strip-canvas';
-    tc.width=72;tc.height=54;
-    item.innerHTML=`<div class="strip-name">${r.name}</div>`;
-    item.insertBefore(tc,item.firstChild);
-    strip.appendChild(item);
-    if(origCanvas) setTimeout(()=>drawThumbFromCanvas(tc,r),10);
-    else drawThumb(tc,r);
+    tc.width=44; tc.height=32; tc.style.cssText='width:44px;height:32px;border-radius:4px';
+    item.innerHTML=`<div class="ri-thumb"></div><div class="ri-info"><div class="ri-name">${r.name}</div><div class="ri-mood">${r.mood}</div></div><div class="ri-star ${favs.has(r.id)?'on':''}" onclick="event.stopPropagation();toggleFav('${r.id}',this)">★</div>`;
+    item.querySelector('.ri-thumb').appendChild(tc);
+    el.appendChild(item);
+    setTimeout(()=>drawThumb(tc,r),10);
   });
 }
 
 function drawThumb(canvas,recipe){
-  const ctx=canvas.getContext('2d');
-  const sw=recipe.accent||'#888';
-  const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
-  g.addColorStop(0,sw+'44'); g.addColorStop(1,sw+'11');
-  ctx.fillStyle='#1a1918'; ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle=g; ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle=sw+'88';
-  ctx.fillRect(0,canvas.height-3,canvas.width,3);
-}
-
-function drawThumbFromCanvas(thumbCanvas,recipe){
-  if(!origCanvas) return drawThumb(thumbCanvas,recipe);
-  const tmp=document.createElement('canvas');
-  tmp.width=thumbCanvas.width; tmp.height=thumbCanvas.height;
-  const tmpCtx=tmp.getContext('2d');
-  tmpCtx.drawImage(origCanvas,0,0,tmp.width,tmp.height);
-  const prevAdj={...adjustments};
-  adjustments={...adjustments,...recipe.params};
-  // simple fast version for thumbs
-  const imgData=tmpCtx.getImageData(0,0,tmp.width,tmp.height);
-  const d=imgData.data;
-  const a=adjustments;
-  const expMul=Math.pow(2,a.exposure||0);
-  const satF=1+(a.saturation||0)/100;
-  const tempF=(a.temperature||0)/40;
-  const fadeF=(a.fade||0)/100*0.15;
-  for(let i=0;i<d.length;i+=4){
-    let r=d[i]/255*expMul,g=d[i+1]/255*expMul,b=d[i+2]/255*expMul;
-    r=r*(1-fadeF)+fadeF;g=g*(1-fadeF)+fadeF;b=b*(1-fadeF)+fadeF;
-    const gray=0.299*r+0.587*g+0.114*b;
-    r=gray+(r-gray)*satF+tempF*0.08;
-    g=gray+(g-gray)*satF;
-    b=gray+(b-gray)*satF-tempF*0.08;
-    d[i]=Math.max(0,Math.min(255,r*255));
-    d[i+1]=Math.max(0,Math.min(255,g*255));
-    d[i+2]=Math.max(0,Math.min(255,b*255));
+  if(origCanvas){
+    const tmp=document.createElement('canvas');
+    tmp.width=canvas.width; tmp.height=canvas.height;
+    const ctx=tmp.getContext('2d');
+    ctx.drawImage(origCanvas,0,0,canvas.width,canvas.height);
+    const prevAdj={...adj}, prevId=curId;
+    setAdj(recipe.params); curId=recipe.id;
+    applyAdj(ctx,canvas.width,canvas.height);
+    adj=prevAdj; curId=prevId;
+    canvas.getContext('2d').drawImage(tmp,0,0);
+  } else {
+    const ctx=canvas.getContext('2d');
+    const ac=recipe.accent||'#888';
+    const g=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+    g.addColorStop(0,ac+'33'); g.addColorStop(1,ac+'11');
+    ctx.fillStyle='#1a1816'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle=g; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle=ac+'99'; ctx.fillRect(0,canvas.height-3,canvas.width,3);
   }
-  tmpCtx.putImageData(imgData,0,0);
-  thumbCanvas.getContext('2d').drawImage(tmp,0,0);
-  adjustments=prevAdj;
 }
 
 function toggleFav(id,el){
-  if(favs.has(id)) favs.delete(id); else favs.add(id);
+  if(favs.has(id))favs.delete(id); else favs.add(id);
   localStorage.setItem('kl-favs',JSON.stringify([...favs]));
-  el.classList.toggle('starred',favs.has(id));
+  el.classList.toggle('on',favs.has(id));
   toast(favs.has(id)?'已收藏 ★':'已移除收藏');
 }
 
-// ── COMPARE ──────────────────────────────────────────
-function startCompare(){
-  compareMode=true;
-  document.getElementById('compare-btn').classList.add('active');
-  document.getElementById('orig-badge').textContent='原圖';
-  renderPhoto();
-}
-function endCompare(){
-  compareMode=false;
-  document.getElementById('compare-btn').classList.remove('active');
-  document.getElementById('orig-badge').textContent=getRecipe(currentId)?.name||'預覽';
-  renderPhoto();
+// ── COMPARE ──
+function cmpStart(){comparing=true; document.getElementById('m-cmp-badge').classList.add('show'); requestAnimationFrame(render);}
+function cmpEnd(){comparing=false; document.getElementById('m-cmp-badge').classList.remove('show'); requestAnimationFrame(render);}
+
+// ── ZOOM (desktop) ──
+function chgZoom(d){
+  zoom=Math.max(25,Math.min(300,zoom+d));
+  document.getElementById('d-zoom').textContent=zoom+'%';
+  document.getElementById('d-canvas').style.transform=`scale(${zoom/100})`;
+  document.getElementById('d-canvas').style.transformOrigin='center center';
 }
 
-// ── ZOOM ─────────────────────────────────────────────
-function changeZoom(delta){
-  zoomPct=Math.max(25,Math.min(300,zoomPct+delta));
-  document.getElementById('zoom-val').textContent=zoomPct+'%';
-  const mc=document.getElementById('main-canvas');
-  mc.style.transform=`scale(${zoomPct/100})`;
-  mc.style.transformOrigin='center center';
+// ── MOBILE SHEET ──
+function initSheet(){
+  const handle=document.getElementById('m-sheet-handle');
+  const sheet=document.getElementById('m-sheet');
+  handle.addEventListener('touchstart',e=>{sheetStartY=e.touches[0].clientY;sheetStartT=parseFloat(sheet.style.transform.replace(/[^0-9.\-]/g,''))||0;},{passive:true});
+  handle.addEventListener('touchmove',e=>{
+    const dy=e.touches[0].clientY-sheetStartY;
+    const h=sheet.offsetHeight;
+    const peek=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sheet-peek'))||180;
+    const minT=0, maxT=h-peek;
+    const newT=Math.max(minT,Math.min(maxT,sheetStartT+dy));
+    sheet.style.transition='none';
+    sheet.style.transform=`translateY(${newT}px)`;
+  },{passive:true});
+  handle.addEventListener('touchend',e=>{
+    const cur=parseFloat(sheet.style.transform.replace(/[^0-9.\-]/g,''))||0;
+    const h=sheet.offsetHeight;
+    const peek=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sheet-peek'))||180;
+    sheet.style.transition='transform .3s cubic-bezier(.32,.72,0,1)';
+    if(cur<h*.35){sheet.style.transform='translateY(0)';sheetExpanded=true;}
+    else{sheet.style.transform=`translateY(calc(100% - var(--sheet-peek)))`;sheetExpanded=false;}
+  });
 }
 
-// ── DOWNLOAD ─────────────────────────────────────────
-function downloadPhoto(){
-  if(!origImg||!origCanvas) return;
-  toast('處理中，請稍候...');
-  setTimeout(()=>{
-    // Create full-res offscreen canvas
-    const full=document.createElement('canvas');
-    full.width=origImg.naturalWidth||origImg.width;
-    full.height=origImg.naturalHeight||origImg.height;
-    const fCtx=full.getContext('2d');
-    fCtx.drawImage(origImg,0,0,full.width,full.height);
-
-    // Apply filter on full-res
-    const savedOrig=origCanvas;
-    const mc=document.getElementById('main-canvas');
-    const savedW=mc.width,savedH=mc.height;
-
-    origCanvas=full;
-    mc.width=full.width; mc.height=full.height;
-    fCtx.drawImage(origImg,0,0,full.width,full.height);
-    // point main canvas to full for renderPhoto
-    const savedGetContext=mc.getContext.bind(mc);
-    renderPhoto();
-
-    // grab result from main-canvas (renderPhoto draws there)
-    const name=(getRecipe(currentId)?.name||'output').replace(/\s/g,'_');
-    mc.toBlob(blob=>{
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');
-      a.download=`KaiLun_${name}.jpg`;
-      a.href=url;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(url),1000);
-      // restore preview
-      origCanvas=savedOrig;
-      mc.width=savedW; mc.height=savedH;
-      renderPhoto();
-      toast('✓ 照片已下載');
-    },'image/jpeg',0.95);
-  },50);
+function mSheetTab(tab){
+  ['adj','ai'].forEach(t=>{
+    document.getElementById('mst-'+t).classList.toggle('active',t===tab);
+    document.getElementById('m-sheet-'+t).style.display=t===tab?'block':'none';
+  });
+  // expand sheet
+  const sheet=document.getElementById('m-sheet');
+  sheet.style.transition='transform .3s cubic-bezier(.32,.72,0,1)';
+  sheet.style.transform='translateY(0)';
+  sheetExpanded=true;
 }
 
-// ── ONNX / AI ─────────────────────────────────────────
-const YOLO80=['person','bicycle','car','motorcycle','airplane','bus','train','truck','boat','traffic light','fire hydrant','stop sign','parking meter','bench','bird','cat','dog','horse','sheep','cow','elephant','bear','zebra','giraffe','backpack','umbrella','handbag','tie','suitcase','frisbee','skis','snowboard','sports ball','kite','baseball bat','baseball glove','skateboard','surfboard','tennis racket','bottle','wine glass','cup','fork','knife','spoon','bowl','banana','apple','sandwich','orange','broccoli','carrot','hot dog','pizza','donut','cake','chair','couch','potted plant','bed','dining table','toilet','tv','laptop','mouse','remote','keyboard','cell phone','microwave','oven','toaster','sink','refrigerator','book','clock','vase','scissors','teddy bear','hair drier','toothbrush'];
+// ── MOBILE TOUCH (long press compare) ──
+let mobLongPress=null;
+function mobTouchStart(e){
+  if(e.touches.length===1&&origCanvas){
+    mobLongPress=setTimeout(()=>{cmpStart();},300);
+  }
+}
+function mobTouchMove(e){clearTimeout(mobLongPress);}
+function mobTouchEnd(e){clearTimeout(mobLongPress);if(comparing)cmpEnd();}
+
+// ── TABS ──
+function deskTab(t){
+  ['edit','ai'].forEach(x=>document.getElementById('dtab-'+x).classList.toggle('active',x===t));
+  if(t==='ai')rpTab('ai'); else rpTab('adj');
+}
+function rpTab(t){
+  ['adj','ai'].forEach(x=>{
+    document.getElementById('rpt-'+x).classList.toggle('active',x===t);
+    document.getElementById('rp-'+x).style.display=x===t?'block':'none';
+  });
+}
+function mobAITap(){
+  mSheetTab('ai');
+  if(!modelReady) showMobAIPrompt();
+}
+function showMobAIPrompt(){
+  document.getElementById('m-ai-content').innerHTML=`
+    <div class="mob-scene-card">
+      <div class="mob-scene-title">YOLO 模型</div>
+      <div style="font-size:.78rem;color:var(--m2);line-height:1.7;margin-bottom:.75rem">尚未載入，點擊下方按鈕下載（約 6MB，只需一次）。</div>
+      <div class="prog" id="m-prog" style="display:none"><div class="prog-bar" id="m-prog-bar" style="width:0%"></div></div>
+      <button class="mob-ai-apply" onclick="loadModel()">載入 YOLO 模型</button>
+    </div>`;
+}
+
+// ── ONNX / AI ──
+const Y80=['person','bicycle','car','motorcycle','airplane','bus','train','truck','boat','traffic light','fire hydrant','stop sign','parking meter','bench','bird','cat','dog','horse','sheep','cow','elephant','bear','zebra','giraffe','backpack','umbrella','handbag','tie','suitcase','frisbee','skis','snowboard','sports ball','kite','baseball bat','baseball glove','skateboard','surfboard','tennis racket','bottle','wine glass','cup','fork','knife','spoon','bowl','banana','apple','sandwich','orange','broccoli','carrot','hot dog','pizza','donut','cake','chair','couch','potted plant','bed','dining table','toilet','tv','laptop','mouse','remote','keyboard','cell phone','microwave','oven','toaster','sink','refrigerator','book','clock','vase','scissors','teddy bear','hair drier','toothbrush'];
 
 async function loadModel(){
-  const btn=document.getElementById('load-model-btn');
-  const statusText=document.getElementById('model-status-text');
-  const dot=document.getElementById('model-dot');
-  const prog=document.getElementById('prog-wrap');
-  const bar=document.getElementById('prog-bar');
-  btn.disabled=true;
-  btn.innerHTML='<span class="spinner"></span> 載入中...';
-  prog.style.display='block';
-  statusText.textContent='正在載入 ONNX Runtime...';
-  bar.style.width='10%';
+  const elems={
+    txt:['d-model-txt'],prog:['d-prog'],bar:['d-prog-bar'],
+    btn:['d-load-btn'],dot:['d-model-dot','d-ai-dot'],
+  };
+  const set=(k,fn)=>elems[k].forEach(id=>{const e=document.getElementById(id);if(e)fn(e);});
+  set('btn',e=>{e.disabled=true;e.innerHTML='<span class="spinner"></span> 載入中...';});
+  set('prog',e=>e.style.display='block');
+  set('txt',e=>e.textContent='正在載入 ONNX Runtime...');
+  set('bar',e=>e.style.width='10%');
+  // update mobile prompt if visible
+  const mp=document.getElementById('m-prog'); if(mp)mp.style.display='block';
   try{
     if(!window.ort){
       await new Promise((res,rej)=>{
@@ -854,56 +974,56 @@ async function loadModel(){
         s.onload=res;s.onerror=rej;document.head.appendChild(s);
       });
     }
-    bar.style.width='30%';
-    statusText.textContent='正在下載 YOLO 模型（約 6MB）...';
+    set('bar',e=>e.style.width='28%');
+    set('txt',e=>e.textContent='下載 YOLO 模型（約 6MB）...');
     const resp=await fetch('https://huggingface.co/onnx-community/yolov10n/resolve/main/onnx/model.onnx');
-    if(!resp.ok) throw new Error('模型下載失敗');
-    bar.style.width='70%';
-    statusText.textContent='初始化模型...';
+    if(!resp.ok)throw new Error('模型下載失敗，請確認網路');
+    set('bar',e=>e.style.width='68%');
+    set('txt',e=>e.textContent='初始化...');
     const buf=await resp.arrayBuffer();
-    bar.style.width='88%';
-    onnxSession=await window.ort.InferenceSession.create(buf,{executionProviders:['wasm']});
+    set('bar',e=>e.style.width='88%');
+    onnxSess=await window.ort.InferenceSession.create(buf,{executionProviders:['wasm']});
     modelReady=true;
-    bar.style.width='100%';
-    dot.style.background='var(--teal)';
-    document.getElementById('ai-dot').style.background='var(--teal)';
-    statusText.textContent='✓ YOLO 模型就緒';
-    btn.textContent='✓ 已載入';
-    btn.style.opacity='.5';
-    if(origCanvas) document.getElementById('ai-analyze-btn').disabled=false;
+    set('bar',e=>e.style.width='100%');
+    set('dot',e=>e.style.background='var(--teal)');
+    set('txt',e=>e.textContent='✓ YOLO 模型就緒');
+    set('btn',e=>{e.textContent='✓ 已載入';e.style.opacity='.4';});
+    if(origCanvas){document.getElementById('d-ai-btn').disabled=false;}
     toast('YOLO 模型載入成功 ✓');
+    // update mobile
+    if(document.getElementById('m-ai-content')){
+      document.getElementById('m-ai-content').innerHTML=`
+        <div class="mob-scene-card" style="text-align:center;color:var(--teal)">
+          ✓ 模型就緒，點「AI 分析」開始分析照片
+        </div>
+        <button class="mob-ai-apply" onclick="runAI()">✦ 分析這張照片</button>`;
+    }
   }catch(e){
-    dot.style.background='var(--red)';
-    statusText.textContent='載入失敗：'+e.message;
-    btn.disabled=false;btn.textContent='重試';
-    bar.style.width='0%';
+    set('dot',e=>e.style.background='var(--red)');
+    set('txt',e=>e.textContent='載入失敗：'+e.message);
+    set('btn',e=>{e.disabled=false;e.textContent='重試';});
   }
 }
 
-async function runAnalysis(){
-  if(!modelReady||!aiImageFile) return;
-  const btn=document.getElementById('ai-analyze-btn');
-  btn.disabled=true;
-  btn.innerHTML='<span class="spinner"></span> 分析中';
-  document.getElementById('ai-dot').style.background='var(--accent)';
-  document.getElementById('ai-dot').className='ai-status-dot analyzing';
+async function runAI(){
+  if(!modelReady||!aiFile){toast('請先載入模型和照片');return;}
+  const btn=document.getElementById('d-ai-btn');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> 分析中';}
+  document.getElementById('d-ai-dot').className='ai-dot busy';
   try{
-    const labels=await detectObjects(aiImageFile);
-    const colorInfo=analyzeColor();
-    showAiResult(labels,colorInfo);
-  }catch(e){
-    toast('分析失敗：'+e.message);
-    console.error(e);
-  }finally{
-    btn.disabled=false;
-    btn.innerHTML='<div class="ai-status-dot" style="background:var(--accent)"></div> AI 分析';
-    document.getElementById('ai-dot').className='ai-status-dot ready';
+    const labels=await detectObjs(aiFile);
+    const color=analyzeColor();
+    showAIResult(labels,color);
+  }catch(e){toast('分析失敗：'+e.message);console.error(e);}
+  finally{
+    if(btn){btn.disabled=false;btn.innerHTML='<div class="ai-dot" style="background:var(--gold)"></div>AI 分析';}
+    document.getElementById('d-ai-dot').className='ai-dot ready';
   }
 }
 
-async function detectObjects(file){
+async function detectObjs(file){
   const img=await new Promise((res,rej)=>{
-    const i=new Image();const u=URL.createObjectURL(file);
+    const i=new Image(),u=URL.createObjectURL(file);
     i.onload=()=>{URL.revokeObjectURL(u);res(i);};i.onerror=rej;i.src=u;
   });
   const c=document.createElement('canvas');c.width=640;c.height=640;
@@ -915,176 +1035,290 @@ async function detectObjects(file){
   const id=ctx.getImageData(0,0,640,640).data;
   const t=new Float32Array(3*640*640);
   for(let i=0;i<640*640;i++){t[i]=id[i*4]/255;t[640*640+i]=id[i*4+1]/255;t[2*640*640+i]=id[i*4+2]/255;}
-  const inp=new window.ort.Tensor('float32',t,[1,3,640,640]);
-  const res=await onnxSession.run({images:inp});
-  const outKey=Object.keys(res)[0];
-  const out=res[outKey].data;
-  const dims=res[outKey].dims; // [1,300,6] for yolov10 or [1,84,8400] for yolov8
+  const res=await onnxSess.run({images:new window.ort.Tensor('float32',t,[1,3,640,640])});
+  const outKey=Object.keys(res)[0],out=res[outKey].data,dims=res[outKey].dims;
   const labels=new Set();
-
   if(dims[1]===300&&dims[2]===6){
-    // YOLOv10 format: [1, 300, 6] => each row: [x1,y1,x2,y2,score,classId]
-    for(let i=0;i<300;i++){
-      const base=i*6;
-      const score=out[base+4];
-      const cls=Math.round(out[base+5]);
-      if(score>0.3&&cls>=0&&cls<80) labels.add(YOLO80[cls]);
-    }
+    for(let i=0;i<300;i++){const s=out[i*6+4],cl=Math.round(out[i*6+5]);if(s>0.28&&cl>=0&&cl<80)labels.add(Y80[cl]);}
   } else {
-    // YOLOv8 format: [1, 84, 8400]
     const n=8400;
-    for(let i=0;i<n;i++){
-      let mx=0,mc=0;
-      for(let c2=0;c2<80;c2++){const s=out[(c2+4)*n+i];if(s>mx){mx=s;mc=c2;}}
-      if(mx>0.3) labels.add(YOLO80[mc]);
-    }
+    for(let i=0;i<n;i++){let mx=0,mc=0;for(let c=0;c<80;c++){const s=out[(c+4)*n+i];if(s>mx){mx=s;mc=c;}}if(mx>0.28)labels.add(Y80[mc]);}
   }
-  return [...labels];
+  return[...labels];
 }
 
 function analyzeColor(){
-  if(!origCanvas) return {};
-  const ctx=origCanvas.getContext('2d');
-  const d=ctx.getImageData(0,0,origCanvas.width,origCanvas.height).data;
-  let rSum=0,gSum=0,bSum=0,brightSum=0,n=0;
-  for(let i=0;i<d.length;i+=16){
-    rSum+=d[i];gSum+=d[i+1];bSum+=d[i+2];
-    brightSum+=(d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114)/255;
-    n++;
-  }
-  const avgR=rSum/n,avgG=gSum/n,avgB=bSum/n,avgBright=brightSum/n;
-  const temp=avgR>avgB?'偏暖':'偏冷';
-  const brightLabel=avgBright>0.6?'明亮':avgBright>0.35?'中等偏暗':'偏暗';
-  return{temp,brightness:brightLabel,avgBright};
-}
-
-function showAiResult(labels,colorInfo){
-  lastAiResult={labels,colorInfo};
-  // scene classification
-  const building=labels.some(l=>['building','house','skyscraper'].includes(l));
-  const street=labels.some(l=>['car','bus','truck','motorcycle','bicycle','road','traffic light','stop sign'].includes(l));
-  const vehicle=labels.some(l=>['car','bus','truck','motorcycle','bicycle'].includes(l));
-  const person=labels.includes('person');
-  const nature=labels.some(l=>['tree','plant','bird','dog','cat','horse','cow','elephant','bear','giraffe','potted plant'].includes(l));
-
-  // score recipes
-  const scored=allRecipes().map(r=>{
-    let s=0;
-    const kw=r.keywords||[];
-    labels.forEach(l=>{if(kw.includes(l))s+=2;});
-    if(building&&['pragueMood','grStreet','classicChrome'].includes(r.id))s+=3;
-    if(person&&['classicChrome','fujiDaily','viennaCafe'].includes(r.id))s+=2;
-    if(nature&&['hallstattCold','fujiDaily'].includes(r.id))s+=3;
-    return{r,score:s};
-  }).sort((a,b)=>b.score-a.score);
-
-  const pcts=['92%','85%','78%'];
-
-  // update bottom ai bar
-  const scores={
-    'sc-building':building?'87%':'—',
-    'sc-street':street?'92%':'—',
-    'sc-vehicle':vehicle?'76%':'—',
-    'sc-person':person?'12%':'—',
-    'sc-nature':nature?'8%':'—',
-    'sc-brightness':colorInfo.brightness||'—',
-    'sc-temp':colorInfo.temp||'—',
-    'sc-mood':(building&&street)?'城市/陰天':person?'人像':'自然',
+  if(!origCanvas)return{};
+  const d=origCanvas.getContext('2d').getImageData(0,0,origCanvas.width,origCanvas.height).data;
+  let R=0,G=0,B=0,br=0,n=0;
+  for(let i=0;i<d.length;i+=20){R+=d[i];G+=d[i+1];B+=d[i+2];br+=(d[i]*.299+d[i+1]*.587+d[i+2]*.114)/255;n++;}
+  R/=n;G/=n;B/=n;br/=n;
+  const warm=R>B;
+  const sat=Math.sqrt(Math.pow(R-G,2)+Math.pow(G-B,2)+Math.pow(B-R,2))/255;
+  return{
+    avgR:R,avgG:G,avgB:B,brightness:br,warm,sat,
+    brightLabel:br>.62?'明亮':br>.38?'中等偏暗':'偏暗',
+    tempLabel:R-B>18?'偏暖':B-R>18?'偏冷':'中性',
+    satLabel:sat>.12?'飽和':sat>.06?'中等':'低飽和',
   };
-  Object.entries(scares_ids()).forEach(([k,v])=>{
-    const el=document.getElementById(k);if(el) el.textContent=scores[k]||'—';
-  });
-  function scares_ids(){return{'sc-building':1,'sc-street':1,'sc-vehicle':1,'sc-person':1,'sc-nature':1,'sc-brightness':1,'sc-temp':1,'sc-mood':1};}
+}
 
-  // bar recs
-  const recs=document.getElementById('ai-bar-recs');
-  recs.innerHTML=scored.slice(0,3).map((item,i)=>`
-    <div class="ai-rec-pill" onclick="selectRecipe('${item.r.id}')">
-      <div class="ai-rec-num">${i+1}</div>
-      <div class="ai-rec-info">
-        <div class="ai-rec-name">${item.r.name}</div>
-        <div class="ai-rec-score">相似度 ${pcts[i]}</div>
-      </div>
+// ── AI CUSTOM ADJUSTMENTS (the key feature) ──
+function computeAIAdj(labels,color){
+  // Start from a base recipe, then modify based on scene analysis
+  const building=labels.some(l=>['building','house'].includes(l));
+  const street=labels.some(l=>['car','bus','truck','motorcycle','bicycle','traffic light','bench'].includes(l));
+  const person=labels.includes('person');
+  const food=labels.some(l=>['pizza','cake','sandwich','hot dog','donut','bowl','cup','fork','knife','spoon','banana','apple','orange','broccoli','carrot'].includes(l));
+  const nature=labels.some(l=>['tree','bird','dog','cat','mountain','sky','potted plant'].includes(l));
+  const indoor=labels.some(l=>['chair','couch','bed','dining table','toilet','tv','laptop','book','clock','vase'].includes(l));
+
+  // Build custom adjustments based on scene
+  const a={...defaults()};
+
+  // Exposure based on brightness
+  if(color.brightness>.68) a.exposure=-0.12;
+  else if(color.brightness<.32) a.exposure=0.18;
+  else a.exposure=0.05;
+
+  // Contrast
+  if(building||street) a.contrast=14;
+  else if(food||indoor) a.contrast=6;
+  else a.contrast=8;
+
+  // Highlights — protect from blowout
+  a.highlights = color.brightness>.6 ? -22 : -12;
+
+  // Shadows — open up or dramatise
+  if(building&&street) a.shadows=20;
+  else if(person) a.shadows=24;
+  else a.shadows=16;
+
+  // Whites / Blacks
+  a.whites = color.brightness>.5 ? 6 : 10;
+  a.blacks = (building||street) ? -14 : -8;
+
+  // Saturation
+  if(food) a.saturation=8;
+  else if(building&&!color.warm) a.saturation=-8;
+  else if(nature) a.saturation=4;
+  else a.saturation=-4;
+
+  // Temperature
+  if(food||indoor) a.temperature=8;
+  else if(building&&!color.warm) a.temperature=-5;
+  else if(nature) a.temperature=2;
+  else a.temperature= color.warm ? -3 : 0;
+
+  // Tint
+  if(building&&street) a.tint=3;
+  else if(food) a.tint=2;
+  else a.tint=0;
+
+  // Grain
+  if(street||building) a.grain=16;
+  else if(food) a.grain=6;
+  else a.grain=10;
+
+  // Vignette
+  a.vignette=(street||building)?-18:-12;
+
+  // Fade
+  if(indoor||food) a.fade=12;
+  else a.fade=7;
+
+  return a;
+}
+
+function showAIResult(labels,color){
+  const adj2=computeAIAdj(labels,color);
+  lastAIAdj=adj2;
+
+  const building=labels.some(l=>['building'].includes(l));
+  const street=labels.some(l=>['car','bus','bicycle','traffic light'].includes(l));
+  const person=labels.includes('person');
+  const nature=labels.some(l=>['tree','bird','mountain'].includes(l));
+  const food=labels.some(l=>['pizza','cake','bowl','cup'].includes(l));
+
+  // Scene description
+  const sceneStr=(building&&street)?'城市街景':person?'人像':food?'美食':nature?'自然風景':'日常生活';
+  const moodStr=color.brightLabel+'・'+color.tempLabel+'・'+color.satLabel;
+  const atmoStr=(building&&street&&!color.warm)?'城市 / 陰天':person&&color.warm?'人像 / 暖光':nature?'自然 / 戶外':'室內 / 日常';
+
+  // Update bottom bar
+  document.getElementById('sc-b').textContent=building?'偵測':'—';
+  document.getElementById('sc-s').textContent=street?'偵測':'—';
+  document.getElementById('sc-v').textContent=labels.some(l=>['car','bus','truck','motorcycle','bicycle'].includes(l))?'偵測':'—';
+  document.getElementById('sc-p').textContent=person?'偵測':'—';
+  document.getElementById('sc-n').textContent=nature?'偵測':'—';
+  document.getElementById('sc-br').textContent=color.brightLabel||'—';
+  document.getElementById('sc-t').textContent=color.tempLabel||'—';
+  document.getElementById('sc-m').textContent=atmoStr;
+
+  // Scene analysis card (desktop)
+  const sa=document.getElementById('d-scene-analysis');
+  sa.className='scene-analysis show';
+  sa.innerHTML=`
+    <div class="scene-line"><span class="sk">Scene</span><span class="sv">${sceneStr}</span></div>
+    <div class="scene-line"><span class="sk">Lighting</span><span class="sv">${color.brightLabel}</span></div>
+    <div class="scene-line"><span class="sk">Color Temp</span><span class="sv">${color.tempLabel}</span></div>
+    <div class="scene-line"><span class="sk">Atmosphere</span><span class="sv">${atmoStr}</span></div>
+    <div class="scene-line"><span class="sk">Objects</span><span class="sv">${labels.slice(0,5).join('・')||'—'}</span></div>`;
+
+  // AI custom adj (desktop)
+  const adjKeys=[
+    ['曝光 Exposure','exposure',adj2.exposure.toFixed(2)],
+    ['對比 Contrast','contrast',adj2.contrast>0?'+'+adj2.contrast:String(adj2.contrast)],
+    ['高光 Highlights','highlights',adj2.highlights>0?'+'+adj2.highlights:String(adj2.highlights)],
+    ['陰影 Shadows','shadows',adj2.shadows>0?'+'+adj2.shadows:String(adj2.shadows)],
+    ['白色 Whites','whites',adj2.whites>0?'+'+adj2.whites:String(adj2.whites)],
+    ['黑色 Blacks','blacks',adj2.blacks>0?'+'+adj2.blacks:String(adj2.blacks)],
+    ['飽和度 Sat','saturation',adj2.saturation>0?'+'+adj2.saturation:String(adj2.saturation)],
+    ['色溫 Temp','temperature',adj2.temperature>0?'+':adj2.temperature<0?'':''},
+    ['顆粒 Grain','grain',String(adj2.grain)],
+    ['暗角 Vignette','vignette',String(adj2.vignette)],
+    ['褪色 Fade','fade',String(adj2.fade)],
+  ];
+  // fix temperature display
+  adjKeys[7][2]=(adj2.temperature>0?'+':'')+adj2.temperature;
+
+  const adjEl=document.getElementById('d-ai-adj');
+  const adjRows=document.getElementById('d-ai-adj-rows');
+  adjRows.innerHTML=adjKeys.map(([l,,v])=>`<div class="ai-adj-row"><span class="lbl">${l}</span><span class="val">${v}</span></div>`).join('');
+  adjEl.className='ai-adj-result show';
+
+  // Recipe recs
+  const scored=allR().map(r=>{
+    let s=0;const kw=r.keywords||[];
+    labels.forEach(l=>{if(kw.includes(l))s+=2;});
+    if(building&&street&&['pragueMood','grStreet','classicChrome'].includes(r.id))s+=4;
+    if(person&&['classicChrome','fujiDaily','viennaCafe'].includes(r.id))s+=3;
+    if(nature&&['hallstattCold','fujiDaily'].includes(r.id))s+=4;
+    if(food&&['viennaCafe','fujiDaily'].includes(r.id))s+=4;
+    return{r,s};
+  }).sort((a,b)=>b.s-a.s);
+  const pcts=['92%','85%','76%'];
+  const rp=document.getElementById('d-ai-recs-panel');
+  rp.innerHTML=scored.slice(0,3).map((x,i)=>`
+    <div class="ai-p-rec" onclick="selectR('${x.r.id}')">
+      <div class="ai-p-num">${i+1}</div>
+      <canvas class="ai-p-thumb" width="40" height="30" id="apt-${i}"></canvas>
+      <div class="ai-p-info"><div class="pname">${x.r.name}</div><div class="pmood">${x.r.mood}</div></div>
+      <div class="ai-p-score">${pcts[i]}</div>
+    </div>`).join('');
+  scored.slice(0,3).forEach((x,i)=>{
+    const tc=document.getElementById('apt-'+i);
+    if(tc)setTimeout(()=>drawThumb(tc,x.r),20);
+  });
+  // bottom bar recs
+  document.getElementById('d-ai-recs').innerHTML=scored.slice(0,3).map((x,i)=>`
+    <div class="ai-rec-pill" onclick="selectR('${x.r.id}')">
+      <div class="ai-rec-n">${i+1}</div>
+      <div class="ai-rec-info"><div class="rname">${x.r.name}</div><div class="rscore">相似度 ${pcts[i]}</div></div>
     </div>`).join('');
 
-  // right panel ai recs
-  // scene cards
-  [['asc-building',building?'87%':'—'],['asc-person',person?'12%':'—'],['asc-vehicle',vehicle?'76%':'—'],['asc-nature',nature?'8%':'—'],['asc-brightness',colorInfo.brightness||'—'],['asc-temp',colorInfo.temp||'—'],['asc-sat','中等'],['asc-mood',(building&&street)?'城市/陰天':person?'人像':'—']].forEach(([id,val])=>{
-    const el=document.getElementById(id);if(el)el.textContent=val;
-  });
-  const panel=document.getElementById('ai-recs-panel');
-  panel.innerHTML=scored.slice(0,3).map((item,i)=>`
-    <div class="ai-panel-rec" onclick="selectRecipe('${item.r.id}')">
-      <div class="ai-panel-num">${i+1}</div>
-      <canvas class="ai-panel-thumb" width="44" height="32" id="ai-thumb-${i}"></canvas>
-      <div class="ai-panel-info">
-        <div class="ai-panel-name">${item.r.name}</div>
-        <div class="ai-panel-mood">${item.r.mood}</div>
-      </div>
-      <div class="ai-panel-score">${pcts[i]}</div>
-    </div>`).join('');
-  scored.slice(0,3).forEach((item,i)=>{
-    const tc=document.getElementById('ai-thumb-'+i);
-    if(tc) setTimeout(()=>drawThumbFromCanvas(tc,item.r),20);
-  });
-  // switch to ai tab in right panel
-  switchRpTab('ai');
-  document.getElementById('ai-dot').className='ai-status-dot ready';
-  toast('AI 分析完成 ✓');
+  // Mobile result
+  document.getElementById('m-ai-content').innerHTML=`
+    <div class="mob-scene-card">
+      <div class="mob-scene-title">場景分析</div>
+      <div class="mob-scene-row"><span class="k">Scene</span><span class="v">${sceneStr}</span></div>
+      <div class="mob-scene-row"><span class="k">Lighting</span><span class="v">${color.brightLabel}</span></div>
+      <div class="mob-scene-row"><span class="k">Color Temp</span><span class="v">${color.tempLabel}</span></div>
+      <div class="mob-scene-row"><span class="k">Atmosphere</span><span class="v">${atmoStr}</span></div>
+    </div>
+    <div class="mob-ai-adj show">
+      <div class="mob-ai-adj-title">✦ AI 客製化調整</div>
+      ${adjKeys.map(([l,,v])=>`<div class="mob-adj-row"><span class="k">${l}</span><span class="v">${v}</span></div>`).join('')}
+      <button class="mob-ai-apply" onclick="applyAIAdj()">✓ 套用這組調整</button>
+    </div>
+    <div style="margin-top:.75rem">
+      <div class="mob-scene-title">推薦食譜</div>
+      ${scored.slice(0,3).map((x,i)=>`
+        <div class="ai-p-rec" onclick="selectR('${x.r.id}')">
+          <div class="ai-p-num">${i+1}</div>
+          <div class="ai-p-info"><div class="pname">${x.r.name}</div><div class="pmood">${x.r.mood}</div></div>
+          <div class="ai-p-score">${pcts[i]}</div>
+        </div>`).join('')}
+    </div>`;
+
+  rpTab('ai'); deskTab('ai');
+  toast('AI 分析完成，已生成客製化調整 ✓');
 }
 
-// ── TAB SWITCHING ─────────────────────────────────────
-function switchMainTab(tab){
-  ['edit','ai'].forEach(t=>{
-    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
-  });
-  if(tab==='ai') switchRpTab('ai');
-  else switchRpTab('adjust');
+function applyAIAdj(){
+  if(!lastAIAdj)return;
+  adj={...lastAIAdj};
+  buildSliders();
+  requestAnimationFrame(render);
+  rpTab('adj'); deskTab('edit');
+  const sheet=document.getElementById('m-sheet');
+  sheet.style.transition='transform .3s cubic-bezier(.32,.72,0,1)';
+  sheet.style.transform='translateY(0)';
+  mSheetTab('adj');
+  toast('AI 調整已套用 ✓');
 }
 
-function switchRpTab(tab){
-  ['adjust','ai'].forEach(t=>{
-    document.getElementById('rp-tab-'+t).classList.toggle('active',t===tab);
-    document.getElementById('rp-'+t).style.display=t===tab?'block':'none';
-  });
+// ── EXPORT ──
+function doDownload(){
+  if(!origImg||!origCanvas){toast('請先載入照片');return;}
+  toast('處理中...');
+  setTimeout(()=>{
+    const full=document.createElement('canvas');
+    full.width=origImg.naturalWidth||origImg.width;
+    full.height=origImg.naturalHeight||origImg.height;
+    const ctx=full.getContext('2d');
+    ctx.drawImage(origImg,0,0,full.width,full.height);
+    const prevOrig=origCanvas;
+    const mc=document.getElementById('d-canvas');
+    const pw=mc.width,ph=mc.height;
+    origCanvas=full;
+    mc.width=full.width;mc.height=full.height;
+    mc.getContext('2d').drawImage(origImg,0,0,full.width,full.height);
+    applyAdj(mc.getContext('2d'),full.width,full.height);
+    mc.toBlob(blob=>{
+      const a=document.createElement('a');
+      a.download=`KaiLun_${(getR(curId)?.name||'output').replace(/\s/g,'_')}.jpg`;
+      a.href=URL.createObjectURL(blob);
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+      origCanvas=prevOrig;
+      mc.width=pw;mc.height=ph;
+      mc.getContext('2d').drawImage(origCanvas,0,0);
+      applyAdj(mc.getContext('2d'),pw,ph);
+      toast('✓ 照片已下載');
+    },'image/jpeg',.95);
+  },30);
 }
 
-// ── EXPORT RECIPES ────────────────────────────────────
+// ── SAVE / EXPORT ──
+function saveCurrentAsRecipe(){
+  const name=prompt('食譜名稱：');if(!name)return;
+  const mood=prompt('氛圍描述（英文）：')||'Custom recipe';
+  const r={id:'custom_'+Date.now(),name,mood,tags:'自訂',accent:'#b0a898',starred:false,keywords:[],params:{...adj},curve:undefined};
+  userRecipes.push(r);
+  localStorage.setItem('kl-recipes',JSON.stringify(userRecipes));
+  buildStrips();toast('食譜已儲存：'+name);
+}
 function exportRecipes(){
-  const data=JSON.stringify(allRecipes(),null,2);
   const a=document.createElement('a');
   a.download='kailun-recipes.json';
-  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(data);
-  a.click();
-  toast('食譜已匯出');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(allR(),null,2));
+  a.click();toast('食譜已匯出');
 }
 
-function openAddRecipeModal(){
-  const name=prompt('食譜名稱：');
-  if(!name) return;
-  const mood=prompt('氛圍描述：')||'';
-  const r=getRecipe(currentId);
-  const newR={id:'custom_'+Date.now(),name,mood,accent:'#b0a898',starred:false,keywords:[],params:{...adjustments}};
-  userRecipes.push(newR);
-  localStorage.setItem('kl-recipes',JSON.stringify(userRecipes));
-  buildRecipeList();
-  buildStrip();
-  toast('食譜已儲存：'+name);
-}
-
-// ── TOAST ─────────────────────────────────────────────
+// ── TOAST ──
 function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2200);
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2300);
 }
 
-// ── INIT ──────────────────────────────────────────────
-setAdjustments({});
+// ── INIT ──
+setAdj({});
 buildSliders();
-buildRecipeList();
-buildStrip();
-selectRecipe('pragueMood');
+buildStrips();
+selectR('pragueMood');
+initSheet();
 </script>
 </body>
 </html>
