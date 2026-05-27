@@ -59,18 +59,26 @@ button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:
   -webkit-overflow-scrolling: touch;
 }
 
-/* 手機底欄工具按鈕（FILTER 彈出開關） */
+/* 手機底欄工具按鈕 */
 .mob-toolbar{height:calc(54px + var(--safe-b));padding-bottom:var(--safe-b);border-top:1px solid var(--b1);background:var(--bg);display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-shrink:0;position:relative;z-index:40}
 .mob-tb-btn{display:flex;align-items:center;gap:6px;padding:.5rem 1.2rem;border-radius:8px;background:var(--s2);border:1px solid var(--b1);color:var(--tx);font-size:.75rem;font-weight:500;transition:all .15s}
 .mob-tb-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5}
 .mob-tb-btn.active{border-color:var(--gold);color:var(--gold)}
 
-/* 獨立的彈出式濾鏡選擇面板 */
-.mob-filter-drawer{position:absolute;bottom:calc(54px + var(--safe-b));left:0;right:0;background:rgba(20,19,17,0.96);backdrop-filter:blur(20px);border-top:1px solid var(--b2);border-radius:14px 14px 0 0;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);z-index:60;display:flex;flex-direction:column}
-.mob-filter-drawer.show{transform:translateY(0)}
-.drawer-hdr{display:flex;justify-content:space-between;align-items:center;padding:.6rem 1rem .3rem;border-bottom:1px solid var(--b1)}
+/* 【修正】獨立的彈出式濾鏡選擇面板：加上預設強制隱藏 transform */
+.mob-filter-drawer{
+  position:absolute;bottom:0;left:0;right:0;
+  background:rgba(20,19,17,0.98);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--b2);border-radius:14px 14px 0 0;
+  transform:translateY(100%); /* 確保預設藏在畫面下方 */
+  transition:transform .28s cubic-bezier(.32,.72,0,1);
+  z-index:65;display:flex;flex-direction:column;
+  padding-bottom:var(--safe-b);
+}
+.mob-filter-drawer.show{transform:translateY(0) !important}
+.drawer-hdr{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem .4rem;border-bottom:1px solid var(--b1)}
 .drawer-title{font-family:var(--mono);font-size:.65rem;color:var(--m1);letter-spacing:.05em}
-.drawer-close{font-size:.8rem;color:var(--m2);padding:2px 8px}
+.drawer-close{font-size:.95rem;color:var(--tx);padding:4px 12px;background:var(--s3);border-radius:5px;cursor:pointer}
 
 /* ── DESKTOP TOPBAR & COMPONENTS ── */
 .logo{display:flex;align-items:center;gap:.6rem}
@@ -152,12 +160,12 @@ button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:
 .rp-tab.active{color:var(--tx);border-bottom-color:var(--gold)}
 .rp-body{flex:1;overflow-y:auto;padding:.7rem .85rem}
 
-/* ── SLIDERS (具有高觸控、高可見度的核心樣式) ── */
+/* ── SLIDERS ── */
 .rp-sec{margin-bottom:1.4rem}
 .rp-sec-hdr{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--m1);margin-bottom:.65rem;display:flex;justify-content:space-between;align-items:center}
 .rp-sec-hdr a{text-transform:none;letter-spacing:0;font-size:.68rem;cursor:pointer;color:var(--m1)}
 .sl-row{padding:.3rem 0;display:flex;align-items:center;gap:.55rem}
-.sl-lbl{min-width:76px;display:flex;flex-direction:column;gap:1px}
+.sl-lbl"><div class="sl-lbl"><span class="zh">${d.zh}</span><span class="en">${d.en}</span></div>
 .sl-lbl .zh{font-size:.78rem;color:var(--m3)}
 .sl-lbl .en{font-family:var(--mono);font-size:.58rem;color:var(--m1)}
 
@@ -204,7 +212,7 @@ input[type=range].sl-input::-moz-range-thumb {
 .ai-adj-row{display:flex;justify-content:space-between;align-items:center;padding:.2rem 0;border-bottom:1px solid var(--b1);font-size:.76rem}
 .ai-apply-btn{width:100%;padding:.55rem;background:rgba(127,181,173,.12);border:1px solid rgba(127,181,173,.3);border-radius:6px;font-family:var(--mono);font-size:.7rem;color:var(--teal);cursor:pointer;margin-top:.6rem;display:flex;align-items:center;justify-content:center;gap:.35rem}
 
-/* ── MOBILE RECIPE STRIP (放在抽屜彈出選單中) ── */
+/* ── MOBILE RECIPE STRIP ── */
 .mob-strip{display:flex;gap:.5rem;overflow-x:auto;padding:.6rem .8rem .9rem;align-items:center}
 .mob-st{flex-shrink:0;cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid transparent;transition:all .2s;width:82px;height:106px;display:flex;flex-direction:column}
 .mob-st.active{border-color:var(--gold)}
@@ -214,7 +222,7 @@ input[type=range].sl-input::-moz-range-thumb {
 .mob-st-mood{font-family:var(--mono);font-size:.48rem;color:var(--m1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mob-st.active .mob-st-name{color:var(--gold)}
 
-/* 手機版滑桿軌道與極佳的操控點 */
+/* 手機版滑桿軌道 */
 .mob-sl-row{padding:.4rem 0;display:flex;align-items:center;gap:.6rem}
 .mob-sl-lbl{min-width:70px;display:flex;flex-direction:column;gap:1px}
 .mob-sl-lbl .zh{font-size:.82rem;color:var(--m3)}
@@ -232,7 +240,7 @@ input[type=range].mob-sl-input::-webkit-slider-thumb {
 }
 .mob-sl-val{font-family:var(--mono);font-size:.72rem;color:var(--tx);min-width:30px;text-align:right}
 
-/* 手機端 AI 視覺反饋 */
+/* 手機端 AI */
 .mob-ai-result{padding:.75rem 1rem calc(1.5rem + var(--safe-b)); overflow-y:auto; max-height:calc(68vh - 60px);}
 .mob-scene-card{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.75rem .9rem;margin-bottom:.75rem}
 .mob-scene-title{font-family:var(--mono);font-size:.6rem;color:var(--m1);margin-bottom:.5rem}
@@ -418,7 +426,7 @@ input[type=range].mob-sl-input::-webkit-slider-thumb {
     <div class="mob-ai-result" id="m-pane-ai" style="display:none">
       <div class="ai-model-box">
         <div class="ai-model-hdr">⚙️ ON-DEVICE AI</div>
-        <p class="ai-model-txt" id="m-model-status">啟動輕量本機視覺分析模型。</p>
+        <p class="ai-model-txt" id="m-model-status">啟動輕量本機視覺 analysis 模型。</p>
         <div class="prog" id="m-model-prog"><div class="prog-bar" id="m-model-bar" style="width:0%"></div></div>
         <button class="load-btn" id="m-model-btn" onclick="initAI()">啟動手機端 AI</button>
       </div>
@@ -439,7 +447,7 @@ input[type=range].mob-sl-input::-webkit-slider-thumb {
   <div class="mob-filter-drawer" id="m-filter-drawer">
     <div class="drawer-hdr">
       <span class="drawer-title">SELECT FILTER RECIPE</span>
-      <button class="drawer-close" onclick="toggleFilterDrawer(false)">✕</button>
+      <button class="drawer-close" onclick="toggleFilterDrawer(false); event.stopPropagation();">✕ 關閉</button>
     </div>
     <div class="mob-strip" id="m-strip"></div>
   </div>
@@ -549,14 +557,14 @@ function toggleMobSheet(){
   }
 }
 
-// 核心功能：點擊濾鏡開關按鈕才彈出濾鏡
+// 【修復】核心切換邏輯：修改控制 class 的方式，確保對點擊事件完全反應
 function toggleFilterDrawer(show){
   const dr = document.getElementById('m-filter-drawer');
   const btn = document.getElementById('mbtn-filter-toggle');
   if(show){
     dr.classList.add('show');
     btn.classList.add('active');
-    // 如果打開濾鏡，把調整滑桿面板降下，防止畫面太擠
+    // 開啟濾鏡時，把參數滑桿面版降到底部防止畫面擁擠
     document.getElementById('m-sheet').style.transform = `translateY(100%)`;
   } else {
     dr.classList.remove('show');
@@ -605,7 +613,6 @@ function buildSliders(){
     mCont.appendChild(mRow);
   });
 
-  // 加入獨立的高質感匯出下載按鈕
   const mDlBtn = document.createElement('button'); mDlBtn.className = 'dl-btn'; mDlBtn.onclick = downloadPhoto;
   mDlBtn.innerHTML = `<svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3M2 12h12"/></svg> 匯出高畫質照片儲存`;
   mCont.appendChild(mDlBtn);
