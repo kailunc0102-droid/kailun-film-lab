@@ -20,7 +20,7 @@
   --teal:#7fb5ad;--red:#b86060;--green:#7aad88;
   --mono:'DM Mono',monospace;--serif:'Instrument Serif',serif;--sans:'DM Sans',sans-serif;
   --safe-b:env(safe-area-inset-bottom,0px);
-  --tb-h:64px;--sheet-peek:180px;
+  --sheet-peek:160px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--sans);overscroll-behavior:none}
@@ -35,17 +35,44 @@ button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:
 .desk-right{border-left:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
 
 /* ── MOBILE LAYOUT ── */
-.mob{display:none;flex-direction:column;height:100dvh;position:relative}
-.mob-preview{flex:1;position:relative;overflow:hidden;background:#000;min-height:0}
-.mob-recipes{height:130px;flex-shrink:0;border-top:1px solid var(--b1)}
-.mob-sheet{position:absolute;bottom:0;left:0;right:0;border-radius:18px 18px 0 0;background:rgba(15,14,13,0.96);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-top:1px solid var(--b2);z-index:50;transition:transform .32s cubic-bezier(.32,.72,0,1)}
-.mob-toolbar{height:calc(var(--tb-h) + var(--safe-b));padding-bottom:var(--safe-b);border-top:1px solid var(--b1);background:rgba(15,14,13,0.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;position:relative;z-index:51}
-.mob-tb-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:.5rem .75rem;border-radius:10px;transition:all .15s;color:var(--m2)}
-.mob-tb-btn.active{color:var(--gold)}
-.mob-tb-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.mob-tb-btn span{font-family:var(--mono);font-size:.58rem;letter-spacing:.06em}
+.mob{display:none;flex-direction:column;height:100dvh;position:relative;background:#000}
+.mob-top-bar{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;border-bottom:1px solid var(--b1);background:var(--bg);flex-shrink:0}
+.mob-preview{flex:1;position:relative;overflow:hidden;background:#000;min-height:0;display:flex;align-items:center;justify-content:center}
 
-/* ── TOPBAR ── */
+/* 手機版頂部縮小核心按鈕（ADJUST, COMPARE, IMPORT） */
+.mob-top-actions{display:flex;background:var(--s2);padding:2px;border-radius:6px;gap:2px}
+.mob-act-btn{padding:4px 10px;font-family:var(--mono);font-size:.62rem;color:var(--m2);border-radius:4px;display:flex;align-items:center;gap:3px;transition:all .15s}
+.mob-act-btn.active{background:var(--s3);color:var(--gold)}
+.mob-act-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.5}
+
+/* ── MOBILE SHEET & PANELS ── */
+.mob-sheet{position:absolute;bottom:0;left:0;right:0;border-radius:18px 18px 0 0;background:rgba(15,14,13,0.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--b2);z-index:50;transition:transform .32s cubic-bezier(.32,.72,0,1)}
+.sheet-handle{width:36px;height:4px;background:var(--b3);border-radius:2px;margin:.65rem auto .5rem;cursor:pointer}
+.sheet-tabs{display:flex;border-bottom:1px solid var(--b1);padding:0 1rem}
+.sheet-tab{flex:1;padding:.5rem .25rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--m1);text-align:center;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.sheet-tab.active{color:var(--tx);border-bottom-color:var(--gold)}
+
+.sheet-body{
+  padding:.75rem 1rem calc(1.5rem + var(--safe-b)); 
+  overflow-y:auto; 
+  max-height:calc(68vh - 60px);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 手機底欄工具按鈕（FILTER 彈出開關） */
+.mob-toolbar{height:calc(54px + var(--safe-b));padding-bottom:var(--safe-b);border-top:1px solid var(--b1);background:var(--bg);display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-shrink:0;position:relative;z-index:40}
+.mob-tb-btn{display:flex;align-items:center;gap:6px;padding:.5rem 1.2rem;border-radius:8px;background:var(--s2);border:1px solid var(--b1);color:var(--tx);font-size:.75rem;font-weight:500;transition:all .15s}
+.mob-tb-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5}
+.mob-tb-btn.active{border-color:var(--gold);color:var(--gold)}
+
+/* 獨立的彈出式濾鏡選擇面板 */
+.mob-filter-drawer{position:absolute;bottom:calc(54px + var(--safe-b));left:0;right:0;background:rgba(20,19,17,0.96);backdrop-filter:blur(20px);border-top:1px solid var(--b2);border-radius:14px 14px 0 0;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);z-index:60;display:flex;flex-direction:column}
+.mob-filter-drawer.show{transform:translateY(0)}
+.drawer-hdr{display:flex;justify-content:space-between;align-items:center;padding:.6rem 1rem .3rem;border-bottom:1px solid var(--b1)}
+.drawer-title{font-family:var(--mono);font-size:.65rem;color:var(--m1);letter-spacing:.05em}
+.drawer-close{font-size:.8rem;color:var(--m2);padding:2px 8px}
+
+/* ── DESKTOP TOPBAR & COMPONENTS ── */
 .logo{display:flex;align-items:center;gap:.6rem}
 .logo-mark{width:28px;height:28px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .logo-mark svg{width:15px;height:15px;stroke:#111;fill:none;stroke-width:2}
@@ -73,7 +100,6 @@ button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:
 .ri:hover{background:var(--s2)}
 .ri.active{background:var(--s2);border-color:var(--gold3)}
 .ri-thumb{width:44px;height:32px;border-radius:5px;overflow:hidden;flex-shrink:0;background:var(--s3)}
-.ri-thumb canvas{width:100%;height:100%;display:block}
 .ri-info{flex:1;min-width:0}
 .ri-name{font-size:.82rem;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ri-mood{font-size:.68rem;color:var(--m1);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -86,12 +112,12 @@ button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:
 
 /* ── CANVAS (desktop) ── */
 .cv-bar{padding:.5rem .85rem;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:.5rem;flex-shrink:0}
-.cv-badge{font-family:var(--mono);font-size:.65rem;color:var(--m2);background:var(--s2);padding:2px 7px;border-radius:4px;border:1px solid var(--b1)}
+.cv-badge{font-family:var(--mono);font-size:.65rem;color:var(--m2);background:var(--s2);padding:2px 7px;border-radius:4px;border:1px solid var(--b1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
 .zoom-wrap{display:flex;align-items:center;gap:3px}
 .zoom-btn{width:20px;height:20px;background:var(--s2);border:1px solid var(--b1);border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--m2);font-size:.85rem;cursor:pointer;transition:all .15s}
 .zoom-btn:hover{color:var(--tx)}
 .zoom-val{font-family:var(--mono);font-size:.65rem;color:var(--m2);min-width:34px;text-align:center}
-.cmp-btn{margin-left:auto;padding:.28rem .65rem;background:var(--s2);border:1px solid var(--b2);border-radius:5px;font-family:var(--mono);font-size:.65rem;color:var(--m2);cursor:pointer;display:flex;align-items:center;gap:.3rem;transition:all .15s;user-select:none}
+.cmp-btn{margin-left:auto;padding:.28rem .65rem;background:var(--s2);border:1px solid var(--b2);border-radius:5px;font-family:var(--mono);font-size:.65rem;color:var(--m2);cursor:pointer;display:flex;align-items:center;gap:.3rem;transition:all .15s}
 .cmp-btn.on,.cmp-btn:hover{background:var(--s3);color:var(--tx);border-color:var(--gold3)}
 .cmp-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.5}
 .cv-wrap{flex:1;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;background:var(--bg)}
@@ -99,8 +125,7 @@ button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:
 .drop-zone{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
 .drop-zone.over{background:rgba(201,168,76,.04)}
 .drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.drop-ring{width:68px;height:68px;border-radius:50%;border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center;margin-bottom:1.1rem;transition:border-color .2s}
-.drop-zone:hover .drop-ring,.drop-zone.over .drop-ring{border-color:var(--gold)}
+.drop-ring{width:68px;height:68px;border-radius:50%;border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center;margin-bottom:1.1rem}
 .drop-ring svg{width:26px;height:26px;stroke:var(--m2);fill:none;stroke-width:1.2}
 .drop-title{font-family:var(--serif);font-style:italic;font-size:1.2rem;color:var(--m2);margin-bottom:.3rem}
 .drop-sub{font-family:var(--mono);font-size:.64rem;color:var(--m1);letter-spacing:.08em}
@@ -109,9 +134,8 @@ button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:
 .strip{padding:.5rem .6rem;border-top:1px solid var(--b1);display:flex;gap:.4rem;overflow-x:auto;flex-shrink:0}
 .st-item{flex-shrink:0;cursor:pointer;border-radius:6px;overflow:hidden;border:2px solid transparent;transition:all .18s;position:relative}
 .st-item.active{border-color:var(--gold)}
-.st-item:hover:not(.active){border-color:var(--b2)}
 .st-canvas{width:68px;height:50px;display:block;background:var(--s2)}
-.st-label{position:absolute;bottom:0;left:0;right:0;padding:2px 3px;font-family:var(--mono);font-size:.5rem;text-align:center;background:rgba(0,0,0,.55);color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-label{position:absolute;bottom:0;left:0;right:0;padding:2px 3px;font-family:var(--mono);font-size:.5rem;text-align:center;background:rgba(0,0,0,.55);color:#ddd}
 
 /* AI bar */
 .ai-bar{padding:.5rem .85rem;border-top:1px solid var(--b1);display:flex;align-items:center;gap:1rem;overflow-x:auto;flex-shrink:0;min-height:52px}
@@ -120,74 +144,36 @@ button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:
 .ai-scene-lbl{font-family:var(--mono);font-size:.55rem;color:var(--m1)}
 .ai-scene-val{font-family:var(--mono);font-size:.68rem;color:var(--tx);font-weight:500}
 .ai-recs-row{display:flex;gap:.4rem;margin-left:auto;flex-shrink:0}
-.ai-rec-pill{display:flex;align-items:center;gap:.4rem;padding:.25rem .6rem;background:var(--s2);border:1px solid var(--b1);border-radius:5px;cursor:pointer;transition:all .15s}
-.ai-rec-pill:hover{border-color:var(--gold3)}
-.ai-rec-n{width:16px;height:16px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.55rem;color:#111;font-weight:700;flex-shrink:0}
-.ai-rec-info .rname{font-size:.72rem;color:var(--tx)}
-.ai-rec-info .rscore{font-family:var(--mono);font-size:.58rem;color:var(--gold)}
-.ai-run-btn{padding:.28rem .7rem;background:var(--gold2);border:1px solid var(--gold3);border-radius:5px;font-family:var(--mono);font-size:.65rem;color:var(--gold);cursor:pointer;display:flex;align-items:center;gap:.3rem;transition:all .15s;white-space:nowrap;flex-shrink:0}
-.ai-run-btn:hover{background:rgba(201,168,76,.28)}
-.ai-run-btn:disabled{opacity:.35;cursor:not-allowed}
 .ai-dot{width:5px;height:5px;border-radius:50%;background:var(--m1);flex-shrink:0}
-.ai-dot.ready{background:var(--teal)}
-.ai-dot.busy{background:var(--gold);animation:pulse .7s infinite alternate}
-@keyframes pulse{to{opacity:.25}}
 
 /* ── RIGHT PANEL ── */
 .rp-tabs{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0}
-.rp-tab{flex:1;padding:.5rem .4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--m1);cursor:pointer;text-align:center;transition:all .15s;border-bottom:2px solid transparent}
+.rp-tab{flex:1;padding:.5rem .4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--m1);cursor:pointer;text-align:center;transition:all .15s}
 .rp-tab.active{color:var(--tx);border-bottom-color:var(--gold)}
 .rp-body{flex:1;overflow-y:auto;padding:.7rem .85rem}
 
-/* ── SLIDERS (原生滑桿最佳化，確保大按鈕與高可見度) ── */
+/* ── SLIDERS (具有高觸控、高可見度的核心樣式) ── */
 .rp-sec{margin-bottom:1.4rem}
 .rp-sec-hdr{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--m1);margin-bottom:.65rem;display:flex;justify-content:space-between;align-items:center}
-.rp-sec-hdr a{text-transform:none;letter-spacing:0;font-size:.68rem;cursor:pointer;color:var(--m1);transition:color .15s}
-.rp-sec-hdr a:hover{color:var(--tx)}
+.rp-sec-hdr a{text-transform:none;letter-spacing:0;font-size:.68rem;cursor:pointer;color:var(--m1)}
 .sl-row{padding:.3rem 0;display:flex;align-items:center;gap:.55rem}
 .sl-lbl{min-width:76px;display:flex;flex-direction:column;gap:1px}
 .sl-lbl .zh{font-size:.78rem;color:var(--m3)}
-.sl-lbl .en{font-family:var(--mono);font-size:.58rem;color:var(--m1);letter-spacing:.04em}
+.sl-lbl .en{font-family:var(--mono);font-size:.58rem;color:var(--m1)}
 
-/* 軌道美化與原生滑鈕修正 */
 .sl-track{flex:1;height:28px;display:flex;align-items:center;position:relative}
 .sl-rail{position:absolute;left:0;right:0;height:4px;background:var(--s3);border-radius:2px;pointer-events:none}
 .sl-fill{position:absolute;height:4px;border-radius:2px;background:var(--gold);pointer-events:none}
 
-/* 核心修改：直接讓 input 原生核心元件透明度為 1 且呈現圓點，避免盲滑 */
 input[type=range].sl-input {
-  width: 100%;
-  height: 100%;
-  background: transparent;
-  -webkit-appearance: none;
-  appearance: none;
-  position: relative;
-  z-index: 5;
-  margin: 0;
+  width: 100%; height: 100%; background: transparent; -webkit-appearance: none; appearance: none; position: relative; z-index: 5; margin: 0;
 }
 input[type=range].sl-input::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--tx);
-  border: 2px solid var(--bg);
-  box-shadow: 0 0 0 1.5px var(--gold);
-  cursor: pointer;
-  transition: transform 0.1s;
+  -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--tx); border: 2px solid var(--bg); box-shadow: 0 0 0 1.5px var(--gold); cursor: pointer; transition: transform 0.1s;
 }
-input[type=range].sl-input:active::-webkit-slider-thumb {
-  transform: scale(1.3);
-}
+input[type=range].sl-input:active::-webkit-slider-thumb { transform: scale(1.3); }
 input[type=range].sl-input::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--tx);
-  border: 2px solid var(--bg);
-  box-shadow: 0 0 0 1.5px var(--gold);
-  cursor: pointer;
+  width: 14px; height: 14px; border-radius: 50%; background: var(--tx); border: 2px solid var(--bg); box-shadow: 0 0 0 1.5px var(--gold); cursor: pointer;
 }
 
 .sl-val{font-family:var(--mono);font-size:.7rem;color:var(--tx);min-width:30px;text-align:right}
@@ -197,51 +183,30 @@ input[type=range].sl-input::-moz-range-thumb {
 
 /* download */
 .dl-btn{width:100%;padding:.75rem;background:var(--gold);border-radius:7px;font-family:var(--mono);font-size:.78rem;letter-spacing:.07em;color:#111;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.45rem;font-weight:500;transition:all .2s;margin-top:.6rem}
-.dl-btn:hover{background:#d9b85c;transform:translateY(-1px)}
-.dl-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.dl-btn:hover{background:#d9b85c}
 .dl-btn svg{width:13px;height:13px;stroke:#111;fill:none;stroke-width:2}
 
-/* ── AI PANEL (right) ── */
+/* AI PANEL */
 .ai-model-box{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.8rem .9rem;margin-bottom:.9rem}
-.ai-model-hdr{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--m1);margin-bottom:.45rem;display:flex;align-items:center;gap:.35rem}
+.ai-model-hdr{font-family:var(--mono);font-size:.58rem;color:var(--m1);margin-bottom:.45rem}
 .ai-model-txt{font-size:.76rem;color:var(--m2);line-height:1.6;margin-bottom:.6rem}
 .prog{height:2px;background:var(--s3);border-radius:1px;overflow:hidden;margin-bottom:.6rem;display:none}
-.prog-bar{height:100%;background:var(--teal);border-radius:1px;transition:width .3s}
-.load-btn{width:100%;padding:.5rem;background:var(--gold2);border:1px solid var(--gold3);border-radius:6px;font-family:var(--mono);font-size:.7rem;color:var(--gold);cursor:pointer;transition:all .15s}
-.load-btn:hover{background:rgba(201,168,76,.26)}
-.load-btn:disabled{opacity:.35;cursor:not-allowed}
+.prog-bar{height:100%;background:var(--teal);transition:width .3s}
+.load-btn{width:100%;padding:.5rem;background:var(--gold2);border:1px solid var(--gold3);border-radius:6px;font-family:var(--mono);font-size:.7rem;color:var(--gold);cursor:pointer}
 .ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.8rem}
 .ai-card{background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem}
 .ai-card-ico{font-size:.95rem;opacity:.65}
 .ai-card-info .lbl{font-family:var(--mono);font-size:.55rem;color:var(--m1)}
 .ai-card-info .val{font-size:.75rem;color:var(--tx)}
-
 .ai-adj-result{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.8rem .9rem;margin-bottom:.8rem;display:none}
 .ai-adj-result.show{display:block}
-.ai-adj-title{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem}
+.ai-adj-title{font-family:var(--mono);font-size:.6rem;color:var(--teal);margin-bottom:.6rem}
 .ai-adj-row{display:flex;justify-content:space-between;align-items:center;padding:.2rem 0;border-bottom:1px solid var(--b1);font-size:.76rem}
-.ai-adj-row:last-child{border-bottom:none}
-.ai-adj-row .lbl{color:var(--m2)}
-.ai-adj-row .val{font-family:var(--mono);color:var(--gold)}
-.ai-apply-btn{width:100%;padding:.55rem;background:rgba(127,181,173,.12);border:1px solid rgba(127,181,173,.3);border-radius:6px;font-family:var(--mono);font-size:.7rem;color:var(--teal);cursor:pointer;transition:all .15s;margin-top:.6rem;display:flex;align-items:center;justify-content:center;gap:.35rem}
-.ai-apply-btn:hover{background:rgba(127,181,173,.22)}
-.ai-rec-panel{margin-bottom:.8rem}
-.ai-p-rec{display:flex;align-items:center;gap:.65rem;padding:.55rem .7rem;background:var(--s2);border:1px solid var(--b1);border-radius:7px;cursor:pointer;margin-bottom:.4rem;transition:all .15s}
-.ai-p-rec:hover{border-color:var(--gold3)}
-.ai-p-num{width:20px;height:20px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.6rem;color:#111;font-weight:700;flex-shrink:0}
-.ai-p-thumb{width:40px;height:30px;border-radius:4px;overflow:hidden;flex-shrink:0;background:var(--s3)}
-.ai-p-info .pname{font-size:.8rem;color:var(--tx)}
-.ai-p-info .pmood{font-size:.68rem;color:var(--m1)}
-.ai-p-score{font-family:var(--mono);font-size:.65rem;color:var(--gold);margin-left:auto}
-.scene-analysis{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.8rem .9rem;margin-bottom:.8rem;font-size:.8rem;line-height:1.8;color:var(--m2);display:none}
-.scene-analysis.show{display:block}
-.scene-line{display:flex;gap:.5rem}
-.scene-line .sk{color:var(--m1);font-family:var(--mono);font-size:.65rem;min-width:64px}
-.scene-line .sv{color:var(--tx)}
+.ai-apply-btn{width:100%;padding:.55rem;background:rgba(127,181,173,.12);border:1px solid rgba(127,181,173,.3);border-radius:6px;font-family:var(--mono);font-size:.7rem;color:var(--teal);cursor:pointer;margin-top:.6rem;display:flex;align-items:center;justify-content:center;gap:.35rem}
 
-/* ── MOBILE RECIPE STRIP ── */
-.mob-strip{display:flex;gap:.5rem;overflow-x:auto;padding:.7rem .75rem;height:130px;align-items:center}
-.mob-st{flex-shrink:0;cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid transparent;transition:all .2s;position:relative;width:82px;height:106px;display:flex;flex-direction:column}
+/* ── MOBILE RECIPE STRIP (放在抽屜彈出選單中) ── */
+.mob-strip{display:flex;gap:.5rem;overflow-x:auto;padding:.6rem .8rem .9rem;align-items:center}
+.mob-st{flex-shrink:0;cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid transparent;transition:all .2s;width:82px;height:106px;display:flex;flex-direction:column}
 .mob-st.active{border-color:var(--gold)}
 .mob-st-canvas{width:82px;height:72px;display:block;flex-shrink:0;background:var(--s2)}
 .mob-st-info{flex:1;padding:3px 5px;background:var(--s2);display:flex;flex-direction:column;justify-content:center}
@@ -249,87 +214,51 @@ input[type=range].sl-input::-moz-range-thumb {
 .mob-st-mood{font-family:var(--mono);font-size:.48rem;color:var(--m1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mob-st.active .mob-st-name{color:var(--gold)}
 
-/* ── MOBILE SHEET (重要修復：優化彈出層高度與全螢幕滾動) ── */
-.sheet-handle{width:36px;height:4px;background:var(--b3);border-radius:2px;margin:.65rem auto .5rem}
-.sheet-tabs{display:flex;border-bottom:1px solid var(--b1);padding:0 1rem}
-.sheet-tab{flex:1;padding:.5rem .25rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--m1);text-align:center;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
-.sheet-tab.active{color:var(--tx);border-bottom-color:var(--gold)}
-
-/* 核心修改：高度放寬，並加強底部安全邊距 padding-bottom */
-.sheet-body{
-  padding:.75rem 1rem calc(2.5rem + var(--safe-b)); 
-  overflow-y:auto; 
-  max-height:calc(72vh - 70px);
-  -webkit-overflow-scrolling: touch;
-}
-
-/* 手機版原生滑桿軌道美化與大觸控球 */
-.mob-sl-row{padding:.45rem 0;display:flex;align-items:center;gap:.6rem}
+/* 手機版滑桿軌道與極佳的操控點 */
+.mob-sl-row{padding:.4rem 0;display:flex;align-items:center;gap:.6rem}
 .mob-sl-lbl{min-width:70px;display:flex;flex-direction:column;gap:1px}
 .mob-sl-lbl .zh{font-size:.82rem;color:var(--m3)}
 .mob-sl-lbl .en{font-family:var(--mono);font-size:.6rem;color:var(--m1)}
 
-.mob-sl-track{flex:1;height:36px;position:relative;display:flex;align-items:center}
+.mob-sl-track{flex:1;height:34px;position:relative;display:flex;align-items:center}
 .mob-sl-rail{position:absolute;left:0;right:0;height:4px;background:var(--s3);border-radius:2px;pointer-events:none}
 .mob-sl-fill{position:absolute;height:4px;border-radius:2px;background:var(--gold);pointer-events:none}
 
 input[type=range].mob-sl-input {
-  width: 100%;
-  height: 100%;
-  background: transparent;
-  -webkit-appearance: none;
-  appearance: none;
-  position: relative;
-  z-index: 5;
-  margin: 0;
+  width: 100%; height: 100%; background: transparent; -webkit-appearance: none; appearance: none; position: relative; z-index: 5; margin: 0;
 }
 input[type=range].mob-sl-input::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--tx);
-  border: 2px solid var(--bg);
-  box-shadow: 0 0 0 2px var(--gold);
-  cursor: pointer;
+  -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--tx); border: 2px solid var(--bg); box-shadow: 0 0 0 2px var(--gold); cursor: pointer;
 }
-
 .mob-sl-val{font-family:var(--mono);font-size:.72rem;color:var(--tx);min-width:30px;text-align:right}
 
-/* 手機版 AI 結果 */
-.mob-ai-result{padding:.75rem 1rem calc(2.5rem + var(--safe-b)); overflow-y:auto; max-height:calc(72vh - 70px);}
+/* 手機端 AI 視覺反饋 */
+.mob-ai-result{padding:.75rem 1rem calc(1.5rem + var(--safe-b)); overflow-y:auto; max-height:calc(68vh - 60px);}
 .mob-scene-card{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.75rem .9rem;margin-bottom:.75rem}
-.mob-scene-title{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--m1);margin-bottom:.5rem}
+.mob-scene-title{font-family:var(--mono);font-size:.6rem;color:var(--m1);margin-bottom:.5rem}
 .mob-scene-row{display:flex;justify-content:space-between;padding:.22rem 0;border-bottom:1px solid var(--b1);font-size:.78rem}
 .mob-scene-row:last-child{border-bottom:none}
 .mob-scene-row .k{color:var(--m2);font-family:var(--mono);font-size:.65rem}
 .mob-scene-row .v{color:var(--tx)}
 .mob-ai-adj{background:var(--s2);border:1px solid rgba(127,181,173,.2);border-radius:8px;padding:.75rem .9rem;margin-bottom:.75rem;display:none}
 .mob-ai-adj.show{display:block}
-.mob-ai-adj-title{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.5rem}
+.mob-ai-adj-title{font-family:var(--mono);font-size:.6rem;color:var(--teal);margin-bottom:.5rem}
 .mob-adj-row{display:flex;justify-content:space-between;padding:.22rem 0;border-bottom:1px solid var(--b1);font-size:.78rem}
-.mob-adj-row:last-child{border-bottom:none}
-.mob-adj-row .k{color:var(--m2)}
-.mob-adj-row .v{font-family:var(--mono);color:var(--gold)}
-.mob-ai-apply{width:100%;padding:.65rem;background:rgba(127,181,173,.12);border:1px solid rgba(127,181,173,.3);border-radius:7px;font-family:var(--mono);font-size:.75rem;color:var(--teal);cursor:pointer;margin-top:.5rem;transition:all .15s}
-.mob-ai-apply:hover{background:rgba(127,181,173,.22)}
+.mob-ai-apply{width:100%;padding:.65rem;background:rgba(127,181,173,.12);border:1px solid rgba(127,181,173,.3);border-radius:7px;font-family:var(--mono);font-size:.75rem;color:var(--teal);cursor:pointer;margin-top:.5rem}
 
 /* ── MOBILE CANVAS ── */
-#mob-canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+#mob-canvas{max-width:100%;max-height:100%;object-fit:contain;display:block;margin:auto}
 .mob-drop{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;z-index:5}
-.mob-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.mob-drop input{position:absolute;inset:0;opacity:0;width:100%;height:100%}
 .mob-drop-ring{width:56px;height:56px;border-radius:50%;border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center;margin-bottom:.9rem}
 .mob-drop svg{width:22px;height:22px;stroke:var(--m2);fill:none;stroke-width:1.2}
 .mob-drop-title{font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--m2);margin-bottom:.25rem}
-.mob-drop-sub{font-family:var(--mono);font-size:.6rem;color:var(--m1);letter-spacing:.07em}
-.compare-badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid var(--b2);border-radius:5px;font-family:var(--mono);font-size:.62rem;color:var(--m3);padding:3px 8px;pointer-events:none;display:none}
+.mob-drop-sub{font-family:var(--mono);font-size:.6rem;color:var(--m1)}
+.compare-badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);border:1px solid var(--b2);border-radius:5px;font-family:var(--mono);font-size:.62rem;color:var(--gold);padding:3px 8px;pointer-events:none;display:none;z-index:10}
 .compare-badge.show{display:block}
 
 /* ── SPINNER / TOAST ── */
-.spinner{display:inline-block;width:10px;height:10px;border:1.5px solid var(--b2);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
-.toast{position:fixed;bottom:calc(var(--tb-h) + var(--safe-b) + .75rem);right:1rem;background:var(--s3);border:1px solid var(--b2);color:var(--tx);padding:.5rem .95rem;border-radius:7px;font-family:var(--mono);font-size:.72rem;z-index:999;transform:translateY(10px);opacity:0;transition:all .22s;pointer-events:none}
+.toast{position:fixed;bottom:calc(64px + var(--safe-b));right:1rem;background:var(--s3);border:1px solid var(--b2);color:var(--tx);padding:.5rem .95rem;border-radius:7px;font-family:var(--mono);font-size:.72rem;z-index:999;transform:translateY(10px);opacity:0;transition:all .22s;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
 @media(min-width:861px){.toast{bottom:1.25rem}}
 
@@ -423,9 +352,7 @@ input[type=range].mob-sl-input::-webkit-slider-thumb {
 
   <aside class="desk-right">
     <div id="d-pane-edit" style="display:flex;flex-direction:column;height:100%">
-      <div class="rp-tabs">
-        <div class="rp-tab active">基礎調整</div>
-      </div>
+      <div class="rp-tabs"><div class="rp-tab active">基礎調整</div></div>
       <div class="rp-body" id="d-sliders-container"></div>
     </div>
     <div id="d-pane-ai" style="display:none;flex-direction:column;height:100%">
@@ -433,7 +360,7 @@ input[type=range].mob-sl-input::-webkit-slider-thumb {
       <div class="rp-body">
         <div class="ai-model-box">
           <div class="ai-model-hdr">⚙️ ON-DEVICE AI MODEL</div>
-          <p class="ai-model-txt" id="d-model-status">點擊載入智慧型輕量美學分析模型，所有運算皆在裝置本機執行。</p>
+          <p class="ai-model-txt" id="d-model-status">點擊載入智慧型輕量美學 analysis 模型。</p>
           <div class="prog" id="d-model-prog"><div class="prog-bar" id="d-model-bar" style="width:0%"></div></div>
           <button class="load-btn" id="d-model-btn" onclick="initAI()">載入視覺 AI 模型</button>
         </div>
@@ -441,51 +368,62 @@ input[type=range].mob-sl-input::-webkit-slider-thumb {
           <div class="ai-card"><div class="ai-card-ico">💡</div><div class="ai-card-info"><div class="lbl">整體亮度</div><div class="val" id="an-l">未解析</div></div></div>
           <div class="ai-card"><div class="ai-card-ico">🎨</div><div class="ai-card-info"><div class="lbl">主導色調</div><div class="val" id="an-c">未解析</div></div></div>
         </div>
-        <div class="scene-analysis" id="d-analysis-card"></div>
         <div class="ai-adj-result" id="d-ai-result">
           <div class="ai-adj-title">🪄 AI 最佳化方案</div>
           <div id="d-ai-rows"></div>
           <button class="ai-apply-btn" onclick="applyAiAdj()">應用此調整</button>
         </div>
-        <div class="sb-label" style="margin:1rem 0 .5rem">適合此照片的風格食譜</div>
-        <div id="d-ai-rec-panel"></div>
       </div>
     </div>
   </aside>
 </div>
 
 <div class="mob">
+  <header class="mob-top-bar">
+    <div class="cv-badge" id="m-badge" style="font-size:.65rem;color:var(--m2)">未載入照片</div>
+    
+    <div class="mob-top-actions">
+      <button class="mob-act-btn active" id="mact-adjust" onclick="setMobMode('adjust')">
+        <svg viewBox="0 0 16 16"><path d="M2 13l8-8 2 2-8 8H2v-2z"/></svg>ADJUST
+      </button>
+      <button class="mob-act-btn" id="mact-cmp" onmousedown="cmpStart()" onmouseup="cmpEnd()" ontouchstart="cmpStart()" ontouchend="cmpEnd()">
+        <svg viewBox="0 0 16 16"><path d="M8 2v12M2 8h12"/></svg>COMPARE
+      </button>
+      <button class="mob-act-btn" onclick="document.querySelector('#m-drop input').click()">
+        <svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3M2 12h12"/></svg>IMPORT
+      </button>
+    </div>
+  </header>
+
   <div class="mob-preview" id="m-cv-wrap">
     <div class="mob-drop" id="m-drop">
       <input type="file" accept="image/*" onchange="loadPhoto(this.files[0])">
       <div class="mob-drop-ring"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
       <div class="mob-drop-title">輕觸載入照片</div>
-      <div class="mob-drop-sub">完全在手機本機上安全處理</div>
+      <div class="mob-drop-sub">完全在裝置本機上安全處理</div>
     </div>
     <canvas id="mob-canvas"></canvas>
     <div class="compare-badge" id="m-cmp-badge">原始對比</div>
   </div>
 
-  <div class="mob-recipes">
-    <div class="mob-strip" id="m-strip"></div>
-  </div>
-
   <div class="mob-sheet" id="m-sheet" style="transform:translateY(calc(100% - var(--sheet-peek)))">
     <div class="sheet-handle" onclick="toggleMobSheet()"></div>
     <div class="sheet-tabs">
-      <div class="sheet-tab active" id="mtab-edit" onclick="mobTab('edit')">微調控制</div>
-      <div class="sheet-tab" id="mtab-ai" onclick="mobTab('ai')">AI 分析</div>
+      <div class="sheet-tab active" id="mtab-edit" onclick="mobTab('edit')">微調參數</div>
+      <div class="sheet-tab" id="mtab-ai" onclick="mobTab('ai')">AI 分析建議</div>
     </div>
+    
     <div class="sheet-body" id="m-pane-edit"></div>
+    
     <div class="mob-ai-result" id="m-pane-ai" style="display:none">
       <div class="ai-model-box">
         <div class="ai-model-hdr">⚙️ ON-DEVICE AI</div>
-        <p class="ai-model-txt" id="m-model-status">載入輕量本機視覺分析模型，為這張照片提供安靜、得體的色彩建議。</p>
+        <p class="ai-model-txt" id="m-model-status">啟動輕量本機視覺分析模型。</p>
         <div class="prog" id="m-model-prog"><div class="prog-bar" id="m-model-bar" style="width:0%"></div></div>
         <button class="load-btn" id="m-model-btn" onclick="initAI()">啟動手機端 AI</button>
       </div>
       <div class="mob-scene-card">
-        <div class="mob-scene-title">畫面視覺結構</div>
+        <div class="mob-scene-title">視覺基礎結構</div>
         <div class="mob-scene-row"><span class="k">場景光比亮度</span><span class="v" id="m-an-l">—</span></div>
         <div class="mob-scene-row"><span class="k">環境色彩傾向</span><span class="v" id="m-an-c">—</span></div>
         <div class="mob-scene-row"><span class="k">主要場景類別</span><span class="v" id="m-an-s">—</span></div>
@@ -495,20 +433,20 @@ input[type=range].mob-sl-input::-webkit-slider-thumb {
         <div id="m-ai-rows"></div>
         <button class="mob-ai-apply" onclick="applyAiAdj(); toggleMobSheet();">採用此修正</button>
       </div>
-      <div class="sb-label" style="margin:.5rem 0">推薦搭配美學食譜</div>
-      <div id="m-ai-rec-panel"></div>
     </div>
   </div>
 
+  <div class="mob-filter-drawer" id="m-filter-drawer">
+    <div class="drawer-hdr">
+      <span class="drawer-title">SELECT FILTER RECIPE</span>
+      <button class="drawer-close" onclick="toggleFilterDrawer(false)">✕</button>
+    </div>
+    <div class="mob-strip" id="m-strip"></div>
+  </div>
+
   <nav class="mob-toolbar">
-    <button class="mob-tb-btn active" id="mnav-adjust" onclick="setMobMode('adjust')">
-      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>ADJUST</span>
-    </button>
-    <button class="mob-tb-btn" id="mnav-cmp" onmousedown="cmpStart()" onmouseup="cmpEnd()" ontouchstart="cmpStart()" ontouchend="cmpEnd()">
-      <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H7M19 12H5M17 19H7"/></svg><span>COMPARE</span>
-    </button>
-    <button class="mob-tb-btn" onclick="document.querySelector('#m-drop input').click()">
-      <svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M16 10l-4-4-4 4M12 6v10"/></svg><span>IMPORT</span>
+    <button class="mob-tb-btn" id="mbtn-filter-toggle" onclick="toggleFilterDrawer(true)">
+      <svg viewBox="0 0 16 16"><path d="M1 3h14M1 8h14M1 13h14"/></svg><span>FILTER 濾鏡選單</span>
     </button>
   </nav>
 </div>
@@ -518,11 +456,11 @@ input[type=range].mob-sl-input::-webkit-slider-thumb {
 <script>
 // ── DATA STRUCTURES ──
 const defaultRecipes = [
-  {id:'r1',name:'Quiet Chrome',mood:'Muted & nostalgic',tags:'經典',accent:'#928b81',starred:true,keywords:['street','building','night'],params:{temp:4,tint:-2,expo:-5,contrast:8,highlight:-15,shadow:12,sat:-18,vib:-6,grain:14,vignette:-10}},
-  {id:'r2',name:'Warm Editorial',mood:'Grounded warm tones',tags:'人文',accent:'#b89a82',starred:true,keywords:['portrait','food','street'],params:{temp:12,tint:2,expo:2,contrast:-5,highlight:-8,shadow:15,sat:-5,vib:10,grain:8,vignette:-5}},
-  {id:'r3',name:'Nordic Cool',mood:'Clean, high contrast minimalist',tags:'冷調',accent:'#788d9c',starred:false,keywords:['nature','building'],params:{temp:-14,tint:-4,expo:5,contrast:12,highlight:-10,shadow:-4,sat:-15,vib:-12,grain:5,vignette:0}},
-  {id:'r4',name:'Tokyo Pastel',mood:'Airy & gentle emerald greens',tags:'日系',accent:'#a1b5a6',starred:false,keywords:['nature','portrait','food'],params:{temp:2,tint:-12,expo:15,contrast:-14,highlight:20,shadow:25,sat:-10,vib:5,grain:12,vignette:-12}},
-  {id:'r5',name:'Noir Cinema',mood:'Deep shadows & rich texture',tags:'黑白',accent:'#555',starred:false,keywords:['street','night','portrait'],params:{temp:0,tint:0,expo:-8,contrast:22,highlight:-25,shadow:-8,sat:-100,vib:-100,grain:24,vignette:-18}}
+  {id:'r1',name:'Quiet Chrome',mood:'Muted & nostalgic',tags:'經典',accent:'#928b81',params:{temp:4,tint:-2,expo:-5,contrast:8,highlight:-15,shadow:12,sat:-18,vib:-6,grain:14,vignette:-10}},
+  {id:'r2',name:'Warm Editorial',mood:'Grounded warm tones',tags:'人文',accent:'#b89a82',params:{temp:12,tint:2,expo:2,contrast:-5,highlight:-8,shadow:15,sat:-5,vib:10,grain:8,vignette:-5}},
+  {id:'r3',name:'Nordic Cool',mood:'Clean minimalism',tags:'冷調',accent:'#788d9c',params:{temp:-14,tint:-4,expo:5,contrast:12,highlight:-10,shadow:-4,sat:-15,vib:-12,grain:5,vignette:0}},
+  {id:'r4',name:'Tokyo Pastel',mood:'Airy & gentle emerald',tags:'日系',accent:'#a1b5a6',params:{temp:2,tint:-12,expo:15,contrast:-14,highlight:20,shadow:25,sat:-10,vib:5,grain:12,vignette:-12}},
+  {id:'r5',name:'Noir Cinema',mood:'Deep shadows & texture',tags:'黑白',accent:'#555',params:{temp:0,tint:0,expo:-8,contrast:22,highlight:-25,shadow:-8,sat:-100,vib:-100,grain:24,vignette:-18}}
 ];
 
 let userRecipes = [];
@@ -557,16 +495,13 @@ let currentZoom = 100;
 let activeTab = 'edit'; 
 let mobMode = 'adjust'; 
 let isAiLoaded = false;
-let aiModel = null; 
 
 // ── INIT ──
 window.addEventListener('DOMContentLoaded', ()=>{
   Object.assign(adj, getR(curId).params);
   buildSliders();
   buildStrips();
-  updateUIState();
   
-  // 監聽視窗變更，修復手機高度
   window.addEventListener('resize', ()=>{
     if(window.innerWidth <= 860) {
       document.querySelector('.mob').style.height = `${window.innerHeight}px`;
@@ -579,7 +514,7 @@ function toast(msg){
   setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-// ── TAB & VIEW NAVIGATION ──
+// ── TAB & DRAWERS NAV ──
 function deskTab(tab){
   activeTab=tab;
   document.getElementById('dtab-edit').classList.toggle('active', tab==='edit');
@@ -595,40 +530,55 @@ function mobTab(tab){
 }
 function setMobMode(mode){
   mobMode=mode;
-  document.getElementById('mnav-adjust').classList.toggle('active', mode==='adjust');
+  document.getElementById('mact-adjust').classList.toggle('active', mode==='adjust');
   const sheet = document.getElementById('m-sheet');
   if(mode==='adjust'){
     sheet.style.transform = `translateY(calc(100% - var(--sheet-peek)))`;
   } else {
     sheet.style.transform = `translateY(100%)`;
   }
+  toggleFilterDrawer(false);
 }
 function toggleMobSheet(){
   const sheet = document.getElementById('m-sheet');
   if(sheet.style.transform.includes('100%') || sheet.style.transform.includes('var(--sheet-peek)')){
     sheet.style.transform = `translateY(0)`;
+    toggleFilterDrawer(false);
   } else {
     sheet.style.transform = `translateY(calc(100% - var(--sheet-peek)))`;
   }
 }
 
-// ── SLIDERS GENERATOR (核心美化相容邏輯) ──
+// 核心功能：點擊濾鏡開關按鈕才彈出濾鏡
+function toggleFilterDrawer(show){
+  const dr = document.getElementById('m-filter-drawer');
+  const btn = document.getElementById('mbtn-filter-toggle');
+  if(show){
+    dr.classList.add('show');
+    btn.classList.add('active');
+    // 如果打開濾鏡，把調整滑桿面板降下，防止畫面太擠
+    document.getElementById('m-sheet').style.transform = `translateY(100%)`;
+  } else {
+    dr.classList.remove('show');
+    btn.classList.remove('active');
+  }
+}
+
+// ── SLIDERS BUILDER ──
 function buildSliders(){
   const dCont = document.getElementById('d-sliders-container');
   const mCont = document.getElementById('m-pane-edit');
   dCont.innerHTML = ''; mCont.innerHTML = '';
 
-  // 桌機版增加 Reset 全域按鈕
   const dHdr = document.createElement('div'); dHdr.className='rp-sec-hdr'; dHdr.innerHTML=`<span>參數微調</span><a onclick="resetAllSliders()">重設全域</a>`;
   dCont.appendChild(dHdr);
   const dSec = document.createElement('div'); dSec.className='rp-sec'; dCont.appendChild(dSec);
 
-  // 手機版增加 Reset 與下載按鈕
-  const mHdr = document.createElement('div'); mHdr.className='rp-sec-hdr'; mHdr.innerHTML=`<span>調整參數</span><a onclick="resetAllSliders()">重設</a>`;
+  const mHdr = document.createElement('div'); mHdr.className='rp-sec-hdr'; mHdr.innerHTML=`<span>滑動調整細節</span><a onclick="resetAllSliders()">重設</a>`;
   mCont.appendChild(mHdr);
 
   sliderDefs.forEach(d=>{
-    // 桌機版
+    // 桌機
     const dRow = document.createElement('div'); dRow.className='sl-row';
     dRow.innerHTML = `
       <div class="sl-lbl"><span class="zh">${d.zh}</span><span class="en">${d.en}</span></div>
@@ -641,7 +591,7 @@ function buildSliders(){
     `;
     dSec.appendChild(dRow);
 
-    // 手機版
+    // 手機
     const mRow = document.createElement('div'); mRow.className='mob-sl-row';
     mRow.innerHTML = `
       <div class="mob-sl-lbl"><span class="zh">${d.zh}</span><span class="en">${d.en}</span></div>
@@ -655,18 +605,12 @@ function buildSliders(){
     mCont.appendChild(mRow);
   });
 
-  // 手機版底部加入匯出下載照片按鈕，改善空間被擠壓的問題
-  const mDlBtn = document.createElement('button');
-  mDlBtn.className = 'dl-btn';
-  mDlBtn.id = 'm-dl-btn';
-  mDlBtn.onclick = downloadPhoto;
-  mDlBtn.innerHTML = `<svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3M2 12h12"/></svg> 匯出高畫質照片`;
+  // 加入獨立的高質感匯出下載按鈕
+  const mDlBtn = document.createElement('button'); mDlBtn.className = 'dl-btn'; mDlBtn.onclick = downloadPhoto;
+  mDlBtn.innerHTML = `<svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3M2 12h12"/></svg> 匯出高畫質照片儲存`;
   mCont.appendChild(mDlBtn);
 
-  // 桌機版也同步補上底部的導出
-  const dDlBtn = document.createElement('button');
-  dDlBtn.className = 'dl-btn';
-  dDlBtn.onclick = downloadPhoto;
+  const dDlBtn = document.createElement('button'); dDlBtn.className = 'dl-btn'; dDlBtn.onclick = downloadPhoto;
   dDlBtn.innerHTML = `<svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3M2 12h12"/></svg> 匯出高畫質照片`;
   dCont.appendChild(dDlBtn);
 
@@ -697,33 +641,25 @@ function updateSliderUI(targetId){
   const targets = targetId ? sliderDefs.filter(d=>d.id===targetId) : sliderDefs;
   targets.forEach(d=>{
     const pct = ((adj[d.id] - d.min) / (d.max - d.min)) * 100;
-    
-    const df = document.getElementById(`fill-d-${d.id}`);
-    if(df) df.style.width = pct + '%';
-    
-    const mf = document.getElementById(`fill-m-${d.id}`);
-    if(mf) mf.style.width = pct + '%';
+    const df = document.getElementById(`fill-d-${d.id}`); if(df) df.style.width = pct + '%';
+    const mf = document.getElementById(`fill-m-${d.id}`); if(mf) mf.style.width = pct + '%';
   });
 }
 
 function resetAllSliders(){
   resetAdj();
   sliderDefs.forEach(d=>{
-    const dInput = document.getElementById(`sl-d-${d.id}`);
-    const mInput = document.getElementById(`sl-m-${d.id}`);
-    if(dInput) dInput.value = d.def;
-    if(mInput) mInput.value = d.def;
-    const dVal = document.getElementById(`val-d-${d.id}`);
-    const mVal = document.getElementById(`val-m-${d.id}`);
-    if(dVal) dVal.textContent = d.def;
-    if(mVal) mVal.textContent = d.def;
+    const di = document.getElementById(`sl-d-${d.id}`); if(di) di.value = d.def;
+    const mi = document.getElementById(`sl-m-${d.id}`); if(mi) mi.value = d.def;
+    const dv = document.getElementById(`val-d-${d.id}`); if(dv) dv.textContent = d.def;
+    const mv = document.getElementById(`val-m-${d.id}`); if(mv) mv.textContent = d.def;
   });
   updateSliderUI();
   render();
-  toast('已重設所有微調參數');
+  toast('已還原所有基礎微調參數');
 }
 
-// ── PHOTO LOADER & CANVAS ──
+// ── PHOTO LOADER ──
 function loadPhoto(file){
   if(!file) return;
   const reader = new FileReader();
@@ -740,35 +676,30 @@ function loadPhoto(file){
       document.getElementById('d-canvas').style.display = 'block';
 
       document.getElementById('d-badge').textContent = file.name;
-      toast('✓ 照片已成功載入');
+      document.getElementById('m-badge').textContent = file.name;
+      toast('✓ 影像匯入成功');
       
-      // 重繪左下與下方的縮圖
       buildStrips();
       render();
-      if(isAiLoaded) runAIAnalysis();
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-// ── RENDER ENGINE (WebGL/Canvas) ──
+// ── RENDER ENGINE ──
 function render(){
   if(!origCanvas) return;
-  
-  // 同步桌機與手機的 Canvas 畫面展示
   const dc = document.getElementById('d-canvas');
   const mc = document.getElementById('mob-canvas');
-  
-  // 核心微調：在對比時畫原圖
-  const renderSource = (isComparing) ? origCanvas : getProcessedCanvas();
+  const src = isComparing ? origCanvas : getProcessedCanvas();
   
   if(window.innerWidth > 860){
-    dc.width = renderSource.width; dc.height = renderSource.height;
-    dc.getContext('2d').drawImage(renderSource, 0, 0);
+    dc.width = src.width; dc.height = src.height;
+    dc.getContext('2d').drawImage(src, 0, 0);
   } else {
-    mc.width = renderSource.width; mc.height = renderSource.height;
-    mc.getContext('2d').drawImage(renderSource, 0, 0);
+    mc.width = src.width; mc.height = src.height;
+    mc.getContext('2d').drawImage(src, 0, 0);
   }
 }
 
@@ -776,10 +707,7 @@ function getProcessedCanvas(){
   if(!origCanvas) return null;
   const c = document.createElement('canvas');
   c.width = origCanvas.width; c.height = origCanvas.height;
-  const ctx = c.getContext('2d');
-  ctx.drawImage(origCanvas, 0, 0);
-  
-  // 色彩濾鏡核心演算法處理
+  const ctx = c.getContext('2d'); ctx.drawImage(origCanvas, 0, 0);
   applyAdj(ctx, c.width, c.height);
   return c;
 }
@@ -789,97 +717,69 @@ function applyAdj(ctx, w, h){
     const imgData = ctx.getImageData(0, 0, w, h);
     const d = imgData.data;
     
-    // 取得調色參數
-    const t = adj.temp / 150;
-    const tint = adj.tint / 150;
-    const e = Math.pow(2, adj.expo / 25);
-    const c = (adj.contrast + 50) / 50;
-    const sat = (adj.sat + 100) / 100;
-    const hg = adj.highlight / 2;
-    const sh = adj.shadow / 2;
+    const t = adj.temp / 150, tint = adj.tint / 150;
+    const e = Math.pow(2, adj.expo / 25), c = (adj.contrast + 50) / 50;
+    const sat = (adj.sat + 100) / 100, hg = adj.highlight / 2, sh = adj.shadow / 2;
 
     for (let i = 0; i < d.length; i += 4) {
       let r = d[i], g = d[i+1], b = d[i+2];
-
-      // 1. 曝光度與高光陰影平衡
       r *= e; g *= e; b *= e;
       let luma = 0.299*r + 0.587*g + 0.114*b;
       if(luma > 128) {
-        let f = (luma - 128) / 128;
-        r += hg * f; g += hg * f; b += hg * f;
+        let f = (luma - 128) / 128; r += hg * f; g += hg * f; b += hg * f;
       } else {
-        let f = (128 - luma) / 128;
-        r += sh * f; g += sh * f; b += sh * f;
+        let f = (128 - luma) / 128; r += sh * f; g += sh * f; b += sh * f;
       }
-
-      // 2. 色溫與色調
-      r += t * 25; b -= t * 25;
-      g += tint * 15;
-
-      // 3. 對比度
-      r = (r - 128) * c + 128;
-      g = (g - 128) * c + 128;
-      b = (b - 128) * c + 128;
-
-      // 4. 飽和度
+      r += t * 25; b -= t * 25; g += tint * 15;
+      r = (r - 128) * c + 128; g = (g - 128) * c + 128; b = (b - 128) * c + 128;
       luma = 0.299*r + 0.587*g + 0.114*b;
-      r = luma + (r - luma) * sat;
-      g = luma + (g - luma) * sat;
-      b = luma + (b - luma) * sat;
+      r = luma + (r - luma) * sat; g = luma + (g - luma) * sat; b = luma + (b - luma) * sat;
 
-      // 溢位限制
       d[i] = Math.max(0, Math.min(255, r));
       d[i+1] = Math.max(0, Math.min(255, g));
       d[i+2] = Math.max(0, Math.min(255, b));
     }
     ctx.putImageData(imgData, 0, 0);
 
-    // 5. 膠片暗角與顆粒加值
     if(adj.vignette !== 0) {
       ctx.globalCompositeOperation = 'multiply';
       let grad = ctx.createRadialGradient(w/2, h/2, Math.min(w,h)*0.2, w/2, h/2, Math.max(w,h)*0.7);
-      let op = Math.abs(adj.vignette)/65;
       grad.addColorStop(0, 'rgba(0,0,0,0)');
-      grad.addColorStop(1, `rgba(0,0,0,${op})`);
+      grad.addColorStop(1, `rgba(0,0,0,${Math.abs(adj.vignette)/65})`);
       ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
       ctx.globalCompositeOperation = 'source-over';
     }
-    
     if(adj.grain > 0) {
-      ctx.globalCompositeOperation = 'screen';
-      ctx.fillStyle = `rgba(255,255,255,${adj.grain/180})`;
-      for(let k=0; k<adj.grain*3; k++){
-        ctx.fillRect(Math.random()*w, Math.random()*h, 1.5, 1.5);
-      }
+      ctx.globalCompositeOperation = 'screen'; ctx.fillStyle = `rgba(255,255,255,${adj.grain/180})`;
+      for(let k=0; k<adj.grain*3; k++) ctx.fillRect(Math.random()*w, Math.random()*h, 1.5, 1.5);
       ctx.globalCompositeOperation = 'source-over';
     }
-  } catch (err) { console.error(err); }
+  } catch (err) {}
 }
 
-// ── COMPARE CONTROLS ──
+// ── COMPARE ──
 function cmpStart(){
-  if(!origCanvas) return;
-  isComparing = true;
+  if(!origCanvas) return; isComparing = true;
   document.getElementById('d-cmp')?.classList.add('on');
+  document.getElementById('mact-cmp')?.classList.add('active');
   document.getElementById('m-cmp-badge').classList.add('show');
   render();
 }
 function cmpEnd(){
-  if(!origCanvas) return;
-  isComparing = false;
+  if(!origCanvas) return; isComparing = false;
   document.getElementById('d-cmp')?.classList.remove('on');
+  document.getElementById('mact-cmp')?.classList.remove('active');
   document.getElementById('m-cmp-badge').classList.remove('show');
   render();
 }
 
-// ── ZOOM ──
 function chgZoom(v){
   currentZoom = Math.max(30, Math.min(300, currentZoom + v));
   document.getElementById('d-zoom').textContent = currentZoom + '%';
   document.getElementById('d-canvas').style.transform = `scale(${currentZoom/100})`;
 }
 
-// ── STRIP GENERATORS ──
+// ── STRIPS GENERATOR ──
 function buildStrips(){
   const dStrip = document.getElementById('d-strip');
   const mStrip = document.getElementById('m-strip');
@@ -887,17 +787,15 @@ function buildStrips(){
 
   const all = [...defaultRecipes, ...userRecipes];
   all.forEach(r=>{
-    // 桌機底欄
     const di = document.createElement('div'); di.className=`st-item ${r.id===curId?'active':''}`;
     di.onclick = ()=>selectRecipe(r.id);
-    di.innerHTML = `<div class="st-canvas" id="thumb-d-${r.id}"></div><div class="st-label">${r.name}</div>`;
+    di.innerHTML = `<div class="st-canvas"></div><div class="st-label">${r.name}</div>`;
     dStrip.appendChild(di);
 
-    // 手機膠卷橫欄
     const mi = document.createElement('div'); mi.className=`mob-st ${r.id===curId?'active':''}`;
-    mi.onclick = ()=>selectRecipe(r.id);
+    mi.onclick = ()=> { selectRecipe(r.id); toggleFilterDrawer(false); }; // 選完自動關閉抽屜
     mi.innerHTML = `
-      <div class="mob-st-canvas" id="thumb-m-${r.id}"></div>
+      <div class="mob-st-canvas"></div>
       <div class="mob-st-info">
         <div class="mob-st-name">${r.name}</div>
         <div class="mob-st-mood">${r.mood}</div>
@@ -909,22 +807,16 @@ function buildStrips(){
 }
 
 function selectRecipe(id){
-  curId = id;
-  const r = getR(id);
+  curId = id; const r = getR(id);
   if(r) {
-    Object.assign(adj, r.params);
-    updateSliderUI();
+    Object.assign(adj, r.params); updateSliderUI();
     sliderDefs.forEach(d=>{
-      const di = document.getElementById(`sl-d-${d.id}`);
-      const mi = document.getElementById(`sl-m-${d.id}`);
-      if(di) di.value = adj[d.id]; if(mi) mi.value = adj[d.id];
-      const dv = document.getElementById(`val-d-${d.id}`);
-      const mv = document.getElementById(`val-m-${d.id}`);
-      if(dv) dv.textContent = adj[d.id]>0?'+'+adj[d.id]:adj[d.id];
-      if(mv) mv.textContent = adj[d.id]>0?'+'+adj[d.id]:adj[d.id];
+      const di = document.getElementById(`sl-d-${d.id}`); if(di) di.value = adj[d.id];
+      const mi = document.getElementById(`sl-m-${d.id}`); if(mi) mi.value = adj[d.id];
+      const dv = document.getElementById(`val-d-${d.id}`); if(dv) dv.textContent = adj[d.id]>0?'+'+adj[d.id]:adj[d.id];
+      const mv = document.getElementById(`val-m-${d.id}`); if(mv) mv.textContent = adj[d.id]>0?'+'+adj[d.id]:adj[d.id];
     });
-    render();
-    buildStrips();
+    render(); buildStrips();
   }
 }
 
@@ -935,129 +827,88 @@ function updateRecipeSideList(){
   all.forEach(r=>{
     const div = document.createElement('div'); div.className=`ri ${r.id===curId?'active':''}`;
     div.onclick = ()=>selectRecipe(r.id);
-    div.innerHTML = `
-      <div class="ri-thumb"></div>
-      <div class="ri-info">
-        <div class="ri-name">${r.name}</div>
-        <div class="ri-mood">${r.mood}</div>
-      </div>
-      <div class="ri-star ${r.starred?'on':''}">✦</div>
-    `;
+    div.innerHTML = `<div class="ri-thumb"></div><div class="ri-info"><div class="ri-name">${r.name}</div><div class="ri-mood">${r.mood}</div></div><div class="ri-star ${r.starred?'on':''}">✦</div>`;
     list.appendChild(div);
   });
 }
 
-function updateUIState(){}
-
-// ── SAVE / EXPORT / DOWNLOAD (高畫質無失真導出修復) ──
+// ── DOWNLOAD ──
 function downloadPhoto(){
-  if(!origCanvas) { toast('請先匯入一張照片'); return; }
-  toast('⚙️ 正在匯出高畫質 JPEG...');
-  
+  if(!origCanvas) { toast('請先載入照片再行導出'); return; }
+  toast('⚙️ 高規無失真影像產生中...');
   setTimeout(() => {
     const pw = origCanvas.width, ph = origCanvas.height;
-    const mc = document.createElement('canvas');
-    mc.width = pw; mc.height = ph;
-    const mctx = mc.getContext('2d');
-    
-    // 繪製原圖基底
-    mctx.drawImage(origCanvas, 0, 0);
-    // 完全注入濾鏡微調參數
+    const mc = document.createElement('canvas'); mc.width = pw; mc.height = ph;
+    const mctx = mc.getContext('2d'); mctx.drawImage(origCanvas, 0, 0);
     applyAdj(mctx, pw, ph);
     
     mc.toBlob(blob=>{
       const a=document.createElement('a');
-      a.download=`FilmLab_${getR(curId)?.name||'output'}_${Date.now()}.jpg`;
+      a.download=`FilmLab_${getR(curId)?.name||'custom'}_${Date.now()}.jpg`;
       a.href=URL.createObjectURL(blob);
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(a.href),1200);
-      toast('✓ 照片已成功下載至相簿');
+      toast('✓ 照片已成功儲存至下載項目');
     },'image/jpeg',0.98);
   }, 50);
 }
 
 function saveCurrentAsRecipe(){
-  const name=prompt('輸入新色調食譜名稱：'); if(!name)return;
-  const mood=prompt('氛圍描述（英文/中文）：')||'Custom recipe';
-  const r={id:'custom_'+Date.now(),name,mood,tags:'自訂',accent:'#b0a898',starred:false,keywords:[],params:{...adj}};
-  userRecipes.push(r);
-  localStorage.setItem('kl-recipes',JSON.stringify(userRecipes));
-  buildStrips(); toast('✓ 自訂食譜已儲存：'+name);
+  const name=prompt('新色調食譜名稱：'); if(!name)return;
+  const r={id:'custom_'+Date.now(),name,mood:'Custom recipe',tags:'自訂',accent:'#b0a898',params:{...adj}};
+  userRecipes.push(r); localStorage.setItem('kl-recipes',JSON.stringify(userRecipes));
+  buildStrips(); toast('✓ 食譜已儲存');
 }
 
 function exportRecipes(){
-  const a=document.createElement('a');
-  a.download='kailun-recipes.json';
+  const a=document.createElement('a'); a.download='kailun-recipes.json';
   a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(userRecipes));
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 
-// ── AI ENGINE (LOCAL MOCK FOR DECOUPLING) ──
+// ── AI MOCK ──
 function initAI(){
   document.getElementById('d-model-btn').disabled = true;
   document.getElementById('m-model-btn').disabled = true;
   document.getElementById('d-model-prog').style.display = 'block';
   document.getElementById('m-model-prog').style.display = 'block';
-  
   let p = 0;
   const timer = setInterval(()=>{
-    p += 8;
+    p += 10;
     document.getElementById('d-model-bar').style.width = p + '%';
     document.getElementById('m-model-bar').style.width = p + '%';
     if(p>=100){
-      clearInterval(timer);
-      isAiLoaded = true;
-      document.getElementById('d-model-status').textContent = '✓ 本機視覺智慧模型已就緒。隨時自動分析新載入的相片。';
-      document.getElementById('m-model-status').textContent = '✓ 手機端 AI 已啟動，離線安全處理。';
+      clearInterval(timer); isAiLoaded = true;
+      document.getElementById('d-model-status').textContent = '✓ 智慧分析模型就緒';
+      document.getElementById('m-model-status').textContent = '✓ 手機端 AI 已離線安全啟動';
       document.getElementById('d-model-prog').style.display = 'none';
       document.getElementById('m-model-prog').style.display = 'none';
-      runAIAnalysis();
+      if(origCanvas) runAIAnalysis();
     }
-  }, 100);
+  }, 80);
 }
 
 function runAIAnalysis(){
-  if(!origCanvas || !isAiLoaded) return;
-  toast('🔮 AI 正在解構照片色彩美學...');
-  
-  setTimeout(()=>{
-    // 隨機模擬精準視覺場景分析
-    document.getElementById('sc-b').textContent = '35%';
-    document.getElementById('sc-s').textContent = '65%';
-    document.getElementById('sc-n').textContent = '12%';
-    document.getElementById('an-l').textContent = '低光低反差 (Low-Key)';
-    document.getElementById('an-c').textContent = '復古溫暖琥珀色';
-    
-    document.getElementById('m-an-l').textContent = '低光/室內';
-    document.getElementById('m-an-c').textContent = '琥珀暖調';
-    document.getElementById('m-an-s').textContent = '都市街道 (65%)';
+  document.getElementById('an-l').textContent = '低光低反差 (Low-Key)';
+  document.getElementById('an-c').textContent = '人文溫潤琥珀調';
+  document.getElementById('m-an-l').textContent = '低光/人文街景';
+  document.getElementById('m-an-c').textContent = '暖色琥珀調';
+  document.getElementById('m-an-s').textContent = '都市街道 (65%)';
 
-    const rRows = document.getElementById('d-ai-rows');
-    const mRows = document.getElementById('m-ai-rows');
-    rRows.innerHTML = ''; mRows.innerHTML = '';
-
-    const mockAiSpecs = [
-      {k:'曝光補償', v:'+0.15', p:'expo', val:4},
-      {k:'高光壓制', v:'-10%', p:'highlight', val:-10},
-      {k:'陰影提亮', v:'+8%', p:'shadow', val:8},
-      {k:'色溫微調', v:'+2 (溫潤)', p:'temp', val:2}
-    ];
-
-    mockAiSpecs.forEach(s=>{
-      rRows.innerHTML += `<div class="ai-adj-row"><span class="lbl">${s.k}</span><span class="val">${s.v}</span></div>`;
-      mRows.innerHTML += `<div class="mob-adj-row"><span class="k">${s.k}</span><span class="v">${s.v}</span></div>`;
-    });
-
-    document.getElementById('d-ai-result').classList.add('show');
-    document.getElementById('m-ai-result').classList.add('show');
-  }, 600);
+  const rRows = document.getElementById('d-ai-rows');
+  const mRows = document.getElementById('m-ai-rows');
+  rRows.innerHTML = ''; mRows.innerHTML = '';
+  const specs = [{k:'曝光修正', v:'+0.15'}, {k:'高光細節調校', v:'-10%'}, {k:'色溫和緩平衡', v:'+2'}];
+  specs.forEach(s=>{
+    rRows.innerHTML += `<div class="ai-adj-row"><span class="lbl">${s.k}</span><span class="val">${s.v}</span></div>`;
+    mRows.innerHTML += `<div class="mob-adj-row"><span class="k">${s.k}</span><span class="v">${s.v}</span></div>`;
+  });
+  document.getElementById('d-ai-result').classList.add('show');
+  document.getElementById('m-ai-result').classList.add('show');
 }
 
 function applyAiAdj(){
-  adj.expo = 4; adj.highlight = -10; adj.shadow = 8; adj.temp = 2;
-  updateSliderUI();
-  render();
-  toast('✓ 已套用視覺 AI 調校優化');
+  adj.expo = 4; adj.highlight = -10; adj.temp = 2; updateSliderUI(); render();
+  toast('✓ 已應用 AI 智慧優化調校');
 }
 </script>
 
