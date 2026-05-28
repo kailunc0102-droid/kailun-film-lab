@@ -20,7 +20,7 @@
   --teal:#7fb5ad;--red:#b86060;--green:#7aad88;
   --mono:'DM Mono',monospace;--serif:'Instrument Serif',serif;--sans:'DM Sans',sans-serif;
   --safe-b:env(safe-area-inset-bottom,0px);
-  --sheet-peek:160px;
+  --sheet-peek:120px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:var(--bg);color:var(--tx);font-family:var(--sans);overscroll-behavior:none}
@@ -35,9 +35,10 @@ button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:
 .desk-right{border-left:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
 
 /* ── MOBILE LAYOUT ── */
-.mob{display:none;flex-direction:column;height:100dvh;position:relative;background:#000}
-.mob-top-bar{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;border-bottom:1px solid var(--b1);background:var(--bg);flex-shrink:0}
-.mob-preview{flex:1;position:relative;overflow:hidden;background:#000;min-height:0;display:flex;align-items:center;justify-content:center}
+.mob{display:none;flex-direction:column;height:100dvh;position:relative;background:#000;overflow:hidden}
+.mob-top-bar{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 1rem;border-bottom:1px solid var(--b1);background:rgba(15,14,13,0.95);flex-shrink:0;position:relative;z-index:30}
+/* preview fills ALL remaining space — sheet floats on top */
+.mob-preview{position:absolute;top:46px;left:0;right:0;bottom:0;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
 
 /* 手機版頂部縮小核心按鈕（ADJUST, COMPARE, IMPORT） */
 .mob-top-actions{display:flex;background:var(--s2);padding:2px;border-radius:6px;gap:2px}
@@ -46,34 +47,60 @@ button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:
 .mob-act-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.5}
 
 /* ── MOBILE SHEET & PANELS ── */
-.mob-sheet{position:absolute;bottom:0;left:0;right:0;border-radius:18px 18px 0 0;background:rgba(15,14,13,0.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--b2);z-index:50;transition:transform .32s cubic-bezier(.32,.72,0,1)}
+.mob-sheet{
+  position:absolute;
+  /* sits above toolbar (54px + safe-b) */
+  bottom:calc(54px + var(--safe-b));
+  left:0;right:0;
+  /* max 72% of screen height so photo always visible */
+  max-height:72dvh;
+  border-radius:18px 18px 0 0;
+  background:rgba(15,14,13,0.97);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-top:1px solid var(--b2);
+  z-index:50;
+  transition:transform .32s cubic-bezier(.32,.72,0,1);
+  display:flex;flex-direction:column;
+}
 .sheet-handle{width:36px;height:4px;background:var(--b3);border-radius:2px;margin:.65rem auto .5rem;cursor:pointer}
 .sheet-tabs{display:flex;border-bottom:1px solid var(--b1);padding:0 1rem}
 .sheet-tab{flex:1;padding:.5rem .25rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--m1);text-align:center;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
 .sheet-tab.active{color:var(--tx);border-bottom-color:var(--gold)}
 
 .sheet-body{
-  padding:.75rem 1rem calc(1.5rem + var(--safe-b)); 
-  overflow-y:auto; 
-  max-height:calc(68vh - 60px);
-  -webkit-overflow-scrolling: touch;
+  padding:.75rem 1rem .75rem;
+  overflow-y:auto;
+  flex:1;
+  -webkit-overflow-scrolling:touch;
 }
 
 /* 手機底欄工具按鈕 */
-.mob-toolbar{height:calc(54px + var(--safe-b));padding-bottom:var(--safe-b);border-top:1px solid var(--b1);background:var(--bg);display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-shrink:0;position:relative;z-index:40}
+.mob-toolbar{
+  position:absolute;bottom:0;left:0;right:0;
+  height:calc(54px + var(--safe-b));
+  padding-bottom:var(--safe-b);
+  border-top:1px solid var(--b1);
+  background:rgba(15,14,13,0.97);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  display:flex;align-items:center;justify-content:center;gap:1.5rem;
+  z-index:51;
+}
 .mob-tb-btn{display:flex;align-items:center;gap:6px;padding:.5rem 1.2rem;border-radius:8px;background:var(--s2);border:1px solid var(--b1);color:var(--tx);font-size:.75rem;font-weight:500;transition:all .15s}
 .mob-tb-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5}
 .mob-tb-btn.active{border-color:var(--gold);color:var(--gold)}
 
-/* 【修正】獨立的彈出式濾鏡選擇面板：加上預設強制隱藏 transform */
+/* 【修正】獨立的彈出式濾鏡選擇面板 */
 .mob-filter-drawer{
-  position:absolute;bottom:0;left:0;right:0;
+  position:absolute;
+  bottom:calc(54px + var(--safe-b));
+  left:0;right:0;
   background:rgba(20,19,17,0.98);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border-top:1px solid var(--b2);border-radius:14px 14px 0 0;
-  transform:translateY(100%); /* 確保預設藏在畫面下方 */
+  transform:translateY(100%);
   transition:transform .28s cubic-bezier(.32,.72,0,1);
   z-index:65;display:flex;flex-direction:column;
-  padding-bottom:var(--safe-b);
+  max-height:55dvh;
+  padding-bottom:.5rem;
 }
 .mob-filter-drawer.show{transform:translateY(0) !important}
 .drawer-hdr{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem .4rem;border-bottom:1px solid var(--b1)}
@@ -156,7 +183,7 @@ button{font-family:var(--sans);border:none;background:none;cursor:pointer;color:
 
 /* ── RIGHT PANEL ── */
 .rp-tabs{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0}
-.rp-tab{flex:1;padding:.5rem .4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--m1);cursor:pointer;text-align:center;transition:all .15s}
+.rp-tab{flex:1;padding:.5rem .4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--m1);cursor:pointer;text-align:center;transition:all .15s;border-bottom:2px solid transparent}
 .rp-tab.active{color:var(--tx);border-bottom-color:var(--gold)}
 .rp-body{flex:1;overflow-y:auto;padding:.7rem .85rem}
 
@@ -241,7 +268,7 @@ input[type=range].mob-sl-input::-webkit-slider-thumb {
 .mob-sl-val{font-family:var(--mono);font-size:.72rem;color:var(--tx);min-width:30px;text-align:right}
 
 /* 手機端 AI */
-.mob-ai-result{padding:.75rem 1rem calc(1.5rem + var(--safe-b)); overflow-y:auto; max-height:calc(68vh - 60px);}
+.mob-ai-result{padding:.75rem 1rem .75rem;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;}
 .mob-scene-card{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:.75rem .9rem;margin-bottom:.75rem}
 .mob-scene-title{font-family:var(--mono);font-size:.6rem;color:var(--m1);margin-bottom:.5rem}
 .mob-scene-row{display:flex;justify-content:space-between;padding:.22rem 0;border-bottom:1px solid var(--b1);font-size:.78rem}
@@ -255,7 +282,7 @@ input[type=range].mob-sl-input::-webkit-slider-thumb {
 .mob-ai-apply{width:100%;padding:.65rem;background:rgba(127,181,173,.12);border:1px solid rgba(127,181,173,.3);border-radius:7px;font-family:var(--mono);font-size:.75rem;color:var(--teal);cursor:pointer;margin-top:.5rem}
 
 /* ── MOBILE CANVAS ── */
-#mob-canvas{max-width:100%;max-height:100%;object-fit:contain;display:block;margin:auto}
+#mob-canvas{max-width:100%;max-height:100%;object-fit:contain;display:block;margin:auto;position:relative;z-index:1}
 .mob-drop{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;z-index:5}
 .mob-drop input{position:absolute;inset:0;opacity:0;width:100%;height:100%}
 .mob-drop-ring{width:56px;height:56px;border-radius:50%;border:1.5px dashed var(--b2);display:flex;align-items:center;justify-content:center;margin-bottom:.9rem}
@@ -509,12 +536,8 @@ window.addEventListener('DOMContentLoaded', ()=>{
   Object.assign(adj, getR(curId).params);
   buildSliders();
   buildStrips();
-  
-  window.addEventListener('resize', ()=>{
-    if(window.innerWidth <= 860) {
-      document.querySelector('.mob').style.height = `${window.innerHeight}px`;
-    }
-  });
+  // re-render on resize so canvas fits correctly
+  window.addEventListener('resize', ()=>{ if(origCanvas) render(); });
 });
 
 function toast(msg){
@@ -681,9 +704,11 @@ function loadPhoto(file){
       document.getElementById('d-drop').style.display = 'none';
       document.getElementById('m-drop').style.display = 'none';
       document.getElementById('d-canvas').style.display = 'block';
+      document.getElementById('mob-canvas').style.display = 'block';
 
-      document.getElementById('d-badge').textContent = file.name;
-      document.getElementById('m-badge').textContent = file.name;
+      const shortName = file.name.length > 20 ? file.name.substring(0,18)+'…' : file.name;
+      document.getElementById('d-badge').textContent = shortName;
+      document.getElementById('m-badge').textContent = shortName;
       toast('✓ 影像匯入成功');
       
       buildStrips();
@@ -697,17 +722,24 @@ function loadPhoto(file){
 // ── RENDER ENGINE ──
 function render(){
   if(!origCanvas) return;
-  const dc = document.getElementById('d-canvas');
-  const mc = document.getElementById('mob-canvas');
   const src = isComparing ? origCanvas : getProcessedCanvas();
-  
-  if(window.innerWidth > 860){
-    dc.width = src.width; dc.height = src.height;
-    dc.getContext('2d').drawImage(src, 0, 0);
-  } else {
-    mc.width = src.width; mc.height = src.height;
-    mc.getContext('2d').drawImage(src, 0, 0);
-  }
+
+  // always render desktop canvas
+  const dc = document.getElementById('d-canvas');
+  dc.width = src.width; dc.height = src.height;
+  dc.getContext('2d').drawImage(src, 0, 0);
+
+  // always render mobile canvas
+  const mc = document.getElementById('mob-canvas');
+  const wrap = document.getElementById('m-cv-wrap');
+  const maxW = wrap.offsetWidth || window.innerWidth;
+  const maxH = wrap.offsetHeight || (window.innerHeight - 100);
+  const scale = Math.min(maxW / src.width, maxH / src.height, 1);
+  const dw = Math.round(src.width * scale);
+  const dh = Math.round(src.height * scale);
+  mc.width = dw; mc.height = dh;
+  mc.style.width = dw + 'px'; mc.style.height = dh + 'px';
+  mc.getContext('2d').drawImage(src, 0, 0, dw, dh);
 }
 
 function getProcessedCanvas(){
